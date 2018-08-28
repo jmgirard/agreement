@@ -1,9 +1,21 @@
 Package: agreement
-Title: What the Package Does (one line, title case)
+Title: What the Package Does (One Line, Title Case)
 Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
+Authors@R: 
+    person(given = "Jeffrey",
+           family = "Girard",
+           role = c("aut", "cre"),
+           email = "me@jmgirard.com")
 Description: What the package does (one paragraph).
-Depends: R (>= 3.5.1)
-License: What license is it under?
+License: GPL-3
+Imports: 
+    magrittr (>= 1.5),
+    rlang (>= 0.1.2),
+    assertthat (>= 0.2.0),
+    tibble
 Encoding: UTF-8
 LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 6.1.0
+Suggests: 
+    roxygen2 (>= 6.1.0)
