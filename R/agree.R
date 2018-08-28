@@ -1,22 +1,18 @@
-agree_raw <- function(.data, categories = NULL, weighting = NULL) {
+agree <- function(.data, categories = NULL, weighting = "identity") {
 
+  # Extract codes from .data
   codes <- .data %>% as.matrix()
 
-  # Drop rows with no finite values
-  codes <- codes[rowSums(is.na(codes)) != ncol(codes), ]
+  # Drop objects that were never coded
+  codes <- remove_uncoded(codes)
 
   # Get basic counts
-  n_obj <- nrow(codes)
+  n_objects <- nrow(codes)
   n_raters <- ncol(codes)
 
-  # Check basic counts
-  if (n_obj < 1) {
-    stop("Data contained no valid objects.")
-  }
-
-  if (n_raters < 2) {
-    stop("Data contained less than two raters.")
-  }
+  # Validate basic counts
+  assert_that(n_objects >= 1)
+  assert_that(n_raters >= 2)
 
   # Get and count observed categories
   cat_observed <- get_unique(codes)
@@ -33,26 +29,32 @@ agree_raw <- function(.data, categories = NULL, weighting = NULL) {
 
   # Check observed categories against possible categories
   cat_unknown <- setdiff(cat_observed, cat_possible)
-  if (!rlang::is_empty(cat_unknown)) {
-    stop("Data contained unknown categories:\n", cat_unknown)
-  }
+  assert_that(rlang::is_empty(cat_unknown))
 
   # Get weight matrix
-  if (is.null(weighting)) {
-    mat_w <- diag(n_cat_possible)
-  } else {
-    mat_w <- get_weights(cat_possible, weighting)
-  }
+  weights <- get_weights(cat_possible, weighting)
+
+  # Get percent observed agreement
+  poa <- agree_raw(codes, cat_possible, weights)
+  pea_kappa <- chance_ckappa(codes, cat_possible, weights)
+
+}
+
+agree_raw <- function(codes, categories, weights) {
+
+  n_objects <- nrow(codes)
+  n_raters <- ncol(codes)
+  n_categories <- length(categories)
 
   # Create raters (i.e., object-by-category) matrix
-  mat_raters <- matrix(0, nrow = n_obj, ncol = n_cat_possible)
-  for (k in seq_along(cat_possible)) {
-    codes_k <- codes == cat_possible[[k]]
+  mat_raters <- matrix(0, nrow = n_objects, ncol = n_categories)
+  for (k in seq_along(categories)) {
+    codes_k <- codes == categories[[k]]
     mat_raters[, k] <- rowSums(codes_k, na.rm = TRUE)
   }
 
   # Create "credit" matrix by weighting raters matrix
-  mat_credit <- t(mat_w %*% t(mat_raters))
+  mat_credit <- t(weights %*% t(mat_raters))
 
   # Count the number of raters for each object
   cnt_raters <- rowSums(mat_raters, na.rm = TRUE)
@@ -66,7 +68,7 @@ agree_raw <- function(.data, categories = NULL, weighting = NULL) {
   a_percent
 }
 
-weighting <- function(type, categories) {
+get_weights <- function(type, categories) {
   categories <- get_unique(categories)
   n_categories <- length(categories)
   if (!is.numeric(categories)) {
