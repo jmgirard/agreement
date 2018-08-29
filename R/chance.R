@@ -1,17 +1,38 @@
-chance_ckappa <- function(codes, categories, weights) {
+chance_ckappa <- function(codes, categories, weight_matrix) {
 
-  # Get basic counts
-  n_o <- nrow(codes) # objects
-  n_r <- ncol(codes) # raters
-  n_c <- length(categories) # categories
+  n_objects <- nrow(codes)
+  n_raters <- ncol(codes)
+  n_categories <- length(categories)
 
-  # Create object-counts in rater-by-category matrix
-  mat_o_rc <- matrix(0, nrow = n_r, ncol = n_c)
+  # How many objects did each rater assign to each category?
+  obs_rc <- matrix(0, nrow = n_raters, ncol = n_categories)
   for (k in seq_along(categories)) {
-    mat_o_rc[, k] <- colSums(codes == categories[[k]], na.rm = TRUE)
+    obs_rc[, k] <- colSums(codes == categories[[k]], na.rm = TRUE)
   }
 
-  sum_o_r <- rowSums(rxc, na.rm = TRUE)
-  mat_rc_max <- sum_o_r %*% matrix(1, nrow = 1, ncol = n_c)
-  mat_ <- mat_objects / mat_counts
+  # How many objects did each rater assign to any category?
+  obs_r <- rowSums(obs_rc, na.rm = TRUE)
+
+  # How many objects could each rater have assigned to each category?
+  max_rc <- obs_r %*% matrix(1, nrow = 1, ncol = n_categories)
+
+  # What was the prevalence of each category for each rater?
+  prev_rc <- obs_rc / max_rc
+
+  # What was the prevalance of each category, averaged across all raters?
+  prev_c <- colMeans(prev_rc, na.rm = TRUE)
+
+  # TODO: Add interpretation
+  x <- t(prev_rc) %*% prev_rc
+
+  # TODO: Add interpretation
+  y <- prev_c %*% t(prev_c)
+
+  # TODO: Add interpretation
+  z <- (x - n_raters * y) / (n_raters - 1)
+
+  # What is the weighted probability of assigning the same category by chance?
+  chance <- sum(weight_matrix * (y - z / n_raters))
+
+  chance
 }
