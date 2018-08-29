@@ -32,32 +32,31 @@ agree <- function(.data, categories = NULL, weighting = "identity") {
   assert_that(rlang::is_empty(cat_unknown))
 
   # Get weight matrix
-  weights <- get_weights(cat_possible, weighting)
+  weight_matrix <- get_weights(cat_possible, weighting)
 
   # Get percent observed agreement
-  poa <- agree_raw(codes, cat_possible, weights)
-  pea_kappa <- chance_ckappa(codes, cat_possible, weights)
+  poa <- agree_raw(codes, cat_possible, weight_matrix)
+  pea_kappa <- chance_ckappa(codes, cat_possible, weight_matrix)
 
 }
 
-agree_raw <- function(codes, categories, weights) {
+agree_raw <- function(codes, categories, weight_matrix) {
 
   n_objects <- nrow(codes)
   n_raters <- ncol(codes)
   n_categories <- length(categories)
 
-  # Create raters (i.e., object-by-category) matrix
-  mat_raters <- matrix(0, nrow = n_objects, ncol = n_categories)
+  # How many raters assigned each object to each category?
+  r_oc <- matrix(0, nrow = n_objects, ncol = n_categories)
   for (k in seq_along(categories)) {
-    codes_k <- codes == categories[[k]]
-    mat_raters[, k] <- rowSums(codes_k, na.rm = TRUE)
+    r_oc[, k] <- rowSums(codes == categories[[k]], na.rm = TRUE)
   }
 
-  # Create "credit" matrix by weighting raters matrix
-  mat_credit <- t(weights %*% t(mat_raters))
+  # How many raters assigned each object to any category?
+  r_o <- rowSums(r_oc, na.rm = TRUE)
 
-  # Count the number of raters for each object
-  cnt_raters <- rowSums(mat_raters, na.rm = TRUE)
+  # How much weighted "credit" was gained for each
+  credit <- t(weight_matrix %*% t(r_oc))
 
   # Calculate the agreements
   mat_agrees <- mat_raters * (mat_credit - 1)
@@ -74,20 +73,20 @@ get_weights <- function(type, categories) {
   if (!is.numeric(categories)) {
     categories <- 1:n_categories
   }
-  mat_w <- diag(n_categories)
+  weight_matrix <- diag(n_categories)
   if (type == "identity" || type == 0) {
-    return(mat_w)
+    return(weight_matrix)
   }
   max_distance <- diff(range(categories))
   for (i in seq_along(categories)) {
     for (j in seq_along(categories)) {
       obs_distance <- categories[[i]] - categories[[j]]
       if (type == "linear" || type == 1) {
-        mat_w[i, j] <- 1 - abs(obs_distance) / max_distance
+        weight_matrix[i, j] <- 1 - abs(obs_distance) / max_distance
       } else if (type == "quadratic" || type == 2) {
-        mat_w[i, j] <- 1 - obs_distance^2 / max_distance^2
+        weight_matrix[i, j] <- 1 - obs_distance^2 / max_distance^2
       }
     }
   }
-  mat_w
+  weight_matrix
 }
