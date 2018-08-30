@@ -36,7 +36,8 @@ agree <- function(.data, categories = NULL, weighting = "identity") {
 
   # Get percent observed agreement
   poa <- agree_raw(codes, cat_possible, weight_matrix)
-  pea_kappa <- chance_ckappa(codes, cat_possible, weight_matrix)
+  pea_kappa <- chance_kappa(codes, cat_possible, weight_matrix)
+  pea_pi <- chance_pi(codes, cat_possible, weight_matrix)
 
 }
 

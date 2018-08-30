@@ -1,4 +1,4 @@
-chance_ckappa <- function(codes, categories, weight_matrix) {
+chance_kappa <- function(codes, categories, weight_matrix) {
 
   n_objects <- nrow(codes)
   n_raters <- ncol(codes)
@@ -22,17 +22,59 @@ chance_ckappa <- function(codes, categories, weight_matrix) {
   # What was the prevalance of each category, averaged across all raters?
   prev_c <- colMeans(prev_rc, na.rm = TRUE)
 
-  # TODO: Add interpretation
+  # TODO: Add interpretations and informative variable names
   x <- t(prev_rc) %*% prev_rc
-
-  # TODO: Add interpretation
   y <- prev_c %*% t(prev_c)
-
-  # TODO: Add interpretation
   z <- (x - n_raters * y) / (n_raters - 1)
 
-  # What is the weighted probability of assigning the same category by chance?
-  chance <- sum(weight_matrix * (y - z / n_raters))
+  # What is the probability of two categories being assigned at random?
+  exp_cc <- y - z / n_raters
 
-  chance
+  # How much chance agreement is expected for each combination of categories?
+  pea_cc <- weight_matrix * exp_cc
+
+  # How much chance agreement is expected across all combinations of categories?
+  pea <- sum(pea_cc, na.rm = TRUE)
+
+  pea
+}
+
+chance_pi <- function(codes, categories, weight_matrix) {
+
+  n_objects <- nrow(codes)
+  n_raters <- ncol(codes)
+  n_categories <- length(categories)
+
+  # How many raters assigned each object to each category?
+  r_oc <- matrix(0, nrow = n_objects, ncol = n_categories)
+  for (k in seq_along(categories)) {
+    r_oc[, k] <- rowSums(codes == categories[[k]], na.rm = TRUE)
+  }
+
+  # How many raters assigned each object to any category?
+  r_o <- rowSums(r_oc, na.rm = TRUE)
+
+  # How many raters could have assigned each object to each category?
+  r_oc_max <- r_o %*% matrix(1, nrow = 1, ncol = n_categories)
+
+  # What percent of raters who could have assigned each object to each category did?
+  r_oc_pct <- r_oc / r_oc_max
+
+  # What is the average prevalence for each category across raters?
+  pihat <- matrix(1 / n_objects, nrow = 1, ncol = n_objects) %*% r_oc_pct
+
+  # What is the probability of two categories being assigned at random?
+  exp_cc <- t(pihat) %*% pihat
+
+  # How much chance agreement is expected for each combination of categories?
+  pea_cc <- weight_matrix * exp_cc
+
+  # How much chance agreement is expected across all combinations of categories?
+  pea <- sum(pea_cc, na.rm = TRUE)
+
+  pea
+}
+
+chance_s <- function(codes, categories, weight_matrix) {
+
 }
