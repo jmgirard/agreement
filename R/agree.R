@@ -32,13 +32,40 @@ agree <- function(.data, categories = NULL, weighting = "identity") {
   assert_that(rlang::is_empty(cat_unknown))
 
   # Get weight matrix
-  weight_matrix <- get_weights(cat_possible, weighting)
+  weight_matrix <- get_weights(weighting, cat_possible)
 
   # Get percent observed agreement
   poa <- agree_raw(codes, cat_possible, weight_matrix)
+
+  # Get percent expected agreement
   pea_kappa <- chance_kappa(codes, cat_possible, weight_matrix)
   pea_pi <- chance_pi(codes, cat_possible, weight_matrix)
+  pea_s <- chance_s(codes, cat_possible, weight_matrix)
+  pea_gamma <- chance_gamma(codes, cat_possible, weight_matrix)
 
+  # Calculate chance-adjust indexes
+  cai_kappa <- adjust_chance(poa, pea_kappa)
+  cai_pi <- adjust_chance(poa, pea_pi)
+  cai_s <- adjust_chance(poa, pea_s)
+  cai_gamma <- adjust_chance(poa, pea_gamma)
+
+  out <- list(
+    poa = poa,
+    pea = list(
+      kappa = pea_kappa,
+      pi = pea_pi,
+      s = pea_s,
+      gamma = pea_gamma
+    ),
+    cai = list(
+      kappa = cai_kappa,
+      pi = cai_pi,
+      s = cai_s,
+      gamma = cai_gamma
+    )
+  )
+
+  out
 }
 
 agree_raw <- function(codes, categories, weight_matrix) {

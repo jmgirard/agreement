@@ -18,3 +18,8 @@ validate_categories <- function(mat, categories) {
 remove_uncoded <- function(mat) {
   mat[rowSums(is.na(mat)) != ncol(mat), ]
 }
+
+# Calculate chance-adjusted agreement
+adjust_chance <- function(poa, pea) {
+  (poa - pea) / (1 - pea)
+}
