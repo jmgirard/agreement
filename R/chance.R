@@ -77,4 +77,13 @@ chance_pi <- function(codes, categories, weight_matrix) {
 
 chance_s <- function(codes, categories, weight_matrix) {
 
+  n_categories <- length(categories)
+
+  # How much chance agreement is expected for each combination of categories?
+  pea_cc <- weight_matrix / n_categories^2
+
+  # How much chance agreement is expected across all combinations of categories?
+  pea <- sum(pea_cc)
+
+  pea
 }
