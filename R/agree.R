@@ -55,16 +55,22 @@ agree_raw <- function(codes, categories, weight_matrix) {
   # How many raters assigned each object to any category?
   r_o <- rowSums(r_oc, na.rm = TRUE)
 
-  # How much weighted "credit" was gained for each
-  credit <- t(weight_matrix %*% t(r_oc))
+  # How much agreement was observed for each object and each category?
+  obs_oc <- r_oc * (t(weight_matrix %*% t(r_oc)) - 1)
 
-  # Calculate the agreements
-  mat_agrees <- mat_raters * (mat_credit - 1)
-  a_observed <- rowSums(mat_agrees)
-  a_possible <- cnt_raters * (cnt_raters - 1)
-  a_percent <- mean(a_observed[cnt_raters >= 2] / a_possible[cnt_raters >= 2])
+  # How much agreement was observed for each object across all categories?
+  obs_o <- rowSums(obs_oc)
 
-  a_percent
+  # How much agreement was maximally possible for each object?
+  max_o <- r_o * (r_o - 1)
+
+  # What was the percent observed agreement for each object?
+  poa_o <- obs_o[r_o >= 2] / max_o[r_o >= 2]
+
+  # What was the percent observed agreement across all objects?
+  poa <- mean(poa_o, na.rm = TRUE)
+
+  poa
 }
 
 get_weights <- function(type, categories) {
