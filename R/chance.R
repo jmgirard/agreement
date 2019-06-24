@@ -1,3 +1,52 @@
+# Bennett et al.'s S Score
+chance_s <- function(codes, categories, weight_matrix) {
+
+  n_categories <- length(categories)
+
+  # How much chance agreement is expected for each combination of categories?
+  pea_cc <- weight_matrix / n_categories^2
+
+  # How much chance agreement is expected across all combinations of categories?
+  pea <- sum(pea_cc)
+
+  pea
+}
+
+# Gwet's Gamma
+chance_gamma <- function(codes, categories, weight_matrix) {
+
+  n_objects <- nrow(codes)
+  n_raters <- ncol(codes)
+  n_categories <- length(categories)
+
+  # How many raters assigned each object to each category?
+  r_oc <- matrix(0, nrow = n_objects, ncol = n_categories)
+  for (k in seq_along(categories)) {
+    r_oc[, k] <- rowSums(codes == categories[[k]], na.rm = TRUE)
+  }
+
+  # How many raters assigned each object to any category?
+  r_o <- rowSums(r_oc, na.rm = TRUE)
+
+  # How many raters could have assigned each object to each category?
+  r_oc_max <- r_o %*% matrix(1, nrow = 1, ncol = n_categories)
+
+  # What percent of raters who could have assigned each object to each category did?
+  r_oc_pct <- r_oc / r_oc_max
+
+  # What is the average prevalence for each category across raters?
+  prev_c <- matrix(1 / n_objects, nrow = 1, ncol = n_objects) %*% r_oc_pct
+
+  # TODO: Add interpretations and informative variable names
+  a <- prev_c * (1 - prev_c)
+  b <- n_categories * (n_categories - 1)
+
+  # How much chance agreement is expected across all combinations of categories?
+  pea <- sum(weight_matrix) * sum(a) / b
+
+  pea
+}
+
 # Cohen's Kappa
 chance_kappa <- function(codes, categories, weight_matrix) {
 
@@ -77,51 +126,24 @@ chance_pi <- function(codes, categories, weight_matrix) {
   pea
 }
 
-# Bennett et al.'s S Score
-chance_s <- function(codes, categories, weight_matrix) {
-
-  n_categories <- length(categories)
-
-  # How much chance agreement is expected for each combination of categories?
-  pea_cc <- weight_matrix / n_categories^2
-
-  # How much chance agreement is expected across all combinations of categories?
-  pea <- sum(pea_cc)
-
-  pea
-}
-
-# Gwet's Gamma
-chance_gamma <- function(codes, categories, weight_matrix) {
+# Krippendorff's Alpha
+chance_alpha <- function(codes, categories, weight_matrix) {
 
   n_objects <- nrow(codes)
-  n_raters <- ncol(codes)
   n_categories <- length(categories)
 
-  # How many raters assigned each object to each category?
   r_oc <- matrix(0, nrow = n_objects, ncol = n_categories)
-  for (k in seq_along(categories)) {
-    r_oc[, k] <- rowSums(codes == categories[[k]], na.rm = TRUE)
+  for (c in seq_along(categories)) {
+    r_oc[, c] <- rowSums(codes == categories[[c]], na.rm = TRUE)
   }
-
-  # How many raters assigned each object to any category?
+  rstar_oc <- t(weight_matrix %*% t(r_oc))
   r_o <- rowSums(r_oc, na.rm = TRUE)
+  r_oc <- r_oc[r_o >= 2, ]
+  r_o <- r_o[r_o >= 2]
+  pihat <- t(matrix(1 / n_objects, nrow = 1, ncol = n_objects) %*% (r_oc / (r_o %*% rep(1, n_categories))))
 
-  # How many raters could have assigned each object to each category?
-  r_oc_max <- r_o %*% matrix(1, nrow = 1, ncol = n_categories)
-
-  # What percent of raters who could have assigned each object to each category did?
-  r_oc_pct <- r_oc / r_oc_max
-
-  # What is the average prevalence for each category across raters?
-  prev_c <- matrix(1 / n_objects, nrow = 1, ncol = n_objects) %*% r_oc_pct
-
-  # TODO: Add interpretations and informative variable names
-  a <- prev_c * (1 - prev_c)
-  b <- n_categories * (n_categories - 1)
-
-  # How much chance agreement is expected across all combinations of categories?
-  pea <- sum(weight_matrix) * sum(a) / b
+  pea <- sum(sum(weight_matrix * (pihat %*% t(pihat))))
 
   pea
 }
+

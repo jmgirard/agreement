@@ -2,6 +2,12 @@
 
 export("%>%")
 export(.data)
+export(calc_all)
+export(calc_alpha)
+export(calc_gamma)
+export(calc_kappa)
+export(calc_pi)
+export(calc_s)
 export(enexpr)
 export(enexprs)
 export(enquo)
