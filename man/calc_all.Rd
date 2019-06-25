@@ -5,7 +5,7 @@
 \title{Calculate all chance-adjusted indexes of categorical agreement}
 \usage{
 calc_all(.data, categories = NULL, weighting = c("identity", "linear",
-  "quadratic"), format = c("long", "wide"))
+  "quadratic"), format = c("long", "wide"), digits = 3)
 }
 \arguments{
 \item{.data}{Required.}
