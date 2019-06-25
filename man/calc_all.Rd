@@ -5,7 +5,7 @@
 \title{Calculate all chance-adjusted indexes of categorical agreement}
 \usage{
 calc_all(.data, categories = NULL, weighting = c("identity", "linear",
-  "quadratic"))
+  "quadratic"), format = c("long", "wide"))
 }
 \arguments{
 \item{.data}{Required.}
@@ -13,16 +13,20 @@ calc_all(.data, categories = NULL, weighting = c("identity", "linear",
 \item{categories}{Optional.}
 
 \item{weighting}{Optional.}
+
+\item{format}{Optional.}
 }
 \value{
-A 5x4 tibble where each row corresponds to an index of categorical
-agreement (i.e., S, gamma, kappa, pi, and) and the columns are the
-following: \item{Approach}{The name of the coefficient}
-\item{Observed}{Percent of agreement observed in the data (given the
-coefficients' assumptions)} \item{Expected}{Percent of agreement expected
-by chance (given the coefficients' assumptions)} \item{Adjusted}{The
-estimated chance-adjusted agreement (i.e., the actual coefficient values)}
+A tibble containing the estimates of all chance-adjusted indexes of
+categorical agreement.
 }
 \description{
-This function calculates
+This function calculates all chance-adjusted indexes of categorical agreement
+(i.e., S, gamma, kappa, pi, and alpha) and then binds their results together
+into a single tibble. All indexes are calculated using the same data,
+categories and weighting scheme, so they are directly comparable.
+}
+\examples{
+fish <- data("fish")
+calc_all(fish, categories = c(1, 2, 3), weighting = "identity")
 }

@@ -1,36 +1,42 @@
 #' Calculate all chance-adjusted indexes of categorical agreement
 #'
-#' This function calculates
+#' This function calculates all chance-adjusted indexes of categorical agreement
+#' (i.e., S, gamma, kappa, pi, and alpha) and then binds their results together
+#' into a single tibble. All indexes are calculated using the same data,
+#' categories and weighting scheme, so they are directly comparable.
 #'
 #' @param .data Required.
 #' @param categories Optional.
 #' @param weighting Optional.
+#' @param format Optional.
 #'
-#' @return A 5x4 tibble where each row corresponds to an index of categorical
-#'   agreement (i.e., S, gamma, kappa, pi, and) and the columns are the
-#'   following: \item{Approach}{The name of the coefficient}
-#'   \item{Observed}{Percent of agreement observed in the data (given the
-#'   coefficients' assumptions)} \item{Expected}{Percent of agreement expected
-#'   by chance (given the coefficients' assumptions)} \item{Adjusted}{The
-#'   estimated chance-adjusted agreement (i.e., the actual coefficient values)}
+#' @return A tibble containing the estimates of all chance-adjusted indexes of
+#'   categorical agreement.
 #' @export
-#'
+#' @examples
+#' fish <- data("fish")
+#' calc_all(fish, categories = c(1, 2, 3), weighting = "identity")
 calc_all <- function(.data,
                      categories = NULL,
-                     weighting = c("identity", "linear", "quadratic")) {
+                     weighting = c("identity", "linear", "quadratic"),
+                     format = c("long", "wide")) {
 
   weighting <- match.args(weighting)
+  format <- match.args(format)
 
-  bind_rows(
-    calc_s(.data, categories, weighting),
-    calc_gamma(.data, categories, weighting),
-    calc_kappa(.data, categories, weighting),
-    calc_pi(.data, categories, weighting),
-    calc_alpha(.data, categories, weighting)
-  )
+  s <- calc_s(.data, categories, weighting, format)
+  gamma <- calc_gamma(.data, categories, weighting, format)
+  kappa <- calc_kappa(.data, categories, weighting, format)
+  pi <- calc_pi(.data, categories, weighting, format)
+  alpha <- calc_alpha(.data, categories, weighting, format)
+
+  if (format == "long") {
+    dplyr::bind_rows(s, gamma, kappa, pi, alpha)
+  } else if (format == "wide") {
+    dplyr::bind_cols(s, gamma, kappa, pi, alpha)
+  }
 
 }
-
 #' Calculate the S score using the generalized formula
 #'
 #' Bennett et al.'s S score is a chance-adjusted index of categorical agreement.
@@ -42,21 +48,23 @@ calc_all <- function(.data,
 #' @param .data Required.
 #' @param categories Optional.
 #' @param weighting Optional.
+#' @param format Optional.
 #'
-#' @return A 1x4 tibble with the following columns: \item{Approach}{The name of
-#'   the coefficient} \item{Observed}{Percent of agreement observed in the data}
-#'   \item{Expected}{Percent of agreement expected by chance (given the
-#'   coefficient's assumptions)} \item{Adjusted}{The estimated chance-adjusted
-#'   agreement (i.e., the S score itself)}
+#' @return A tibble containing the percent of agreement observed in the data,
+#'   the percent of agreement expected by chance, and the chance-adjusted index
+#'   of reliability (i.e., the coefficient itself). These numbers are all
+#'   calculated under the assumptions of the coefficient.
 #'
 #' @references \url{https://doi.org/10/brfm77}
 #' @export
 #'
 calc_s <- function(.data,
                    categories = NULL,
-                   weighting = c("identity", "linear", "quadratic")) {
+                   weighting = c("identity", "linear", "quadratic"),
+                   format = c("long", "wide")) {
 
   weighting <- match.args(weighting)
+  format <- match.args(format)
 
   d <- prep_data(.data, categories, weighting)
 
@@ -70,12 +78,21 @@ calc_s <- function(.data,
   cai <- adjust_chance(poa, pea)
 
   # Return result
-  tibble::tibble(
-    Approach = "S",
-    Observed = poa,
-    Expected = pea,
-    Adjusted = cai
-  )
+  if (format == "long") {
+    tibble::tibble(
+      Approach = "S",
+      Weights = weighting,
+      Observed = poa,
+      Expected = pea,
+      Adjusted = cai
+    )
+  } else if (format == "wide") {
+    tibble::tibble(
+      Obs_S = poa,
+      Exp_S = pea,
+      Adj_S = cai
+    )
+  }
 
 }
 
@@ -90,21 +107,23 @@ calc_s <- function(.data,
 #' @param .data Required.
 #' @param categories Optional.
 #' @param weighting Optional.
+#' @param format Optional.
 #'
-#' @return A 1x4 tibble with the following columns: \item{Approach}{The name of
-#'   the coefficient} \item{Observed}{Percent of agreement observed in the data}
-#'   \item{Expected}{Percent of agreement expected by chance (given the
-#'   coefficient's assumptions)} \item{Adjusted}{The estimated chance-adjusted
-#'   agreement (i.e., the alpha coefficient itself)}
+#' @return A tibble containing the percent of agreement observed in the data,
+#'   the percent of agreement expected by chance, and the chance-adjusted index
+#'   of reliability (i.e., the coefficient itself). These numbers are all
+#'   calculated under the assumptions of the coefficient.
 #'
 #' @references \url{https://doi.org/10/frj36r}
 #' @export
 #'
 calc_gamma <- function(.data,
                        categories = NULL,
-                       weighting = c("identity", "linear", "quadratic")) {
+                       weighting = c("identity", "linear", "quadratic"),
+                       format = c("long", "wide")) {
 
   weighting <- match.args(weighting)
+  format <- match.args(format)
 
   d <- prep_data(.data, categories, weighting)
 
@@ -118,12 +137,21 @@ calc_gamma <- function(.data,
   cai <- adjust_chance(poa, pea)
 
   # Return result
-  tibble::tibble(
-    Approach = "Gamma",
-    Observed = poa,
-    Expected = pea,
-    Adjusted = cai
-  )
+  if (format == "long") {
+    tibble::tibble(
+      Approach = "gamma",
+      Weights = weighting,
+      Observed = poa,
+      Expected = pea,
+      Adjusted = cai
+    )
+  } else if (format == "wide") {
+    tibble::tibble(
+      Obs_Gamma = poa,
+      Exp_Gamma = pea,
+      Adj_Gamma = cai
+    )
+  }
 
 }
 
@@ -138,12 +166,12 @@ calc_gamma <- function(.data,
 #' @param .data Required.
 #' @param categories Optional.
 #' @param weighting Optional.
+#' @param format Optional.
 #'
-#' @return A 1x4 tibble with the following columns: \item{Approach}{The name of
-#'   the coefficient} \item{Observed}{Percent of agreement observed in the data}
-#'   \item{Expected}{Percent of agreement expected by chance (given the
-#'   coefficient's assumptions)} \item{Adjusted}{The estimated chance-adjusted
-#'   agreement (i.e., the kappa coefficient itself)}
+#' @return A tibble containing the percent of agreement observed in the data,
+#'   the percent of agreement expected by chance, and the chance-adjusted index
+#'   of reliability (i.e., the coefficient itself). These numbers are all
+#'   calculated under the assumptions of the coefficient.
 #'
 #' @references \url{https://doi.org/10/dghsrr}
 #' @references \url{https://doi.org/10/dpbw5f}
@@ -151,9 +179,11 @@ calc_gamma <- function(.data,
 #'
 calc_kappa <- function(.data,
                        categories = NULL,
-                       weighting = c("identity", "linear", "quadratic")) {
+                       weighting = c("identity", "linear", "quadratic"),
+                       format = c("long", "wide")) {
 
   weighting <- match.args(weighting)
+  format <- match.args(format)
 
   d <- prep_data(.data, categories, weighting)
 
@@ -167,12 +197,21 @@ calc_kappa <- function(.data,
   cai <- adjust_chance(poa, pea)
 
   # Return result
-  tibble::tibble(
-    Approach = "Kappa",
-    Observed = poa,
-    Expected = pea,
-    Adjusted = cai
-  )
+  if (format == "long") {
+    tibble::tibble(
+      Approach = "kappa",
+      Weights = weighting,
+      Observed = poa,
+      Expected = pea,
+      Adjusted = cai
+    )
+  } else if (format == "wide") {
+    tibble::tibble(
+      Obs_Kappa = poa,
+      Exp_Kappa = pea,
+      Adj_Kappa = cai
+    )
+  }
 
 }
 
@@ -187,21 +226,23 @@ calc_kappa <- function(.data,
 #' @param .data Required.
 #' @param categories Optional.
 #' @param weighting Optional.
+#' @param format Optional.
 #'
-#' @return A 1x4 tibble with the following columns: \item{Approach}{The name of
-#'   the coefficient} \item{Observed}{Percent of agreement observed in the data}
-#'   \item{Expected}{Percent of agreement expected by chance (given the
-#'   coefficient's assumptions)} \item{Adjusted}{The estimated chance-adjusted
-#'   agreement (i.e., the pi coefficient itself)}
+#' @return A tibble containing the percent of agreement observed in the data,
+#'   the percent of agreement expected by chance, and the chance-adjusted index
+#'   of reliability (i.e., the coefficient itself). These numbers are all
+#'   calculated under the assumptions of the coefficient.
 #'
 #' @references \url{https://doi.org/10/bzw9xp}
 #' @export
 #'
 calc_pi <- function(.data,
                     categories = NULL,
-                    weighting = c("identity", "linear", "quadratic")) {
+                    weighting = c("identity", "linear", "quadratic"),
+                    format = c("long", "wide")) {
 
   weighting <- match.args(weighting)
+  format <- match.args(format)
 
   d <- prep_data(.data, categories, weighting)
 
@@ -215,12 +256,21 @@ calc_pi <- function(.data,
   cai <- adjust_chance(poa, pea)
 
   # Return result
-  tibble::tibble(
-    Approach = "Pi",
-    Observed = poa,
-    Expected = pea,
-    Adjusted = cai
-  )
+  if (format == "long") {
+    tibble::tibble(
+      Approach = "pi",
+      Weights = weighting,
+      Observed = poa,
+      Expected = pea,
+      Adjusted = cai
+    )
+  } else if (format == "wide") {
+    tibble::tibble(
+      Obs_Pi = poa,
+      Exp_Pi = pea,
+      Adj_Pi = cai
+    )
+  }
 
 }
 
@@ -235,21 +285,23 @@ calc_pi <- function(.data,
 #' @param .data Required.
 #' @param categories Optional.
 #' @param weighting Optional.
+#' @param format Optional.
 #'
-#' @return A 1x4 tibble with the following columns: \item{Approach}{The name of
-#'   the coefficient} \item{Observed}{Percent of agreement observed in the data}
-#'   \item{Expected}{Percent of agreement expected by chance (given the
-#'   coefficient's assumptions)} \item{Adjusted}{The estimated chance-adjusted
-#'   agreement (i.e., the alpha coefficient itself)}
+#' @return A tibble containing the percent of agreement observed in the data,
+#'   the percent of agreement expected by chance, and the chance-adjusted index
+#'   of reliability (i.e., the coefficient itself). These numbers are all
+#'   calculated under the assumptions of the coefficient.
 #'
 #' @references \url{https://doi.org/10/b6v5kt}
 #' @export
 #'
 calc_alpha <- function(.data,
                        categories = NULL,
-                       weighting = c("identity", "linear", "quadratic")) {
+                       weighting = c("identity", "linear", "quadratic"),
+                       format = c("long", "wide")) {
 
   weighting <- match.args(weighting)
+  format <- match.args(weighting)
 
   d <- prep_data(.data, categories, weighting)
 
@@ -263,12 +315,21 @@ calc_alpha <- function(.data,
   cai <- adjust_chance(poa, pea)
 
   # Return result
-  tibble::tibble(
-    Approach = "Alpha",
-    Observed = poa,
-    Expected = pea,
-    Adjusted = cai
-  )
+  if (format == "long") {
+    tibble::tibble(
+      Approach = "alpha",
+      Weights = weighting,
+      Observed = poa,
+      Expected = pea,
+      Adjusted = cai
+    )
+  } else if (format == "wide") {
+    tibble::tibble(
+      Obs_Alpha = poa,
+      Exp_Alpha = pea,
+      Adj_Alpha = cai
+    )
+  }
 
 }
 

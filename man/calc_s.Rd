@@ -5,7 +5,7 @@
 \title{Calculate the S score using the generalized formula}
 \usage{
 calc_s(.data, categories = NULL, weighting = c("identity", "linear",
-  "quadratic"))
+  "quadratic"), format = c("long", "wide"))
 }
 \arguments{
 \item{.data}{Required.}
@@ -13,13 +13,14 @@ calc_s(.data, categories = NULL, weighting = c("identity", "linear",
 \item{categories}{Optional.}
 
 \item{weighting}{Optional.}
+
+\item{format}{Optional.}
 }
 \value{
-A 1x4 tibble with the following columns: \item{Approach}{The name of
-the coefficient} \item{Observed}{Percent of agreement observed in the data}
-\item{Expected}{Percent of agreement expected by chance (given the
-coefficient's assumptions)} \item{Adjusted}{The estimated chance-adjusted
-agreement (i.e., the S score itself)}
+A tibble containing the percent of agreement observed in the data,
+the percent of agreement expected by chance, and the chance-adjusted index
+of reliability (i.e., the coefficient itself). These numbers are all
+calculated under the assumptions of the coefficient.
 }
 \description{
 Bennett et al.'s S score is a chance-adjusted index of categorical agreement.
