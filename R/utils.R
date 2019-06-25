@@ -12,8 +12,8 @@ prep_data <- function(.data, categories = NULL, weighting = "identity") {
   n_raters <- ncol(codes)
 
   # Validate basic counts
-  assert_that(n_objects >= 1)
-  assert_that(n_raters >= 2)
+  assertthat::assert_that(n_objects >= 1)
+  assertthat::assert_that(n_raters >= 2)
 
   # Get and count observed categories
   cat_observed <- get_unique(codes)
@@ -30,7 +30,7 @@ prep_data <- function(.data, categories = NULL, weighting = "identity") {
 
   # Check observed categories against possible categories
   cat_unknown <- setdiff(cat_observed, cat_possible)
-  assert_that(rlang::is_empty(cat_unknown))
+  assertthat::assert_that(rlang::is_empty(cat_unknown))
 
   # Get weight matrix
   weight_matrix <- get_weights(weighting, cat_possible)
