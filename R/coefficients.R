@@ -19,22 +19,27 @@
 calc_all <- function(.data,
                      categories = NULL,
                      weighting = c("identity", "linear", "quadratic"),
-                     format = c("long", "wide")) {
+                     format = c("long", "wide"),
+                     digits = 3) {
 
-  weighting <- match.args(weighting)
-  format <- match.args(format)
+  weighting <- match.arg(weighting)
+  format <- match.arg(format)
 
   s <- calc_s(.data, categories, weighting, format)
   gamma <- calc_gamma(.data, categories, weighting, format)
   kappa <- calc_kappa(.data, categories, weighting, format)
   pi <- calc_pi(.data, categories, weighting, format)
-  alpha <- calc_alpha(.data, categories, weighting, format)
+  #alpha <- calc_alpha(.data, categories, weighting, format)
 
   if (format == "long") {
-    dplyr::bind_rows(s, gamma, kappa, pi, alpha)
+    out <- dplyr::bind_rows(s, gamma, kappa, pi)#, alpha)
   } else if (format == "wide") {
-    dplyr::bind_cols(s, gamma, kappa, pi, alpha)
+    out <- dplyr::bind_cols(s, gamma, kappa, pi)#, alpha)
   }
+
+  out <- dplyr::mutate_if(out, is.numeric, .funs = round, digits = digits)
+
+  out
 
 }
 #' Calculate the S score using the generalized formula
@@ -63,8 +68,8 @@ calc_s <- function(.data,
                    weighting = c("identity", "linear", "quadratic"),
                    format = c("long", "wide")) {
 
-  weighting <- match.args(weighting)
-  format <- match.args(format)
+  weighting <- match.arg(weighting)
+  format <- match.arg(format)
 
   d <- prep_data(.data, categories, weighting)
 
@@ -122,8 +127,8 @@ calc_gamma <- function(.data,
                        weighting = c("identity", "linear", "quadratic"),
                        format = c("long", "wide")) {
 
-  weighting <- match.args(weighting)
-  format <- match.args(format)
+  weighting <- match.arg(weighting)
+  format <- match.arg(format)
 
   d <- prep_data(.data, categories, weighting)
 
@@ -182,8 +187,8 @@ calc_kappa <- function(.data,
                        weighting = c("identity", "linear", "quadratic"),
                        format = c("long", "wide")) {
 
-  weighting <- match.args(weighting)
-  format <- match.args(format)
+  weighting <- match.arg(weighting)
+  format <- match.arg(format)
 
   d <- prep_data(.data, categories, weighting)
 
@@ -241,8 +246,8 @@ calc_pi <- function(.data,
                     weighting = c("identity", "linear", "quadratic"),
                     format = c("long", "wide")) {
 
-  weighting <- match.args(weighting)
-  format <- match.args(format)
+  weighting <- match.arg(weighting)
+  format <- match.arg(format)
 
   d <- prep_data(.data, categories, weighting)
 
@@ -300,8 +305,8 @@ calc_alpha <- function(.data,
                        weighting = c("identity", "linear", "quadratic"),
                        format = c("long", "wide")) {
 
-  weighting <- match.args(weighting)
-  format <- match.args(weighting)
+  weighting <- match.arg(weighting)
+  format <- match.arg(weighting)
 
   d <- prep_data(.data, categories, weighting)
 

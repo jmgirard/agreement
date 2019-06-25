@@ -76,7 +76,7 @@ agree_alpha <- function(codes, categories, weight_matrix) {
   nprime <- length(r_o)
   epsilon <- 1 / sum(r_o)
   obs_o <- (r_oc * (rstar_oc - 1)) %*% matrix(1, nrow = n_categories, ncol = 1)
-  max_i <- rbar_o * (r_o - 1)
+  max_o <- rbar_o * (r_o - 1)
 
   poa <- (1 - epsilon) * sum(obs_o / max_o) / nprime + epsilon
 
