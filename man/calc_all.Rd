@@ -15,6 +15,8 @@ calc_all(.data, categories = NULL, weighting = c("identity", "linear",
 \item{weighting}{Optional.}
 
 \item{format}{Optional.}
+
+\item{digits}{Optional.}
 }
 \value{
 A tibble containing the estimates of all chance-adjusted indexes of

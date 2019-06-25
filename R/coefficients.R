@@ -9,6 +9,7 @@
 #' @param categories Optional.
 #' @param weighting Optional.
 #' @param format Optional.
+#' @param digits Optional.
 #'
 #' @return A tibble containing the estimates of all chance-adjusted indexes of
 #'   categorical agreement.
@@ -24,6 +25,7 @@ calc_all <- function(.data,
 
   weighting <- match.arg(weighting)
   format <- match.arg(format)
+  assertthat::assert_that(rlang::is_scalar_integerish(digits))
 
   s <- calc_s(.data, categories, weighting, format)
   gamma <- calc_gamma(.data, categories, weighting, format)
@@ -54,6 +56,7 @@ calc_all <- function(.data,
 #' @param categories Optional.
 #' @param weighting Optional.
 #' @param format Optional.
+#' @param digits Optional.
 #'
 #' @return A tibble containing the percent of agreement observed in the data,
 #'   the percent of agreement expected by chance, and the chance-adjusted index
@@ -66,10 +69,12 @@ calc_all <- function(.data,
 calc_s <- function(.data,
                    categories = NULL,
                    weighting = c("identity", "linear", "quadratic"),
-                   format = c("long", "wide")) {
+                   format = c("long", "wide"),
+                   digits = 3) {
 
   weighting <- match.arg(weighting)
   format <- match.arg(format)
+  assertthat::assert_that(rlang::is_scalar_integerish(digits))
 
   d <- prep_data(.data, categories, weighting)
 
@@ -84,21 +89,25 @@ calc_s <- function(.data,
 
   # Return result
   if (format == "long") {
-    tibble::tibble(
-      Approach = "S",
-      Weights = weighting,
-      Observed = poa,
-      Expected = pea,
-      Adjusted = cai
-    )
+    out <-
+      tibble::tibble(
+        Approach = "S",
+        Weights = weighting,
+        Observed = poa,
+        Expected = pea,
+        Adjusted = cai
+      )
   } else if (format == "wide") {
-    tibble::tibble(
-      Obs_S = poa,
-      Exp_S = pea,
-      Adj_S = cai
-    )
+    out <-
+      tibble::tibble(
+        Obs_S = poa,
+        Exp_S = pea,
+        Adj_S = cai
+      )
   }
 
+  out <- dplyr::mutate_if(out, is.numeric, round, digits = digits)
+  out
 }
 
 #' Calculate the gamma coefficient using the generalized formula
@@ -129,6 +138,7 @@ calc_gamma <- function(.data,
 
   weighting <- match.arg(weighting)
   format <- match.arg(format)
+  assertthat::assert_that(rlang::is_scalar_integerish(digits))
 
   d <- prep_data(.data, categories, weighting)
 
@@ -143,21 +153,25 @@ calc_gamma <- function(.data,
 
   # Return result
   if (format == "long") {
-    tibble::tibble(
-      Approach = "gamma",
-      Weights = weighting,
-      Observed = poa,
-      Expected = pea,
-      Adjusted = cai
-    )
+    out <-
+      tibble::tibble(
+        Approach = "gamma",
+        Weights = weighting,
+        Observed = poa,
+        Expected = pea,
+        Adjusted = cai
+      )
   } else if (format == "wide") {
-    tibble::tibble(
-      Obs_Gamma = poa,
-      Exp_Gamma = pea,
-      Adj_Gamma = cai
-    )
+    out <-
+      tibble::tibble(
+        Obs_Gamma = poa,
+        Exp_Gamma = pea,
+        Adj_Gamma = cai
+      )
   }
 
+  out <- dplyr::mutate_if(out, is.numeric, round, digits = digits)
+  out
 }
 
 #' Calculate the kappa coefficient using the generalized formula
@@ -172,6 +186,7 @@ calc_gamma <- function(.data,
 #' @param categories Optional.
 #' @param weighting Optional.
 #' @param format Optional.
+#' @param digits Optional.
 #'
 #' @return A tibble containing the percent of agreement observed in the data,
 #'   the percent of agreement expected by chance, and the chance-adjusted index
@@ -185,10 +200,12 @@ calc_gamma <- function(.data,
 calc_kappa <- function(.data,
                        categories = NULL,
                        weighting = c("identity", "linear", "quadratic"),
-                       format = c("long", "wide")) {
+                       format = c("long", "wide"),
+                       digits = 3) {
 
   weighting <- match.arg(weighting)
   format <- match.arg(format)
+  assertthat::assert_that(rlang::is_scalar_integerish(digits))
 
   d <- prep_data(.data, categories, weighting)
 
@@ -203,21 +220,25 @@ calc_kappa <- function(.data,
 
   # Return result
   if (format == "long") {
-    tibble::tibble(
-      Approach = "kappa",
-      Weights = weighting,
-      Observed = poa,
-      Expected = pea,
-      Adjusted = cai
-    )
+    out <-
+      tibble::tibble(
+        Approach = "kappa",
+        Weights = weighting,
+        Observed = poa,
+        Expected = pea,
+        Adjusted = cai
+      )
   } else if (format == "wide") {
-    tibble::tibble(
-      Obs_Kappa = poa,
-      Exp_Kappa = pea,
-      Adj_Kappa = cai
-    )
+    out <-
+      tibble::tibble(
+        Obs_Kappa = poa,
+        Exp_Kappa = pea,
+        Adj_Kappa = cai
+      )
   }
 
+  out <- dplyr::mutate_if(out, is.numeric, round, digits = digits)
+  out
 }
 
 #' Calculate the pi coefficient using the generalized formula
@@ -232,6 +253,7 @@ calc_kappa <- function(.data,
 #' @param categories Optional.
 #' @param weighting Optional.
 #' @param format Optional.
+#' @param digits Optional.
 #'
 #' @return A tibble containing the percent of agreement observed in the data,
 #'   the percent of agreement expected by chance, and the chance-adjusted index
@@ -244,10 +266,12 @@ calc_kappa <- function(.data,
 calc_pi <- function(.data,
                     categories = NULL,
                     weighting = c("identity", "linear", "quadratic"),
-                    format = c("long", "wide")) {
+                    format = c("long", "wide"),
+                    digits = 3) {
 
   weighting <- match.arg(weighting)
   format <- match.arg(format)
+  assertthat::assert_that(rlang::is_scalar_integerish(digits))
 
   d <- prep_data(.data, categories, weighting)
 
@@ -262,21 +286,24 @@ calc_pi <- function(.data,
 
   # Return result
   if (format == "long") {
-    tibble::tibble(
-      Approach = "pi",
-      Weights = weighting,
-      Observed = poa,
-      Expected = pea,
-      Adjusted = cai
-    )
+    out <-
+      tibble::tibble(
+        Approach = "pi",
+        Weights = weighting,
+        Observed = poa,
+        Expected = pea,
+        Adjusted = cai
+      )
   } else if (format == "wide") {
-    tibble::tibble(
-      Obs_Pi = poa,
-      Exp_Pi = pea,
-      Adj_Pi = cai
-    )
+    out <-
+      tibble::tibble(
+        Obs_Pi = poa,
+        Exp_Pi = pea,
+        Adj_Pi = cai
+      )
   }
-
+  out <- dplyr::mutate_if(out, is.numeric, round, digits = digits)
+  out
 }
 
 #' Calculate the alpha coefficient using the generalized formula
@@ -291,6 +318,7 @@ calc_pi <- function(.data,
 #' @param categories Optional.
 #' @param weighting Optional.
 #' @param format Optional.
+#' @param digits Optional.
 #'
 #' @return A tibble containing the percent of agreement observed in the data,
 #'   the percent of agreement expected by chance, and the chance-adjusted index
@@ -303,10 +331,12 @@ calc_pi <- function(.data,
 calc_alpha <- function(.data,
                        categories = NULL,
                        weighting = c("identity", "linear", "quadratic"),
-                       format = c("long", "wide")) {
+                       format = c("long", "wide"),
+                       digits = 3) {
 
   weighting <- match.arg(weighting)
   format <- match.arg(weighting)
+  assertthat::assert_that(rlang::is_scalar_integerish(digits))
 
   d <- prep_data(.data, categories, weighting)
 
@@ -321,20 +351,23 @@ calc_alpha <- function(.data,
 
   # Return result
   if (format == "long") {
-    tibble::tibble(
-      Approach = "alpha",
-      Weights = weighting,
-      Observed = poa,
-      Expected = pea,
-      Adjusted = cai
-    )
+    out <-
+      tibble::tibble(
+        Approach = "alpha",
+        Weights = weighting,
+        Observed = poa,
+        Expected = pea,
+        Adjusted = cai
+      )
   } else if (format == "wide") {
-    tibble::tibble(
-      Obs_Alpha = poa,
-      Exp_Alpha = pea,
-      Adj_Alpha = cai
-    )
+    out <-
+      tibble::tibble(
+        Obs_Alpha = poa,
+        Exp_Alpha = pea,
+        Adj_Alpha = cai
+      )
   }
-
+  out <- dplyr::mutate_if(out, is.numeric, round, digits = digits)
+  out
 }
 
