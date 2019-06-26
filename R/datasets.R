@@ -10,3 +10,11 @@
 #'
 #' @references Gwet (2014), Exercise 3.3
 "gwet3.3"
+
+#' McGraw example data
+#'
+#' Example dimensional data describing 10 families and 2 family members.
+#'
+#' @references \url{https://doi.org/10/br5ffs}
+#'
+"mcgraw"
