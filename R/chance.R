@@ -140,9 +140,12 @@ chance_alpha <- function(codes, categories, weight_matrix) {
   r_o <- rowSums(r_oc, na.rm = TRUE)
   r_oc <- r_oc[r_o >= 2, ]
   r_o <- r_o[r_o >= 2]
-  pihat <- t(matrix(1 / n_objects, nrow = 1, ncol = n_objects) %*% (r_oc / (r_o %*% rep(1, n_categories))))
+  nprime <- length(r_o)
+  rbar <- mean(r_o)
 
-  pea <- sum(sum(weight_matrix * (pihat %*% t(pihat))))
+  pi_c <- t(t(rep(1 / nprime, nprime)) %*% (r_oc / rbar))
+
+  pea <- sum(weight_matrix * (pi_c %*% t(pi_c)))
 
   pea
 }

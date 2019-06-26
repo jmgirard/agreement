@@ -5,7 +5,7 @@
 \title{Calculate the gamma coefficient using the generalized formula}
 \usage{
 calc_gamma(.data, categories = NULL, weighting = c("identity",
-  "linear", "quadratic"), format = c("long", "wide"))
+  "linear", "quadratic"), format = c("long", "wide"), digits = 3)
 }
 \arguments{
 \item{.data}{Required.}
@@ -15,6 +15,8 @@ calc_gamma(.data, categories = NULL, weighting = c("identity",
 \item{weighting}{Optional.}
 
 \item{format}{Optional.}
+
+\item{digits}{Optional.}
 }
 \value{
 A tibble containing the percent of agreement observed in the data,

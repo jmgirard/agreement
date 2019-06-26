@@ -31,12 +31,12 @@ calc_all <- function(.data,
   gamma <- calc_gamma(.data, categories, weighting, format)
   kappa <- calc_kappa(.data, categories, weighting, format)
   pi <- calc_pi(.data, categories, weighting, format)
-  #alpha <- calc_alpha(.data, categories, weighting, format)
+  alpha <- calc_alpha(.data, categories, weighting, format)
 
   if (format == "long") {
-    out <- dplyr::bind_rows(s, gamma, kappa, pi)#, alpha)
+    out <- dplyr::bind_rows(s, gamma, kappa, pi, alpha)
   } else if (format == "wide") {
-    out <- dplyr::bind_cols(s, gamma, kappa, pi)#, alpha)
+    out <- dplyr::bind_cols(s, gamma, kappa, pi, alpha)
   }
 
   out <- dplyr::mutate_if(out, is.numeric, .funs = round, digits = digits)
@@ -122,6 +122,7 @@ calc_s <- function(.data,
 #' @param categories Optional.
 #' @param weighting Optional.
 #' @param format Optional.
+#' @param digits Optional.
 #'
 #' @return A tibble containing the percent of agreement observed in the data,
 #'   the percent of agreement expected by chance, and the chance-adjusted index
@@ -134,7 +135,8 @@ calc_s <- function(.data,
 calc_gamma <- function(.data,
                        categories = NULL,
                        weighting = c("identity", "linear", "quadratic"),
-                       format = c("long", "wide")) {
+                       format = c("long", "wide"),
+                       digits = 3) {
 
   weighting <- match.arg(weighting)
   format <- match.arg(format)
@@ -335,7 +337,7 @@ calc_alpha <- function(.data,
                        digits = 3) {
 
   weighting <- match.arg(weighting)
-  format <- match.arg(weighting)
+  format <- match.arg(format)
   assertthat::assert_that(rlang::is_scalar_integerish(digits))
 
   d <- prep_data(.data, categories, weighting)
