@@ -5,20 +5,23 @@
 
 <!-- badges: start -->
 
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 <!-- badges: end -->
 
-The goal of agreement is to …
+The goal of the `agreement` package is to calculate estimates of
+inter-rater reliability using generalized formulas and output results in
+a tidy dataframe format that makes collecting, bootstrapping, and
+plotting them easy. The package includes functions for all major
+chance-adjusted indexes of categorical agreement (i.e., kappa, alpha,
+gamma, pi, and S) as well as all major intraclass correlation
+coefficients (i.e., one-way and two-way models, agreement and
+consistency types, and single measure and average measure units).
 
 ## Installation
 
-You can install the released version of agreement from
-[CRAN](https://CRAN.R-project.org) with:
-
-``` r
-install.packages("agreement")
-```
-
-And the development version from [GitHub](https://github.com/) with:
+You can install the development version from
+[GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
@@ -31,15 +34,48 @@ This is a basic example which shows you how to solve a common problem:
 
 ``` r
 library(agreement)
-data(fish)
-calc_all(fish, categories = c(1, 2, 3), weighting = "identity")
-#> # A tibble: 4 x 5
+# Load example dataset with 4 raters and 16 objects
+data(gwet3.3)
+print(gwet3.3)
+#>      L   K   W   B
+#> 1  1.0 1.5 1.0  NA
+#> 2  2.0 2.0 2.0 2.0
+#> 3  0.5 1.0 1.5 1.5
+#> 4  1.0 1.0 1.0 1.0
+#> 5  1.0 1.0 1.0 1.5
+#> 6   NA 1.0 2.5  NA
+#> 7  2.5 2.5 2.5 2.5
+#> 8  1.0 1.0  NA 1.0
+#> 9   NA 1.0 2.0 1.0
+#> 10 1.0 1.0 0.5 1.0
+#> 11 1.5 1.5 1.5 1.5
+#> 12 1.0 1.5 1.0  NA
+#> 13 1.0 1.0 1.5  NA
+#> 14 1.0 2.0 2.5 2.0
+#> 15  NA 1.0 1.5 1.0
+#> 16 0.5 0.5 0.5 0.5
+```
+
+``` r
+# Calculate kappa assuming unordered categories
+calc_kappa(gwet3.3)
+#> # A tibble: 1 x 5
 #>   Approach Weights  Observed Expected Adjusted
 #>   <chr>    <chr>       <dbl>    <dbl>    <dbl>
-#> 1 S        identity    0.675    0.333    0.513
-#> 2 gamma    identity    0.675    0.142    0.621
-#> 3 kappa    identity    0.675    0.725   -0.182
-#> 4 pi       identity    0.675    0.717   -0.147
+#> 1 kappa    identity    0.562    0.283    0.389
+```
+
+``` r
+# Calculate agreement assuming ordered categories
+calc_all(gwet3.3, weighting = "quadratic")
+#> # A tibble: 5 x 5
+#>   Approach Weights   Observed Expected Adjusted
+#>   <chr>    <chr>        <dbl>    <dbl>    <dbl>
+#> 1 S        quadratic    0.921    0.75     0.682
+#> 2 gamma    quadratic    0.921    0.646    0.775
+#> 3 kappa    quadratic    0.921    0.831    0.529
+#> 4 pi       quadratic    0.921    0.838    0.511
+#> 5 alpha    quadratic    0.936    0.834    0.618
 ```
 
 ## Code of Conduct

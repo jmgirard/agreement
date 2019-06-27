@@ -9,6 +9,7 @@
 #' Example data with 16 objects rated by 4 raters.
 #'
 #' @references Gwet (2014), Exercise 3.3
+#'
 "gwet3.3"
 
 #' McGraw example data

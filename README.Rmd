@@ -15,19 +15,14 @@ knitr::opts_chunk$set(
 # agreement
 
 <!-- badges: start -->
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 <!-- badges: end -->
 
-The goal of agreement is to ...
+The goal of the `agreement` package is to calculate estimates of inter-rater reliability using generalized formulas and output results in a tidy dataframe format that makes collecting, bootstrapping, and plotting them easy. The package includes functions for all major chance-adjusted indexes of categorical agreement (i.e., kappa, alpha, gamma, pi, and S) as well as all major intraclass correlation coefficients (i.e., one-way and two-way models, agreement and consistency types, and single measure and average measure units).
 
 ## Installation
 
-You can install the released version of agreement from [CRAN](https://CRAN.R-project.org) with:
-
-``` r
-install.packages("agreement")
-```
-
-And the development version from [GitHub](https://github.com/) with:
+You can install the development version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
@@ -39,9 +34,21 @@ This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
 library(agreement)
-data(fish)
-calc_all(fish, categories = c(1, 2, 3), weighting = "identity")
+# Load example dataset with 4 raters and 16 objects
+data(gwet3.3)
+print(gwet3.3)
 ```
+
+```{r}
+# Calculate kappa assuming unordered categories
+calc_kappa(gwet3.3)
+```
+
+```{r}
+# Calculate agreement assuming ordered categories
+calc_all(gwet3.3, weighting = "quadratic")
+```
+
 
 ## Code of Conduct
 
