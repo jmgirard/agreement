@@ -1,7 +1,21 @@
-#' Calculate specific agreement from object-by-rater matrix
+#' Calculate specific agreement from an object-by-rater matrix
 #'
-#' Calculate the percent observed agreement for each category in an
-#' object-by-rater matrix.
+#' Calculate the percent observed agreement for each discrete category in an
+#' object-by-rater matrix. Specific agreement is an index of the reliability of
+#' categorical measurements. It describes the amount of agreement observed with
+#' regard to specific categories. Thus, multiple specific agreement scores are
+#' typically used (i.e., one for each category). With two raters, the
+#' interpretation of specific agreement for any category is the probability of
+#' one rater assigning an item to that category given that the other rater has
+#' also assigned that item to that category. With more than two raters, the
+#' interpretation becomes the probability of a randomly chosen rater assigning
+#' an item to that category given that another randomly chosen rater has also
+#' assigned that item to that category. When applied to binary (i.e.,
+#' dichotomous) tasks, specific agreement on the positive category is often
+#' referred to as positive agreement (PA) and specific agreement on the negative
+#' category is often referred to as negative agreement (NA). It is also worth
+#' noting that positive agreement (PA) for two raters is equivalent to the F1
+#' score commonly used in computer science.
 #'
 #' @param .data *Required.* An matrix or data frame where rows correspond to
 #'   objects of measurement, columns correspond to sources of measurement (e.g.,
@@ -22,10 +36,13 @@
 #' @param digits *Optional.* A positive integer specifying how many digits to
 #'   round the specific agreement estimates to (default = 3). Or, to prevent
 #'   rounding, set to \code{NULL}.
-#' @return A tibble containing two columns and one row for each category. The
-#'   first variable is "Category" and contains the name of each category. The
-#'   second variable is "SA" and contains the specific agreement coefficient for
-#'   each category.
+#' @return A tibble containing two or four columns and one row for each
+#'   category. The first variable is "Category" and contains the name of each
+#'   category. The second variable is "SA_EST" and contains the estimated
+#'   specific agreement coefficient for each category. If \code{bootstrap} is
+#'   not NULL, the third variable is "SA_LCI" and contains the lower bound of
+#'   the bootstrap confidence interval and the the fourth variables is "SA_UCI"
+#'   and contains the upper bound of the bootstrap confidence interval.
 #' @export
 #' @references Uebersax, J. S. (1982). A design-independent method for measuring
 #'   the reliability of psychiatric diagnosis. *Journal of Psychiatric Research,

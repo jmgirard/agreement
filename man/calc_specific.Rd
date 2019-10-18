@@ -2,7 +2,7 @@
 % Please edit documentation in R/specific.R
 \name{calc_specific}
 \alias{calc_specific}
-\title{Calculate specific agreement from object-by-rater matrix}
+\title{Calculate specific agreement from an object-by-rater matrix}
 \usage{
 calc_specific(.data, categories = NULL, weighting = c("identity",
   "linear", "quadratic"), bootstrap = 2000, interval = 0.95,
@@ -35,14 +35,31 @@ round the specific agreement estimates to (default = 3). Or, to prevent
 rounding, set to \code{NULL}.}
 }
 \value{
-A tibble containing two columns and one row for each category. The
-first variable is "Category" and contains the name of each category. The
-second variable is "SA" and contains the specific agreement coefficient for
-each category.
+A tibble containing two or four columns and one row for each
+category. The first variable is "Category" and contains the name of each
+category. The second variable is "SA_EST" and contains the estimated
+specific agreement coefficient for each category. If \code{bootstrap} is
+not NULL, the third variable is "SA_LCI" and contains the lower bound of
+the bootstrap confidence interval and the the fourth variables is "SA_UCI"
+and contains the upper bound of the bootstrap confidence interval.
 }
 \description{
-Calculate the percent observed agreement for each category in an
-object-by-rater matrix.
+Calculate the percent observed agreement for each discrete category in an
+object-by-rater matrix. Specific agreement is an index of the reliability of
+categorical measurements. It describes the amount of agreement observed with
+regard to specific categories. Thus, multiple specific agreement scores are
+typically used (i.e., one for each category). With two raters, the
+interpretation of specific agreement for any category is the probability of
+one rater assigning an item to that category given that the other rater has
+also assigned that item to that category. With more than two raters, the
+interpretation becomes the probability of a randomly chosen rater assigning
+an item to that category given that another randomly chosen rater has also
+assigned that item to that category. When applied to binary (i.e.,
+dichotomous) tasks, specific agreement on the positive category is often
+referred to as positive agreement (PA) and specific agreement on the negative
+category is often referred to as negative agreement (NA). It is also worth
+noting that positive agreement (PA) for two raters is equivalent to the F1
+score commonly used in computer science.
 }
 \examples{
 data("fish")
