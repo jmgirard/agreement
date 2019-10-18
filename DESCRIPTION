@@ -12,7 +12,8 @@ Imports:
     assertthat (>= 0.2.1),
     magrittr (>= 1.5),
     rlang (>= 0.3.4),
-    tibble (>= 2.1.3)
+    tibble (>= 2.1.3),
+    boot
 Suggests: 
     roxygen2 (>= 6.1.1)
 Encoding: UTF-8
