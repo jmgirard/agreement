@@ -4,17 +4,41 @@
 \alias{calc_specific}
 \title{Calculate specific agreement from object-by-rater matrix}
 \usage{
-calc_specific(.data, categories = NULL)
+calc_specific(.data, categories = NULL, weighting = c("identity",
+  "linear", "quadratic"), bootstrap = 2000, interval = 0.95,
+  digits = 3)
 }
 \arguments{
-\item{.data}{A numeric object-by-rater matrix where values are categories.}
+\item{.data}{\emph{Required.} An matrix or data frame where rows correspond to
+objects of measurement, columns correspond to sources of measurement (e.g.,
+raters), and values correspond to category assignments. Note that \code{NA}
+will be treated as missing values, so if \code{NA} is a meaningful code in
+your data, then recode them to another value and reserve \code{NA} for
+missing values.}
 
-\item{categories}{A numeric vector of possible categories. Useful when
-\code{.data} may not contain all possible categories.}
+\item{categories}{\emph{Optional.} A numeric vector of possible categories. Useful
+when \code{.data} may not contain all possible categories.}
+
+\item{weighting}{\emph{Optional.} A string indicating what weighting scheme to use
+when calculating agreement. Options are "identity" for unordered categories
+and "linear" or "quadratic" for ordered categories (default = "identity").}
+
+\item{bootstrap}{\emph{Optional.} A positive integer specifying how many bootstrap
+resamples to use in calculating the confidence intervals (default = 2000).
+Or, to prevent bootstrapping, set to \code{NULL}.}
+
+\item{interval}{\emph{Optional.} A real number greater than 0 and less than 1
+specifying the type of confidence interval to calculate (default = 0.95).}
+
+\item{digits}{\emph{Optional.} A positive integer specifying how many digits to
+round the specific agreement estimates to (default = 3). Or, to prevent
+rounding, set to \code{NULL}.}
 }
 \value{
-A data frame containing the specific agreement coefficient for each
-category.
+A tibble containing two columns and one row for each category. The
+first variable is "Category" and contains the name of each category. The
+second variable is "SA" and contains the specific agreement coefficient for
+each category.
 }
 \description{
 Calculate the percent observed agreement for each category in an
@@ -23,4 +47,9 @@ object-by-rater matrix.
 \examples{
 data("fish")
 calc_specific(fish, categories = 1:3)
+}
+\references{
+Uebersax, J. S. (1982). A design-independent method for measuring
+the reliability of psychiatric diagnosis. \emph{Journal of Psychiatric Research,
+17}(4), 335-342. \url{https://doi.org/10/fbbdfn}
 }

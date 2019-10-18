@@ -3,61 +3,107 @@
 #' Calculate the percent observed agreement for each category in an
 #' object-by-rater matrix.
 #'
-#' @param .data A numeric object-by-rater matrix where values are categories.
-#' @param categories A numeric vector of possible categories. Useful when
-#'   \code{.data} may not contain all possible categories.
-#' @return A data frame containing the specific agreement coefficient for each
-#'   category.
+#' @param .data *Required.* An matrix or data frame where rows correspond to
+#'   objects of measurement, columns correspond to sources of measurement (e.g.,
+#'   raters), and values correspond to category assignments. Note that \code{NA}
+#'   will be treated as missing values, so if \code{NA} is a meaningful code in
+#'   your data, then recode them to another value and reserve \code{NA} for
+#'   missing values.
+#' @param categories *Optional.* A numeric vector of possible categories. Useful
+#'   when \code{.data} may not contain all possible categories.
+#' @param weighting *Optional.* A string indicating what weighting scheme to use
+#'   when calculating agreement. Options are "identity" for unordered categories
+#'   and "linear" or "quadratic" for ordered categories (default = "identity").
+#' @param bootstrap *Optional.* A positive integer specifying how many bootstrap
+#'   resamples to use in calculating the confidence intervals (default = 2000).
+#'   Or, to prevent bootstrapping, set to \code{NULL}.
+#' @param interval *Optional.* A real number greater than 0 and less than 1
+#'   specifying the type of confidence interval to calculate (default = 0.95).
+#' @param digits *Optional.* A positive integer specifying how many digits to
+#'   round the specific agreement estimates to (default = 3). Or, to prevent
+#'   rounding, set to \code{NULL}.
+#' @return A tibble containing two columns and one row for each category. The
+#'   first variable is "Category" and contains the name of each category. The
+#'   second variable is "SA" and contains the specific agreement coefficient for
+#'   each category.
 #' @export
+#' @references Uebersax, J. S. (1982). A design-independent method for measuring
+#'   the reliability of psychiatric diagnosis. *Journal of Psychiatric Research,
+#'   17*(4), 335-342. \url{https://doi.org/10/fbbdfn}
 #' @examples
 #' data("fish")
 #' calc_specific(fish, categories = 1:3)
-calc_specific <- function(.data, categories = NULL) {
+calc_specific <- function(.data,
+                          categories = NULL,
+                          weighting = c("identity", "linear", "quadratic"),
+                          bootstrap = 2000,
+                          interval = 0.95,
+                          digits = 3) {
 
-  # Convenience function to select finite values
-  finite <- function(x) {
-    x[is.finite(x)]
-  }
+  # Validate inputs and prep data
+  weighting <- match.arg(weighting)
+  assertthat::assert_that(assertthat::is.count(digits),
+    msg = "The `digits` argument must be either NULL or a positive integer.")
+  assertthat::assert_that(assertthat::is.scalar(interval))
+  assertthat::assert_that(interval > 0 && interval < 1)
+  assertthat::assert_that(is.null(bootstrap) || assertthat::is.count(bootstrap),
+    msg = "The `bootstrap` argument must be either NULL or a positive integer.")
+  d <- prep_data(.data, categories, weighting)
 
-  # Extract codes from .data
-  codes <- as.matrix(.data)
+  if (is.null(bootstrap)) {
+    # Calculate specific agreement
+    sa <- calc_sa(d$codes, d$categories, d$weight_matrix)
 
-  # Drop objects that were never coded
-  codes <- codes[rowSums(is.na(codes)) != ncol(codes), ]
-
-  # Get basic counts
-  n_objects <- nrow(codes)
-  n_raters <- ncol(codes)
-
-  # Validate basic counts
-  stopifnot(n_objects >= 1)
-  stopifnot(n_raters >= 2)
-
-  # Get and count observed categories
-  cat_observed <- sort(finite(unique(c(codes))))
-  n_cat_observed <- length(cat_observed)
-
-  # If specified, get and count possible categories
-  if (is.null(categories)) {
-    cat_possible <- cat_observed
-    n_cat_possible <- n_cat_observed
+    # Construct output data frame
+    out <- tibble::tibble(Category = d$categories, SA_EST = sa)
+    if (!is.null(digits)) {
+      out <- dplyr::mutate(out, SA_EST = round(SA_EST, digits = digits))
+    }
   } else {
-    cat_possible <- sort(finite(unique(c(categories))))
-    n_cat_possible <- length(cat_possible)
+    # Bootstrap specific agreement
+    bs_function <- function(codes, index, categories, weight_matrix) {
+      resample <- codes[index, ]
+      calc_sa(resample, categories, weight_matrix)
+    }
+
+    bs_results <-
+      boot::boot(
+        data = d$codes,
+        statistic = bs_function,
+        R = bootstrap,
+        categories = d$categories,
+        weight_matrix = d$weight_matrix
+      )
+    out <- tibble::tibble(
+      Category = d$categories,
+      SA_EST = bs_results$t0,
+      SA_LCI = bs_results$t0,
+      SA_UCI = bs_results$t0
+    )
+    for (i in seq_along(d$categories)) {
+      bsi <- boot::boot.ci(bs_results, conf = interval, type = "perc", index = i)
+      out$SA_LCI[[i]] <- bsi$percent[[4]]
+      out$SA_UCI[[i]] <- bsi$percent[[5]]
+    }
+    if (!is.null(digits)) {
+      out <- dplyr::mutate_at(
+        out,
+        .vars = vars(SA_EST:SA_UCI),
+        .funs = round,
+        digits = digits
+      )
+    }
+
   }
 
-  # Check observed categories against possible categories
-  cat_unknown <- setdiff(cat_observed, cat_possible)
-  stopifnot(length(cat_unknown) == 0)
+  out
+}
 
-  # Get identity weight matrix
-  weight_matrix <- diag(n_cat_possible)
+# Worker function to calculate specific agreement
+calc_sa <- function(codes, categories, weight_matrix) {
 
   # How many raters assigned each object to each category?
-  r_oc <- matrix(0, nrow = n_objects, ncol = n_cat_possible)
-  for (k in seq_along(cat_possible)) {
-    r_oc[, k] <- rowSums(codes == cat_possible[[k]], na.rm = TRUE)
-  }
+  r_oc <- raters_obj_cat(codes, categories = categories)
 
   # How many raters assigned each object to any category?
   r_o <- rowSums(r_oc, na.rm = TRUE)
@@ -77,8 +123,9 @@ calc_specific <- function(.data, categories = NULL) {
   # What was the percent observed agreement for each category?
   poa_c <- obs_c / max_c
 
-  # Construct output data frame
-  out <- data.frame(Category = cat_possible, SA = poa_c)
+  # Replace indefinables with missing values
+  poa_c[is.nan(poa_c)] <- NA
 
-  out
+  poa_c
 }
+
