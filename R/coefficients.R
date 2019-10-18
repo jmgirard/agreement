@@ -25,7 +25,7 @@ calc_all <- function(.data,
 
   weighting <- match.arg(weighting)
   format <- match.arg(format)
-  assertthat::assert_that(rlang::is_scalar_integerish(digits))
+  assertthat::assert_that(assertthat::is.count(digits))
 
   s <- calc_s(.data, categories, weighting, format)
   gamma <- calc_gamma(.data, categories, weighting, format)
@@ -74,7 +74,7 @@ calc_s <- function(.data,
 
   weighting <- match.arg(weighting)
   format <- match.arg(format)
-  assertthat::assert_that(rlang::is_scalar_integerish(digits))
+  assertthat::assert_that(assertthat::is.count(digits))
 
   d <- prep_data(.data, categories, weighting)
 
@@ -140,7 +140,7 @@ calc_gamma <- function(.data,
 
   weighting <- match.arg(weighting)
   format <- match.arg(format)
-  assertthat::assert_that(rlang::is_scalar_integerish(digits))
+  assertthat::assert_that(assertthat::is.count(digits))
 
   d <- prep_data(.data, categories, weighting)
 
@@ -207,7 +207,7 @@ calc_kappa <- function(.data,
 
   weighting <- match.arg(weighting)
   format <- match.arg(format)
-  assertthat::assert_that(rlang::is_scalar_integerish(digits))
+  assertthat::assert_that(assertthat::is.count(digits))
 
   d <- prep_data(.data, categories, weighting)
 
@@ -273,7 +273,7 @@ calc_pi <- function(.data,
 
   weighting <- match.arg(weighting)
   format <- match.arg(format)
-  assertthat::assert_that(rlang::is_scalar_integerish(digits))
+  assertthat::assert_that(assertthat::is.count(digits))
 
   d <- prep_data(.data, categories, weighting)
 
@@ -338,7 +338,7 @@ calc_alpha <- function(.data,
 
   weighting <- match.arg(weighting)
   format <- match.arg(format)
-  assertthat::assert_that(rlang::is_scalar_integerish(digits))
+  assertthat::assert_that(assertthat::is.count(digits))
 
   d <- prep_data(.data, categories, weighting)
 
