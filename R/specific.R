@@ -57,7 +57,7 @@ calc_specific <- function(.data,
                           interval = 0.95,
                           digits = 3) {
 
-  # Validate inputs and prep data
+  # Validate inputs
   weighting <- match.arg(weighting)
   assertthat::assert_that(assertthat::is.count(digits),
     msg = "The `digits` argument must be either NULL or a positive integer.")
@@ -65,24 +65,29 @@ calc_specific <- function(.data,
   assertthat::assert_that(interval > 0 && interval < 1)
   assertthat::assert_that(is.null(bootstrap) || assertthat::is.count(bootstrap),
     msg = "The `bootstrap` argument must be either NULL or a positive integer.")
+
+  # Prepare data for analysis
   d <- prep_data(.data, categories, weighting)
 
   if (is.null(bootstrap)) {
-    # Calculate specific agreement
+    # Calculate specific agreement without bootstrapping
     sa <- calc_sa(d$codes, d$categories, d$weight_matrix)
 
-    # Construct output data frame
+    # Construct the output tibble
     out <- tibble::tibble(Category = d$categories, SA_EST = sa)
+
+    # Round if requested
     if (!is.null(digits)) {
       out <- dplyr::mutate(out, SA_EST = round(SA_EST, digits = digits))
     }
   } else {
-    # Bootstrap specific agreement
+    # Create function to perform bootstrapping
     bs_function <- function(codes, index, categories, weight_matrix) {
       resample <- codes[index, ]
       calc_sa(resample, categories, weight_matrix)
     }
 
+    # Calculate the bootstrap results
     bs_results <-
       boot::boot(
         data = d$codes,
@@ -91,17 +96,23 @@ calc_specific <- function(.data,
         categories = d$categories,
         weight_matrix = d$weight_matrix
       )
+
+    # Create the output tibble
     out <- tibble::tibble(
       Category = d$categories,
       SA_EST = bs_results$t0,
       SA_LCI = bs_results$t0,
       SA_UCI = bs_results$t0
     )
+
+    # Fill in the confidence interval bounds
     for (i in seq_along(d$categories)) {
       bsi <- boot::boot.ci(bs_results, conf = interval, type = "perc", index = i)
       out$SA_LCI[[i]] <- bsi$percent[[4]]
       out$SA_UCI[[i]] <- bsi$percent[[5]]
     }
+
+    # Round if requested
     if (!is.null(digits)) {
       out <- dplyr::mutate_at(
         out,
@@ -110,7 +121,6 @@ calc_specific <- function(.data,
         digits = digits
       )
     }
-
   }
 
   out
@@ -142,6 +152,9 @@ calc_sa <- function(codes, categories, weight_matrix) {
 
   # Replace indefinables with missing values
   poa_c[is.nan(poa_c)] <- NA
+
+  # Label the output vector with category names
+  names(poa_c) <- categories
 
   poa_c
 }
