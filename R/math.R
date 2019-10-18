@@ -23,7 +23,6 @@ get_weights <- function(type, categories) {
   weight_matrix
 }
 
-
 # Traditional Agreement
 agree_raw <- function(codes, categories, weight_matrix) {
 
@@ -31,10 +30,7 @@ agree_raw <- function(codes, categories, weight_matrix) {
   n_categories <- length(categories)
 
   # How many raters assigned each object to each category?
-  r_oc <- matrix(0, nrow = n_objects, ncol = n_categories)
-  for (k in seq_along(categories)) {
-    r_oc[, k] <- rowSums(codes == categories[[k]], na.rm = TRUE)
-  }
+  r_oc <- raters_obj_cat(codes, categories = categories)
 
   # How many raters assigned each object to any category?
   r_o <- rowSums(r_oc, na.rm = TRUE)
@@ -43,7 +39,7 @@ agree_raw <- function(codes, categories, weight_matrix) {
   obs_oc <- r_oc * (t(weight_matrix %*% t(r_oc)) - 1)
 
   # How much agreement was observed for each object across all categories?
-  obs_o <- rowSums(obs_oc)
+  obs_o <- rowSums(obs_oc, na.rm = TRUE)
 
   # How much agreement was maximally possible for each object?
   max_o <- r_o * (r_o - 1)
@@ -63,10 +59,7 @@ agree_alpha <- function(codes, categories, weight_matrix) {
   n_objects <- nrow(codes)
   n_categories <- length(categories)
 
-  r_oc <- matrix(0, nrow = n_objects, ncol = n_categories)
-  for (c in seq_along(categories)) {
-    r_oc[, c] <- rowSums(codes == categories[[c]], na.rm = TRUE)
-  }
+  r_oc <- raters_obj_cat(codes, categories = categories)
   rstar_oc <- t(weight_matrix %*% t(r_oc))
   r_o <- rowSums(r_oc, na.rm = TRUE)
   r_oc <- r_oc[r_o >= 2, ]
