@@ -1,9 +1,11 @@
 # Calculate weight matrix
-get_weights <- function(type, categories) {
-  categories <- get_unique(categories)
+calc_weights <- function(type, categories, warnings) {
   n_categories <- length(categories)
   if (!is.numeric(categories)) {
     categories <- 1:n_categories
+    if (warnings == TRUE && type != "identity") {
+      warning("Converting categories to integers between 1 and the number of categories.")
+    }
   }
   weight_matrix <- diag(n_categories)
   if (type == "identity" || type == 0) {
@@ -23,19 +25,16 @@ get_weights <- function(type, categories) {
   weight_matrix
 }
 
-# Traditional Agreement
-agree_raw <- function(codes, categories, weight_matrix) {
-
-  n_objects <- nrow(codes)
-  n_categories <- length(categories)
+# Calculate percent observed agreement using traditional formula
+calc_agreement <- function(codes, categories, weight_matrix) {
 
   # How many raters assigned each object to each category?
-  r_oc <- raters_obj_cat(codes, categories = categories)
+  r_oc <- raters_obj_cat(codes, categories)
 
   # How many raters assigned each object to any category?
   r_o <- rowSums(r_oc, na.rm = TRUE)
 
-  # How much agreement was observed for each object and each category?
+  # How much agreement was observed for each object-category combination?
   obs_oc <- r_oc * (t(weight_matrix %*% t(r_oc)) - 1)
 
   # How much agreement was observed for each object across all categories?
@@ -53,23 +52,39 @@ agree_raw <- function(codes, categories, weight_matrix) {
   poa
 }
 
-# Krippendorff Agreement
-agree_alpha <- function(codes, categories, weight_matrix) {
+# Calculate percent observed agreement using Krippendorff's formula
+calc_agreement_kripp <- function(codes, categories, weight_matrix) {
 
-  n_objects <- nrow(codes)
-  n_categories <- length(categories)
+  # How many raters assigned each object to each category?
+  r_oc <- raters_obj_cat(codes, categories)
 
-  r_oc <- raters_obj_cat(codes, categories = categories)
-  rstar_oc <- t(weight_matrix %*% t(r_oc))
+  # How many raters assigned each object to any category?
   r_o <- rowSums(r_oc, na.rm = TRUE)
+
+  # How much agreement was observed for each object-category combination?
+  obs_oc <- t(weight_matrix %*% t(r_oc))
+
+  # Remove objects with only 1 rater
   r_oc <- r_oc[r_o >= 2, ]
-  rstar_oc <- rstar_oc[r_o >= 2, ]
+  obs_oc <- obs_oc[r_o >= 2, ]
   r_o <- r_o[r_o >= 2]
+
+  # What was the average number of raters per object?
   rbar <- mean(r_o)
+
+  # How many objects were rated by 2 or more raters?
   nprime <- length(r_o)
-  epsilon <- 1 / sum(r_o) # should this be 1 / (sum(r_o) * nprime)?
-  obs_o <- (r_oc * (rstar_oc - 1)) %*% matrix(1, nrow = n_categories, ncol = 1)
+
+  # How much agreement was observed for each object across all categories?
+  obs_o <- (r_oc * (rstar_oc - 1)) %*% matrix(1, nrow = length(categories))
+
+  # How much agreement was possible for each object across all categories?
   max_o <- rbar * (r_o - 1)
+
+  # Correction factor
+  epsilon <- 1 / sum(r_o) # should this be 1 / (sum(r_o) * nprime)?
+
+  # What was teh percent observed agreement across all objects?
   poa <- (1 - epsilon) * sum(obs_o / max_o) / nprime + epsilon
 
   poa

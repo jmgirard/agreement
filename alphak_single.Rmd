@@ -1,0 +1,60 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r,message=FALSE}
+library(tidyverse)
+```
+
+```{r}
+dat <- read.csv("C:/Users/jmgirard/Desktop/dat.csv") %>% 
+  print()
+```
+
+```{r}
+alphak <- function(codes, categories = 0:1, weight_matrix = diag(2)) {
+  n <- nrow(codes)
+  r <- ncol(codes)
+  q <- length(categories)
+  r_ik <- matrix(0, nrow = n, ncol = q)
+  for (k in seq_along(categories)) {
+    r_ik[, k] <- rowSums(codes == categories[[k]], na.rm = TRUE)
+  }
+  rstar_ik <- t(weight_matrix %*% t(r_ik))
+  r_i <- rowSums(r_ik, na.rm = TRUE)
+  r_ik <- r_ik[r_i >= 2, ]
+  rstar_ik <- rstar_ik[r_i >= 2, ]
+  r_i <- r_i[r_i >= 2]
+  rbar_i <- mean(r_i)
+  nprime <- length(r_i)
+  epsilon <- 1 / sum(r_i)
+  obs_i <- (r_ik * (rstar_ik - 1)) %*% matrix(1, nrow = q, ncol = 1)
+  max_i <- rbar_i * (r_i - 1)
+  poa <- (1 - epsilon) * sum(obs_i / max_i) / nprime + epsilon
+  pihat <- t(matrix(1 / n, nrow = 1, ncol = n) %*% (r_ik / (r_i %*% rep(1, q))))
+  pca <- sum(sum(weight_matrix * (pihat %*% t(pihat))))
+  adj <- (poa - pca) / (1 - pca)
+  tibble(Observed = poa, Expected = pca, Adjusted = adj)
+}
+```
+
+
+```{r}
+out <- tibble(
+  Question = dat$X,
+  Observed = rep(NA, nrow(dat)),
+  AK_Expected = rep(NA, nrow(dat)),
+  AK_Adjusted = rep(NA, nrow(dat))
+)
+for (i in 1:nrow(dat)) {
+  out[i, 2:4] <- alphak(dat[i, 2:ncol(dat)])
+}
+out %>% 
+  mutate(
+    S_Expected = 0.5,
+    S_Adjusted = (Observed - S_Expected) / (1 - S_Expected)
+  ) %>%
+  mutate_if(is.numeric, round, digits = 3)
+```
+

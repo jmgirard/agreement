@@ -1,6 +1,6 @@
-gwet3.3 <-
+ordered <-
   tibble::tribble(
-    ~L, ~K, ~W, ~B,
+    ~R1, ~R2, ~R3, ~R4,
     1.0, 1.5, 1.0,  NA,
     2.0, 2.0, 2.0, 2.0,
     0.5, 1.0, 1.5, 1.5,
@@ -19,4 +19,4 @@ gwet3.3 <-
     0.5, 0.5, 0.5, 0.5
   )
 
-usethis::use_data(gwet3.3, overwrite = TRUE)
+usethis::use_data(ordered, overwrite = TRUE)
