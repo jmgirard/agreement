@@ -5,13 +5,13 @@ calc_agreement <- function(codes, categories, weight_matrix) {
   r_oc <- raters_obj_cat(codes, categories)
 
   # How many raters assigned each object to any category?
-  r_o <- rowSums(r_oc, na.rm = TRUE)
+  r_o <- rowSums(r_oc)
 
   # How much agreement was observed for each object-category combination?
   obs_oc <- r_oc * (t(weight_matrix %*% t(r_oc)) - 1)
 
   # How much agreement was observed for each object across all categories?
-  obs_o <- rowSums(obs_oc, na.rm = TRUE)
+  obs_o <- rowSums(obs_oc)
 
   # How much agreement was maximally possible for each object?
   max_o <- r_o * (r_o - 1)
@@ -32,7 +32,7 @@ calc_agreement_kripp <- function(codes, categories, weight_matrix) {
   r_oc <- raters_obj_cat(codes, categories)
 
   # How many raters assigned each object to any category?
-  r_o <- rowSums(r_oc, na.rm = TRUE)
+  r_o <- rowSums(r_oc)
 
   # How much agreement was observed for each object-category combination?
   obs_oc <- t(weight_matrix %*% t(r_oc))
@@ -49,7 +49,7 @@ calc_agreement_kripp <- function(codes, categories, weight_matrix) {
   nprime <- length(r_o)
 
   # How much agreement was observed for each object across all categories?
-  obs_o <- (r_oc * (rstar_oc - 1)) %*% matrix(1, nrow = length(categories))
+  obs_o <- (r_oc * (obs_oc - 1)) %*% matrix(1, nrow = length(categories))
 
   # How much agreement was possible for each object across all categories?
   max_o <- rbar * (r_o - 1)
