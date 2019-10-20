@@ -69,7 +69,4 @@ Uebersax, J. S. (1982). A design-independent method for measuring
 the reliability of psychiatric diagnosis. \emph{Journal of Psychiatric Research,
 17}(4), 335-342. \url{https://doi.org/10/fbbdfn}
 }
-\seealso{
-Other agreement functions for categorical data: \code{\link{cat_s}}
-}
 \concept{agreement functions for categorical data}
