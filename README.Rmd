@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 <!-- badges: end -->
 
-The goal of the `agreement` package is to calculate estimates of inter-rater reliability using generalized formulas and output results in a tidy dataframe format that makes collecting, bootstrapping, and plotting them easy. The package includes functions for all major chance-adjusted indexes of categorical agreement (i.e., kappa, alpha, gamma, pi, and S) as well as all major intraclass correlation coefficients (i.e., one-way and two-way models, agreement and consistency types, and single measure and average measure units).
+The goal of the `agreement` package is to calculate estimates of inter-rater reliability using generalized formulas and output results in a tidy dataframe format that makes collecting, bootstrapping, and plotting them easy. The package includes functions for all major chance-adjusted indexes of categorical agreement (i.e., S, gamma, kappa, pi, alpha) as well as all major intraclass correlation coefficients (i.e., one-way and two-way models, agreement and consistency types, and single measure and average measure units).
 
 ## Installation
 
@@ -34,21 +34,38 @@ This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
 library(agreement)
-# Load example dataset with 4 raters and 16 objects
-data(gwet3.3)
-print(gwet3.3)
+# Load example dataset with 4 raters assigning 12 objects to 5 unordered categories (and missing values)
+data(unordered)
+print(unordered)
 ```
 
 ```{r}
-# Calculate kappa assuming unordered categories
-calc_kappa(gwet3.3)
+# Calculate chance-adjusted agreement indexes using identity weights
+cat_cai(
+  .data = unordered, 
+  approach = c("s", "gamma", "kappa", "pi", "alpha"),
+  categories = c("a", "b", "c", "d", "e"), 
+  weighting = "identity",
+  bootstrap = NULL
+)
 ```
 
 ```{r}
-# Calculate agreement assuming ordered categories
-calc_all(gwet3.3, weighting = "quadratic")
+# Load example dataset with 5 raters assigning 20 objects to 4 ordered categories (and missing values)
+data(ordered)
+print(ordered)
 ```
 
+```{r}
+# Calculate chance-adjusted agreement indexes using linear weights and bootstrapped 95% confidence intervals
+cat_cai(
+  .data = ordered, 
+  approach = c("s", "gamma", "kappa", "pi", "alpha"),
+  weighting = "linear",
+  bootstrap = 2000,
+  interval = 0.95
+)
+```
 
 ## Code of Conduct
 
