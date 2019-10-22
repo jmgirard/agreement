@@ -55,14 +55,14 @@ print(unordered)
 ```
 
 ``` r
-# Calculate the kappa coefficient for unordered categories
-nominal <- cat_kappa(unordered)
-#> Warning in cat_cai(.data, approach = "kappa", ...): With a small number of
-#> objects, bootstrap confidence intervals may not be stable.
+# Calculate all chance-adjusted indexes of agreement for unordered categories
+nominal <- cat_cai(unordered)
+#> Warning in cat_cai(unordered): With a small number of objects, bootstrap
+#> confidence intervals may not be stable.
 summary(nominal, ci = TRUE)
 #> 
 #> Call:
-#> cat_cai(.data = .data, approach = "kappa")
+#> cat_cai(.data = unordered)
 #> 
 #> Objects =    12
 #> Raters =     4
@@ -72,26 +72,42 @@ summary(nominal, ci = TRUE)
 #> Chance-Adjusted Categorical Agreement with Bootstrapped CIs
 #> 
 #>         Observed   Expected   Adjusted   2.5 %   97.5 %
-#> kappa      0.818      0.233      0.763   0.457        1
+#> s          0.818      0.200      0.773   0.514        1
+#> gamma      0.818      0.190      0.775   0.529        1
+#> kappa      0.818      0.233      0.763   0.471        1
+#> pi         0.818      0.239      0.761   0.441        1
+#> alpha      0.805      0.240      0.743   0.424        1
 ```
 
 ``` r
 # Transform results into a tidy data frame
 tidy(nominal)
-#> # A tibble: 3 x 4
-#>   approach weighting term     estimate
-#>   <chr>    <chr>     <chr>       <dbl>
-#> 1 kappa    identity  Observed    0.818
-#> 2 kappa    identity  Expected    0.233
-#> 3 kappa    identity  Adjusted    0.763
+#> # A tibble: 15 x 4
+#>    approach weighting term     estimate
+#>    <chr>    <chr>     <chr>       <dbl>
+#>  1 s        identity  Observed    0.818
+#>  2 gamma    identity  Observed    0.818
+#>  3 kappa    identity  Observed    0.818
+#>  4 pi       identity  Observed    0.818
+#>  5 alpha    identity  Observed    0.805
+#>  6 s        identity  Expected    0.2  
+#>  7 gamma    identity  Expected    0.190
+#>  8 kappa    identity  Expected    0.233
+#>  9 pi       identity  Expected    0.239
+#> 10 alpha    identity  Expected    0.24 
+#> 11 s        identity  Adjusted    0.773
+#> 12 gamma    identity  Adjusted    0.775
+#> 13 kappa    identity  Adjusted    0.763
+#> 14 pi       identity  Adjusted    0.761
+#> 15 alpha    identity  Adjusted    0.743
 ```
 
 ``` r
 # Plot the bootstrap resampling distribution with 95% CIs
-plot(nominal, "Adjusted")
+plot(nominal)
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="60%" />
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
 
 ``` r
 # Load example dataset with 5 raters assigning 20 objects to 4 ordered categories (and missing values)
@@ -123,12 +139,12 @@ print(ordered)
 ```
 
 ``` r
-# Calculate pi coefficient for ordered categories (with linear weights)
-interval <- cat_pi(ordered, weighting = "linear")
+# Calculate all chance-adjusted indexes of agreement for ordered categories (with linear weights)
+interval <- cat_cai(ordered, weighting = "linear")
 summary(interval, ci = TRUE)
 #> 
 #> Call:
-#> cat_cai(.data = .data, approach = "pi", weighting = "linear")
+#> cat_cai(.data = ordered, weighting = "linear")
 #> 
 #> Objects =    20
 #> Raters =     5
@@ -137,25 +153,41 @@ summary(interval, ci = TRUE)
 #> 
 #> Chance-Adjusted Categorical Agreement with Bootstrapped CIs
 #> 
-#>      Observed   Expected   Adjusted   2.5 %   97.5 %
-#> pi      0.859      0.648      0.601   0.385    0.739
+#>         Observed   Expected   Adjusted   2.5 %   97.5 %
+#> s          0.859      0.583      0.663   0.519    0.800
+#> gamma      0.859      0.553      0.686   0.545    0.830
+#> kappa      0.859      0.636      0.614   0.399    0.763
+#> pi         0.859      0.648      0.601   0.387    0.754
+#> alpha      0.864      0.643      0.618   0.407    0.758
 ```
 
 ``` r
 tidy(interval)
-#> # A tibble: 3 x 4
-#>   approach weighting term     estimate
-#>   <chr>    <chr>     <chr>       <dbl>
-#> 1 pi       linear    Observed    0.859
-#> 2 pi       linear    Expected    0.648
-#> 3 pi       linear    Adjusted    0.601
+#> # A tibble: 15 x 4
+#>    approach weighting term     estimate
+#>    <chr>    <chr>     <chr>       <dbl>
+#>  1 s        linear    Observed    0.859
+#>  2 gamma    linear    Observed    0.859
+#>  3 kappa    linear    Observed    0.859
+#>  4 pi       linear    Observed    0.859
+#>  5 alpha    linear    Observed    0.864
+#>  6 s        linear    Expected    0.583
+#>  7 gamma    linear    Expected    0.553
+#>  8 kappa    linear    Expected    0.636
+#>  9 pi       linear    Expected    0.648
+#> 10 alpha    linear    Expected    0.643
+#> 11 s        linear    Adjusted    0.663
+#> 12 gamma    linear    Adjusted    0.686
+#> 13 kappa    linear    Adjusted    0.614
+#> 14 pi       linear    Adjusted    0.601
+#> 15 alpha    linear    Adjusted    0.618
 ```
 
 ``` r
-plot(interval, "Adjusted")
+plot(interval)
 ```
 
-<img src="man/figures/README-unnamed-chunk-8-1.png" width="60%" />
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
 
 ## Code of Conduct
 

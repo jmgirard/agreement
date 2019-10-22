@@ -9,7 +9,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
-  out.width = "60%"
+  out.width = "100%"
 )
 ```
 # agreement
@@ -40,8 +40,8 @@ print(unordered)
 ```
 
 ```{r}
-# Calculate the kappa coefficient for unordered categories
-nominal <- cat_kappa(unordered)
+# Calculate all chance-adjusted indexes of agreement for unordered categories
+nominal <- cat_cai(unordered)
 summary(nominal, ci = TRUE)
 ```
 
@@ -52,7 +52,7 @@ tidy(nominal)
 
 ```{r}
 # Plot the bootstrap resampling distribution with 95% CIs
-plot(nominal, "Adjusted")
+plot(nominal)
 ```
 
 
@@ -63,8 +63,8 @@ print(ordered)
 ```
 
 ```{r}
-# Calculate pi coefficient for ordered categories (with linear weights)
-interval <- cat_pi(ordered, weighting = "linear")
+# Calculate all chance-adjusted indexes of agreement for ordered categories (with linear weights)
+interval <- cat_cai(ordered, weighting = "linear")
 summary(interval, ci = TRUE)
 ```
 
@@ -73,7 +73,7 @@ tidy(interval)
 ```
 
 ```{r}
-plot(interval, "Adjusted")
+plot(interval)
 ```
 
 ## Code of Conduct
