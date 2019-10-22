@@ -61,7 +61,7 @@ summary.agreement_cai <- function(object, digits = 3, ci = TRUE, level = 0.95, .
     paste(deparse(object$call), sep = "\n", collapse = "\n"),
     "\n\n",
     "Objects = \t", object$details$n_objects,
-    " Raters = \t", object$details$n_raters,
+    "\nRaters = \t", object$details$n_raters,
     "\nCategories = \t{", paste(object$details$categories, collapse = ", "), "}",
     "\nWeighting = \t", object$details$weighting,
     "\n\n",
@@ -82,7 +82,7 @@ summary.agreement_cai <- function(object, digits = 3, ci = TRUE, level = 0.95, .
   }
 
   # Print matrix
-  print.default(m, print.gap = 3L, na.print = "")
+  print(m, print.gap = 3L, na.print = "")
   cat("\n")
 
 }
@@ -98,17 +98,24 @@ confint.agreement_cai <- function(object,
   assert_that(is.number(level), level > 0, level < 1)
 
   # Prepare matrix
+  a <- length(object$approach)
   index <- dplyr::case_when(
     which == "Observed" ~ 1,
     which == "Expected" ~ 2,
     which == "Adjusted" ~ 3
   )
-  out <- matrix(NA, nrow = length(object$approach), ncol = 2)
+  out <- matrix(NA, nrow = a, ncol = 2)
   rownames(out) <- paste0(object$approach, " ", which)
   colnames(out) <- sprintf("%.1f %%", c((1 - level) / 2, 1 - (1 - level) / 2) * 100)
   distributions <- object$boot_results$t[, seq(from = index, to = ncol(object$boot_results$t), by = 3)]
-  out[, 1] <- apply(distributions, MARGIN = 2, stats::quantile, probs = (1 - level) / 2)
-  out[, 2] <- apply(distributions, MARGIN = 2, stats::quantile, probs = 1 - (1 - level) / 2)
+
+  if (a == 1) {
+    out[, 1] <- stats::quantile(distributions, probs = (1 - level) / 2)
+    out[, 2] <- stats::quantile(distributions, probs = 1 - (1 - level) / 2)
+  } else {
+    out[, 1] <- apply(distributions, MARGIN = 2, stats::quantile, probs = (1 - level) / 2)
+    out[, 2] <- apply(distributions, MARGIN = 2, stats::quantile, probs = 1 - (1 - level) / 2)
+  }
 
   out
 }
@@ -126,20 +133,31 @@ plot.agreement_cai <- function(object,
     which == "Expected" ~ 2,
     which == "Adjusted" ~ 3
   )
+  a <- length(object$approach)
 
-  distributions <- object$boot_results$t[, seq(from = index, to = ncol(object$boot_results$t), by = 3)]
-  colnames(distributions) <- object$approach
-  df <- tibble::as_tibble(distributions)
+  distributions <- object$boot_results$t[, seq(from = index, to = a * 3, by = 3)]
+  if (a > 1) {
+    colnames(distributions) <- object$approach
+    df <- tibble::as_tibble(distributions)
+  } else {
+    df <- tibble(!!rlang::sym(object$approach) := distributions)
+  }
+
   df_long <- tidyr::pivot_longer(df, cols = dplyr::everything(), names_to = "Approach", values_to = "Estimate")
   ci <- confint(object, which, level)
-  df_ci <- tibble(Approach = object$approach, LCI = ci[, 1], UCI = ci[, 2])
+  df_ci <- tibble(Approach = object$approach, EST = object[[index + 1]], LCI = ci[, 1], UCI = ci[, 2])
 
   out <- ggplot2::ggplot(data = df_long, ggplot2::aes(x = Estimate)) +
-    ggplot2::facet_wrap(~Approach) + ggplot2::geom_density(fill = "white") +
+    ggplot2::geom_density(fill = "white") +
     ggplot2::geom_vline(data = df_ci, ggplot2::aes(xintercept = LCI)) +
+    ggplot2::geom_vline(data = df_ci, ggplot2::aes(xintercept = EST), color = "red") +
     ggplot2::geom_vline(data = df_ci, ggplot2::aes(xintercept = UCI)) +
     ggplot2::scale_x_continuous(NULL, breaks = seq(0, 1, 0.2)) +
     ggplot2::coord_cartesian(xlim = c(0, 1))
+
+  if (a > 1) {
+    out <- out + ggplot2::facet_wrap(~Approach)
+  }
 
   out
 }

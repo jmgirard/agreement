@@ -100,6 +100,8 @@ calc_weights <- function(type, categories, warnings) {
       "Numeric categories are required for ", type, " weights.\n",
       "Converting to integers from 1 to the number of categories."
     )
+  } else {
+    category_values <- categories
   }
 
   # Start with diagonal matrix
