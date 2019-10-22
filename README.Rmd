@@ -9,7 +9,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
-  out.width = "100%"
+  out.width = "60%"
 )
 ```
 # agreement
@@ -40,15 +40,21 @@ print(unordered)
 ```
 
 ```{r}
-# Calculate chance-adjusted agreement indexes using identity weights
-cat_cai(
-  .data = unordered, 
-  approach = c("s", "gamma", "kappa", "pi", "alpha"),
-  categories = c("a", "b", "c", "d", "e"), 
-  weighting = "identity",
-  bootstrap = NULL
-)
+# Calculate the kappa coefficient for unordered categories
+nominal <- cat_kappa(unordered)
+summary(nominal, ci = TRUE)
 ```
+
+```{r}
+# Transform results into a tidy data frame
+tidy(nominal)
+```
+
+```{r}
+# Plot the bootstrap resampling distribution with 95% CIs
+plot(nominal, "Adjusted")
+```
+
 
 ```{r}
 # Load example dataset with 5 raters assigning 20 objects to 4 ordered categories (and missing values)
@@ -57,14 +63,17 @@ print(ordered)
 ```
 
 ```{r}
-# Calculate chance-adjusted agreement indexes using linear weights and bootstrapped 95% confidence intervals
-cat_cai(
-  .data = ordered, 
-  approach = c("s", "gamma", "kappa", "pi", "alpha"),
-  weighting = "linear",
-  bootstrap = 2000,
-  interval = 0.95
-)
+# Calculate pi coefficient for ordered categories (with linear weights)
+interval <- cat_pi(ordered, weighting = "linear")
+summary(interval, ci = TRUE)
+```
+
+```{r}
+tidy(interval)
+```
+
+```{r}
+plot(interval, "Adjusted")
 ```
 
 ## Code of Conduct
