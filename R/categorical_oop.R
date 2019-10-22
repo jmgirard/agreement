@@ -122,44 +122,49 @@ confint.agreement_cai <- function(object,
 
 #' @export
 plot.agreement_cai <- function(object,
-                               which = c("Observed", "Expected", "Adjusted"),
-                               level = 0.95) {
+                               fill = "lightblue",
+                               .width = c(0.66, 0.95),
+                               base_size = 12,
+                               ...) {
 
-  which <- match.arg(which)
-  assert_that(is.number(level), level > 0, level < 1)
-
-  index <- dplyr::case_when(
-    which == "Observed" ~ 1,
-    which == "Expected" ~ 2,
-    which == "Adjusted" ~ 3
+  distributions <- object$boot_results$t
+  colnames(distributions) <- paste0(
+    rep(object$approach, each = 3),
+    c("_Observed", "_Expected", "_Adjusted")
   )
-  a <- length(object$approach)
 
-  distributions <- object$boot_results$t[, seq(from = index, to = a * 3, by = 3)]
-  if (a > 1) {
-    colnames(distributions) <- object$approach
-    df <- tibble::as_tibble(distributions)
-  } else {
-    df <- tibble(!!rlang::sym(object$approach) := distributions)
-  }
+  plot_data <-
+    tibble::as_tibble(distributions) %>%
+    tidyr::pivot_longer(
+      cols = dplyr::everything(),
+      names_to = "Approach",
+      values_to = "Estimate"
+    ) %>%
+    tidyr::separate(
+      col = "Approach",
+      into = c("Approach", "Term"),
+      sep = "_"
+    ) %>%
+    dplyr::mutate(
+      Term = factor(Term, levels = c("Observed", "Expected", "Adjusted"),
+                    labels = c("Raw Observed Agreement", "Expected Chance Agreement", "Chance-Adjusted Agreement"))
+    )
 
-  df_long <- tidyr::pivot_longer(df, cols = dplyr::everything(), names_to = "Approach", values_to = "Estimate")
-  ci <- confint(object, which, level)
-  df_ci <- tibble(Approach = object$approach, EST = object[[index + 1]], LCI = ci[, 1], UCI = ci[, 2])
-
-  out <- ggplot2::ggplot(data = df_long, ggplot2::aes(x = Estimate)) +
-    ggplot2::geom_density(fill = "white") +
-    ggplot2::geom_vline(data = df_ci, ggplot2::aes(xintercept = LCI)) +
-    ggplot2::geom_vline(data = df_ci, ggplot2::aes(xintercept = EST), color = "red") +
-    ggplot2::geom_vline(data = df_ci, ggplot2::aes(xintercept = UCI)) +
+  out <- ggplot2::ggplot(data = plot_data, ggplot2::aes(x = Estimate, y = 0)) +
+    ggplot2::facet_grid(Approach ~ Term, switch = "y") +
+    tidybayes::geom_halfeyeh(
+      point_interval = tidybayes::mean_qi,
+      fill = fill,
+      .width = .width,
+      ...
+    ) +
     ggplot2::scale_x_continuous(NULL, breaks = seq(0, 1, 0.2)) +
-    ggplot2::coord_cartesian(xlim = c(0, 1))
+    ggplot2::scale_y_continuous(NULL, breaks = NULL) +
+    ggplot2::coord_cartesian(xlim = c(0, 1), ylim = c(-0.25, 1)) +
+    ggplot2::theme_bw(base_size = base_size) +
+    ggplot2::theme(strip.text.y = ggplot2::element_text(angle = 180))
 
-  if (a > 1) {
-    out <- out + ggplot2::facet_wrap(~Approach)
-  }
-
-  out
+    out
 }
 
 #' @export
