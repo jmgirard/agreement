@@ -38,11 +38,12 @@
 #'   (default = TRUE).
 #' @return A tibble containing two or four columns and one row for each
 #'   category. The first variable is "Category" and contains the name of each
-#'   category. The second variable is "SA_EST" and contains the estimated
+#'   category. The second variable is "Agreement" and contains the estimated
 #'   specific agreement coefficient for each category. If \code{bootstrap} is
-#'   not NULL, the third variable is "SA_LCI" and contains the lower bound of
-#'   the bootstrap confidence interval and the the fourth variables is "SA_UCI"
-#'   and contains the upper bound of the bootstrap confidence interval.
+#'   not NULL, the third variable is "Agreement_LCI" and contains the lower
+#'   bound of the bootstrap confidence interval and the the fourth variables is
+#'   "Agreement_UCI" and contains the upper bound of the bootstrap confidence
+#'   interval.
 #' @export
 #' @references Uebersax, J. S. (1982). A design-independent method for measuring
 #'   the reliability of psychiatric diagnosis. *Journal of Psychiatric Research,
@@ -66,7 +67,7 @@ cat_specific <- function(.data,
   assert_that(is.scalar(interval))
   assert_that(interval > 0 && interval < 1)
   assert_that(
-    is.count(digits),
+    is_null(digits) || is.count(digits),
     msg = "The `digits` argument must be either NULL or a positive integer."
   )
   assert_that(is.flag(warnings))
@@ -79,17 +80,12 @@ cat_specific <- function(.data,
     sa <- calc_sa(d$codes, d$categories, d$weight_matrix)
 
     # Construct the output tibble
-    out <- tibble(Category = d$categories, SA_EST = sa)
-
-    # Round if requested
-    if (!is_null(digits)) {
-      out <- dplyr::mutate(out, SA_EST = round(SA_EST, digits = digits))
-    }
+    out <- tibble(Category = factor(d$categories), Agreement = sa)
   } else {
     # Calculate specific agreement with bootstrapping
 
-    # Warn about samples with less than 30 objects
-    if (d$n_objects < 30 && warnings == TRUE) {
+    # Warn about samples with less than 20 objects
+    if (d$n_objects < 20 && warnings == TRUE) {
       warning("With a small number of objects, bootstrap confidence intervals may not be stable.")
     }
 
@@ -112,27 +108,29 @@ cat_specific <- function(.data,
     # Create the output tibble
     out <- tibble(
       Category = d$categories,
-      SA_EST = bs_results$t0,
-      SA_LCI = bs_results$t0,
-      SA_UCI = bs_results$t0
+      Agreement = bs_results$t0,
+      Agreement_LCI = bs_results$t0,
+      Agreement_UCI = bs_results$t0
     )
 
     # Fill in the confidence interval bounds
     for (i in seq_along(d$categories)) {
-      bsi <- bs_results$t[, i]
-      out$SA_LCI[[i]] <- stats::quantile(bsi, probs = (1 - interval) / 2, na.rm = TRUE)
-      out$SA_UCI[[i]] <- stats::quantile(bsi, probs = 1 - (1 - interval) / 2, na.rm = TRUE)
-    }
-
-    # Round if requested
-    if (!is_null(digits)) {
-      out <- dplyr::mutate_at(
-        out,
-        .vars = dplyr::vars(SA_EST:SA_UCI),
-        .funs = round,
-        digits = digits
+      out$Agreement_LCI[[i]] <- stats::quantile(
+        bs_results$t[, i],
+        probs = (1 - interval) / 2,
+        na.rm = TRUE
+      )
+      out$Agreement_UCI[[i]] <- stats::quantile(
+        bs_results$t[, i],
+        probs = 1 - (1 - interval) / 2,
+        na.rm = TRUE
       )
     }
+  }
+
+  # Round if requested
+  if (!is_null(digits)) {
+    out <- dplyr::mutate_if(out, is.numeric, round, digits = digits)
   }
 
   out

@@ -1,16 +1,6 @@
 #' @export
-cat_s <- function(.data,
-                   categories = NULL,
-                   weighting = c("identity", "linear", "quadratic"),
-                   bootstrap = 2000,
-                   interval = 0.95,
-                   digits = 3,
-                   details = FALSE,
-                   warnings = TRUE) {
-
-  cat_cai(.data, "s", categories, weighting,
-          bootstrap, interval, digits, details, warnings)
-
+cat_s <- function(.data, ...) {
+  cat_cai(.data, approach = "s", ...)
 }
 
 # Worker function to calculate the S score and its components

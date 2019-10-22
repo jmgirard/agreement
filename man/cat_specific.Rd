@@ -36,11 +36,12 @@ rounding, set to \code{NULL}.}
 \value{
 A tibble containing two or four columns and one row for each
 category. The first variable is "Category" and contains the name of each
-category. The second variable is "SA_EST" and contains the estimated
+category. The second variable is "Agreement" and contains the estimated
 specific agreement coefficient for each category. If \code{bootstrap} is
-not NULL, the third variable is "SA_LCI" and contains the lower bound of
-the bootstrap confidence interval and the the fourth variables is "SA_UCI"
-and contains the upper bound of the bootstrap confidence interval.
+not NULL, the third variable is "Agreement_LCI" and contains the lower
+bound of the bootstrap confidence interval and the the fourth variables is
+"Agreement_UCI" and contains the upper bound of the bootstrap confidence
+interval.
 }
 \description{
 Calculate the percent observed agreement for each discrete category in an

@@ -1,16 +1,6 @@
 #' @export
-cat_gamma <- function(.data,
-                  categories = NULL,
-                  weighting = c("identity", "linear", "quadratic"),
-                  bootstrap = 2000,
-                  interval = 0.95,
-                  digits = 3,
-                  details = FALSE,
-                  warnings = TRUE) {
-
-  cat_cai(.data, "gamma", categories, weighting,
-          bootstrap, interval, digits, details, warnings)
-
+cat_gamma <- function(.data, ...) {
+  cat_cai(.data, approach = "gamma", ...)
 }
 
 # Calculate the gamma coefficient and its components

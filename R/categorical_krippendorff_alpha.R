@@ -1,16 +1,6 @@
 #' @export
-cat_alpha <- function(.data,
-                   categories = NULL,
-                   weighting = c("identity", "linear", "quadratic"),
-                   bootstrap = 2000,
-                   interval = 0.95,
-                   digits = 3,
-                   details = FALSE,
-                   warnings = TRUE) {
-
-  cat_cai(.data, "alpha", categories, weighting,
-          bootstrap, interval, digits, details, warnings)
-
+cat_alpha <- function(.data, ...) {
+  cat_cai(.data, approach = "alpha", ...)
 }
 
 # Calculate the alpha coefficient and its components

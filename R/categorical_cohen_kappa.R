@@ -1,16 +1,6 @@
 #' @export
-cat_kappa <- function(.data,
-                      categories = NULL,
-                      weighting = c("identity", "linear", "quadratic"),
-                      bootstrap = 2000,
-                      interval = 0.95,
-                      digits = 3,
-                      details = FALSE,
-                      warnings = TRUE) {
-
-  cat_cai(.data, "kappa", categories, weighting,
-          bootstrap, interval, digits, details, warnings)
-
+cat_kappa <- function(.data, ...) {
+  cat_cai(.data, approach = "kappa", ...)
 }
 
 # Calculate the kappa coefficient and its components
