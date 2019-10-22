@@ -130,11 +130,11 @@ plot.agreement_cai <- function(object,
   distributions <- object$boot_results$t[, seq(from = index, to = ncol(object$boot_results$t), by = 3)]
   colnames(distributions) <- object$approach
   df <- tibble::as_tibble(distributions)
-  df_long <- tidyr::pivot_longer(df, cols = dplyr::everything(), names_to = "Approach", values_to = "Statistic")
+  df_long <- tidyr::pivot_longer(df, cols = dplyr::everything(), names_to = "Approach", values_to = "Estimate")
   ci <- confint(object, which, level)
   df_ci <- tibble(Approach = object$approach, LCI = ci[, 1], UCI = ci[, 2])
 
-  out <- ggplot2::ggplot(data = df_long, ggplot2::aes(x = Statistic)) +
+  out <- ggplot2::ggplot(data = df_long, ggplot2::aes(x = Estimate)) +
     ggplot2::facet_wrap(~Approach) + ggplot2::geom_density(fill = "white") +
     ggplot2::geom_vline(data = df_ci, ggplot2::aes(xintercept = LCI)) +
     ggplot2::geom_vline(data = df_ci, ggplot2::aes(xintercept = UCI)) +
@@ -144,3 +144,15 @@ plot.agreement_cai <- function(object,
   out
 }
 
+#' @export
+tidy.agreement_cai <- function(x, ...) {
+  a <- length(x$approach)
+  out <- tibble(
+    approach = rep(x$approach, times = 3),
+    weighting = rep(x$details$weighting, times = a * 3),
+    term = rep(c("Observed", "Expected", "Adjusted"), each = a),
+    estimate = c(x$observed, x$expected, x$adjusted)
+  )
+
+  out
+}

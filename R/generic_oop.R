@@ -9,3 +9,15 @@ new_s3_lst <- function(x, ..., class) {
 new_s3_scalar <- function(..., class) {
   new_s3_lst(list(...), class = class)
 }
+
+#' @importFrom generics tidy
+#' @export
+generics::tidy
+
+#' @importFrom generics glance
+#' @export
+generics::glance
+
+#' @importFrom generics augment
+#' @export
+generics::augment
