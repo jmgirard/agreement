@@ -34,7 +34,7 @@ This is a basic example which shows you how to solve a common problem:
 
 ``` r
 library(agreement)
-# Load example dataset with 4 raters assigning 12 objects to 5 unordered categories (and missing values)
+# Load dataset with 4 raters assigning 12 objects to 5 unordered categories
 data(unordered)
 print(unordered)
 #> # A tibble: 12 x 4
@@ -55,11 +55,11 @@ print(unordered)
 ```
 
 ``` r
-# Calculate all chance-adjusted indexes of agreement for unordered categories
-nominal <- cat_cai(unordered)
+# Calculate all chance-adjusted indexes for unordered categories
+cai_unordered <- cat_cai(unordered)
 #> Warning in cat_cai(unordered): With a small number of objects, bootstrap
 #> confidence intervals may not be stable.
-summary(nominal, ci = TRUE)
+summary(cai_unordered, ci = TRUE)
 #> 
 #> Call:
 #> cat_cai(.data = unordered)
@@ -72,16 +72,16 @@ summary(nominal, ci = TRUE)
 #> Chance-Adjusted Categorical Agreement with Bootstrapped CIs
 #> 
 #>         Observed   Expected   Adjusted   2.5 %   97.5 %
-#> s          0.818      0.200      0.773   0.514        1
-#> gamma      0.818      0.190      0.775   0.529        1
-#> kappa      0.818      0.233      0.763   0.471        1
-#> pi         0.818      0.239      0.761   0.441        1
-#> alpha      0.805      0.240      0.743   0.424        1
+#> s          0.818      0.200      0.773   0.531        1
+#> gamma      0.818      0.190      0.775   0.541        1
+#> kappa      0.818      0.233      0.763   0.479        1
+#> pi         0.818      0.239      0.761   0.458        1
+#> alpha      0.805      0.240      0.743   0.425        1
 ```
 
 ``` r
 # Transform results into a tidy data frame
-tidy(nominal)
+tidy(cai_unordered)
 #> # A tibble: 15 x 4
 #>    approach weighting term     estimate
 #>    <chr>    <chr>     <chr>       <dbl>
@@ -103,14 +103,14 @@ tidy(nominal)
 ```
 
 ``` r
-# Plot the bootstrap resampling distribution with 95% CIs
-plot(nominal)
+# Plot the bootstrap resampling distributions with confidence intervals
+plot(cai_unordered)
 ```
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
 
 ``` r
-# Load example dataset with 5 raters assigning 20 objects to 4 ordered categories (and missing values)
+# Load dataset with 5 raters assigning 20 objects to 4 ordered categories
 data(ordered)
 print(ordered)
 #> # A tibble: 20 x 5
@@ -139,9 +139,9 @@ print(ordered)
 ```
 
 ``` r
-# Calculate all chance-adjusted indexes of agreement for ordered categories (with linear weights)
-interval <- cat_cai(ordered, weighting = "linear")
-summary(interval, ci = TRUE)
+# Calculate all chance-adjusted indexes for ordered categories (linear weights)
+cai_ordered <- cat_cai(ordered, weighting = "linear")
+summary(cai_ordered, ci = TRUE)
 #> 
 #> Call:
 #> cat_cai(.data = ordered, weighting = "linear")
@@ -154,15 +154,15 @@ summary(interval, ci = TRUE)
 #> Chance-Adjusted Categorical Agreement with Bootstrapped CIs
 #> 
 #>         Observed   Expected   Adjusted   2.5 %   97.5 %
-#> s          0.859      0.583      0.663   0.519    0.800
-#> gamma      0.859      0.553      0.686   0.545    0.830
-#> kappa      0.859      0.636      0.614   0.399    0.763
-#> pi         0.859      0.648      0.601   0.387    0.754
-#> alpha      0.864      0.643      0.618   0.407    0.758
+#> s          0.859      0.583      0.663   0.523    0.803
+#> gamma      0.859      0.553      0.686   0.558    0.834
+#> kappa      0.859      0.636      0.614   0.394    0.762
+#> pi         0.859      0.648      0.601   0.375    0.746
+#> alpha      0.864      0.643      0.618   0.404    0.753
 ```
 
 ``` r
-tidy(interval)
+tidy(cai_ordered)
 #> # A tibble: 15 x 4
 #>    approach weighting term     estimate
 #>    <chr>    <chr>     <chr>       <dbl>
@@ -184,7 +184,8 @@ tidy(interval)
 ```
 
 ``` r
-plot(interval)
+# Plot the bootstrap resample distributions with confidence intervals
+plot(cai_ordered)
 ```
 
 <img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />

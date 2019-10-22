@@ -123,8 +123,9 @@ confint.agreement_cai <- function(object,
 #' @export
 plot.agreement_cai <- function(object,
                                fill = "lightblue",
-                               .width = c(0.66, 0.95),
-                               base_size = 12,
+                               .width = 0.95,
+                               base_size = 10,
+                               size = 2,
                                ...) {
 
   distributions <- object$boot_results$t
@@ -156,6 +157,7 @@ plot.agreement_cai <- function(object,
       point_interval = tidybayes::mean_qi,
       fill = fill,
       .width = .width,
+      size = size,
       ...
     ) +
     ggplot2::scale_x_continuous(NULL, breaks = seq(0, 1, 0.2)) +

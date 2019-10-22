@@ -11,6 +11,7 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
+set.seed(11)
 ```
 # agreement
 
@@ -34,46 +35,47 @@ This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
 library(agreement)
-# Load example dataset with 4 raters assigning 12 objects to 5 unordered categories (and missing values)
+# Load dataset with 4 raters assigning 12 objects to 5 unordered categories
 data(unordered)
 print(unordered)
 ```
 
 ```{r}
-# Calculate all chance-adjusted indexes of agreement for unordered categories
-nominal <- cat_cai(unordered)
-summary(nominal, ci = TRUE)
+# Calculate all chance-adjusted indexes for unordered categories
+cai_unordered <- cat_cai(unordered)
+summary(cai_unordered, ci = TRUE)
 ```
 
 ```{r}
 # Transform results into a tidy data frame
-tidy(nominal)
+tidy(cai_unordered)
 ```
 
-```{r}
-# Plot the bootstrap resampling distribution with 95% CIs
-plot(nominal)
+```{r, fig.height=3}
+# Plot the bootstrap resampling distributions with confidence intervals
+plot(cai_unordered)
 ```
 
 
 ```{r}
-# Load example dataset with 5 raters assigning 20 objects to 4 ordered categories (and missing values)
+# Load dataset with 5 raters assigning 20 objects to 4 ordered categories
 data(ordered)
 print(ordered)
 ```
 
 ```{r}
-# Calculate all chance-adjusted indexes of agreement for ordered categories (with linear weights)
-interval <- cat_cai(ordered, weighting = "linear")
-summary(interval, ci = TRUE)
+# Calculate all chance-adjusted indexes for ordered categories (linear weights)
+cai_ordered <- cat_cai(ordered, weighting = "linear")
+summary(cai_ordered, ci = TRUE)
 ```
 
 ```{r}
-tidy(interval)
+tidy(cai_ordered)
 ```
 
-```{r}
-plot(interval)
+```{r, fig.height=3}
+# Plot the bootstrap resample distributions with confidence intervals
+plot(cai_ordered)
 ```
 
 ## Code of Conduct
