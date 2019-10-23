@@ -1,5 +1,5 @@
 #' @export
-cat_cai <- function(.data,
+cat_adjusted <- function(.data,
                     approach = c("s", "gamma", "kappa", "pi", "alpha"),
                     categories = NULL,
                     weighting = c("identity", "linear", "quadratic"),
@@ -26,7 +26,6 @@ cat_cai <- function(.data,
   if (bootstrap > 0 && bootstrap < 1000 && warnings == TRUE) {
     warning("To get stable confidence intervals, consider using more bootstrap resamples.")
   }
-
 
   # Create function to perform bootstrapping
   boot_function <- function(codes, index, function_list, categories, weight_matrix) {

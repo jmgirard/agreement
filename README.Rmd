@@ -42,7 +42,7 @@ print(unordered)
 
 ```{r}
 # Calculate all chance-adjusted indexes for unordered categories
-cai_unordered <- cat_cai(unordered)
+cai_unordered <- cat_adjusted(unordered)
 summary(cai_unordered, ci = TRUE)
 ```
 
@@ -65,7 +65,7 @@ print(ordered)
 
 ```{r}
 # Calculate all chance-adjusted indexes for ordered categories (linear weights)
-cai_ordered <- cat_cai(ordered, weighting = "linear")
+cai_ordered <- cat_adjusted(ordered, weighting = "linear")
 summary(cai_ordered, ci = TRUE)
 ```
 

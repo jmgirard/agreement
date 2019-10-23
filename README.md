@@ -56,13 +56,13 @@ print(unordered)
 
 ``` r
 # Calculate all chance-adjusted indexes for unordered categories
-cai_unordered <- cat_cai(unordered)
-#> Warning in cat_cai(unordered): With a small number of objects, bootstrap
-#> confidence intervals may not be stable.
+cai_unordered <- cat_adjusted(unordered)
+#> Warning in cat_adjusted(unordered): With a small number of objects,
+#> bootstrap confidence intervals may not be stable.
 summary(cai_unordered, ci = TRUE)
 #> 
 #> Call:
-#> cat_cai(.data = unordered)
+#> cat_adjusted(.data = unordered)
 #> 
 #> Objects =    12
 #> Raters =     4
@@ -140,11 +140,11 @@ print(ordered)
 
 ``` r
 # Calculate all chance-adjusted indexes for ordered categories (linear weights)
-cai_ordered <- cat_cai(ordered, weighting = "linear")
+cai_ordered <- cat_adjusted(ordered, weighting = "linear")
 summary(cai_ordered, ci = TRUE)
 #> 
 #> Call:
-#> cat_cai(.data = ordered, weighting = "linear")
+#> cat_adjusted(.data = ordered, weighting = "linear")
 #> 
 #> Objects =    20
 #> Raters =     5
