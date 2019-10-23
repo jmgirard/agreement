@@ -24,7 +24,11 @@ prep_data <- function(.data, categories, weighting, warnings) {
     cat_possible <- cat_observed
     n_cat_possible <- n_cat_observed
   } else {
-    cat_possible <- categories
+    if (is.factor(categories)) {
+      cat_possible <- levels(categories)
+    } else {
+      cat_possible <- categories
+    }
     n_cat_possible <- length(cat_possible)
   }
 
