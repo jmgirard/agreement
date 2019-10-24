@@ -32,6 +32,8 @@ prep_data <- function(.data, categories = NULL, weighting = "identity", warnings
     n_cat_possible <- length(cat_possible)
   }
 
+  assert_that(n_cat_possible > 1)
+
   # Check observed categories against possible categories
   cat_unknown <- setdiff(cat_observed, cat_possible)
   assert_that(is_empty(cat_unknown), msg = "A category not in `categories` was observed in `.data`.")
