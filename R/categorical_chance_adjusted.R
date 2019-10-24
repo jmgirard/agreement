@@ -10,6 +10,7 @@ cat_adjusted <- function(.data,
   assert_that(is.data.frame(.data) || is.matrix(.data))
   approach <- match.arg(approach, several.ok = TRUE)
   approach <- unique(approach)
+  assert_that(is_null(categories) || is_vector(categories))
   weighting <- match.arg(weighting)
   assert_that(bootstrap == 0 || is.count(bootstrap))
   assert_that(is.flag(warnings))
@@ -29,10 +30,7 @@ cat_adjusted <- function(.data,
 
   # Create function to perform bootstrapping
   boot_function <- function(codes, index, function_list, categories, weight_matrix) {
-    resample <- codes[index, ]
-    if (nrow(codes) == 1) {
-      resample <- codes
-    }
+    resample <- codes[index, , drop = FALSE]
     bsr <- rep(NA_real_, times = length(function_list) * 3)
     # Loop through approaches
     for (i in seq_along(function_list)) {

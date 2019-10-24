@@ -65,11 +65,7 @@ get_unique <- function(x) {
 
 # Drop rows that contain only missing values
 remove_uncoded <- function(mat) {
-  index <- rowSums(are_na(mat)) != ncol(mat)
-  if (sum(index) > 1) {
-    mat <- mat[index, ]
-  }
-  mat
+  mat[rowSums(are_na(mat)) != ncol(mat), , drop = FALSE]
 }
 
 # Calculate chance-adjusted index
