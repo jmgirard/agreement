@@ -1,5 +1,5 @@
 # Prepare data for analysis
-prep_data <- function(.data, categories, weighting, warnings) {
+prep_data <- function(.data, categories = NULL, weighting = "identity", warnings = TRUE) {
 
   # Extract codes from .data
   codes <- as.matrix(.data)
@@ -92,7 +92,7 @@ objects_rat_cat <- function(codes, categories) {
 }
 
 # Calculate weight matrix
-calc_weights <- function(type, categories, warnings) {
+calc_weights <- function(type, categories, warnings = TRUE) {
 
   # Count the categories
   n_categories <- length(categories)
