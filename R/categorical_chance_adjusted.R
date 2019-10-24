@@ -30,6 +30,9 @@ cat_adjusted <- function(.data,
   # Create function to perform bootstrapping
   boot_function <- function(codes, index, function_list, categories, weight_matrix) {
     resample <- codes[index, ]
+    if (nrow(codes) == 1) {
+      resample <- codes
+    }
     bsr <- rep(NA_real_, times = length(function_list) * 3)
     # Loop through approaches
     for (i in seq_along(function_list)) {
