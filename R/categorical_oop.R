@@ -307,3 +307,45 @@ tidy.agreement_spa <- function(x, level = 0.95, ...) {
 
   out
 }
+
+# Plot method for objects of spa class
+#' @export
+plot.agreement_spa <- function(object,
+  fill = "lightblue",
+  .width = 0.95,
+  base_size = 10,
+  size = 2,
+  ...) {
+
+  distributions <- object$boot_results$t
+  colnames(distributions) <- paste0("Category = ", object$details$categories)
+
+  plot_data <-
+    tibble::as_tibble(distributions) %>%
+    tidyr::pivot_longer(
+      cols = dplyr::everything(),
+      names_to = "Category",
+      values_to = "Estimate"
+    ) %>%
+    dplyr::mutate(
+      Category = factor(Category, levels = colnames(distributions))
+    ) %>%
+    tidyr::drop_na()
+
+  out <- ggplot2::ggplot(data = plot_data, ggplot2::aes(x = Estimate, y = 0)) +
+    ggplot2::facet_wrap(~Category, ncol = 1) +
+    tidybayes::geom_halfeyeh(
+      point_interval = tidybayes::mean_qi,
+      fill = fill,
+      .width = .width,
+      size = size,
+      ...
+    ) +
+    ggplot2::scale_x_continuous("Category-Specific Agreement", breaks = seq(0, 1, 0.2)) +
+    ggplot2::scale_y_continuous(NULL, breaks = NULL) +
+    ggplot2::coord_cartesian(xlim = c(0, 1), ylim = c(-0.25, 1)) +
+    ggplot2::theme_bw(base_size = base_size) +
+    ggplot2::theme(strip.text.y = ggplot2::element_text(angle = 180))
+
+  out
+}
