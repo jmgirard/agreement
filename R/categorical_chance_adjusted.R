@@ -1,3 +1,54 @@
+#' Calculate Chance-Adjusted Agreement
+#'
+#' Description
+#'
+#' @param .data *Required.* A matrix or data frame containing categorical data
+#'   where each row corresponds to a single object of measurement (e.g.,
+#'   subject) and each column corresponds to a single source of measurement
+#'   (e.g., rater). Cells should contain numbers or characters indicating the
+#'   discrete category that the corresponding rater assigned the corresponding
+#'   object to. Cells should contain \code{NA} if a particular assignment is
+#'   missing (e.g., that object was not assigned to a category by that rater).
+#' @param approach *Optional.* A string or vector of strings specifying the
+#'   chance-adjustment approach(es) to use. Currently, the "s", "gamma",
+#'   "kappa", "pi", and "alpha" approaches are available. (default = c("s",
+#'   "gamma", "kappa", "pi", "alpha"))
+#' @param categories *Optional.* A vector (numeric, character, or factor)
+#'   containing all possible categories that objects could have been assigned
+#'   to. When this argument is omitted or set to \code{NULL}, the possible
+#'   categories are assumed to be those observed in \code{.data}. However, in
+#'   the event that not all possible categories are observed in \code{.data},
+#'   this assumption may be misleading and so the possible categories, and their
+#'   ordering, can be explicitly specified. (default = NULL)
+#' @param weighting *Optional.* A single string specifying the type of weighting
+#'   scheme to use. Weighting schemes allow the accommodation of ordered and
+#'   unordered categories with the same formulas. Currently, "identity" weights
+#'   are available for unordered/nominal categories and both "linear" and
+#'   "quadratic" weights are available for ordered categories. (default =
+#'   "identity")
+#' @param bootstrap *Optional.* A single non-negative integer that specifies how
+#'   many bootstrap resamplings should be computed (used primarily for
+#'   estimating confidence intervals and visualizing uncertainty). To skip
+#'   bootstrapping, set this argument to 0. (default = 2000)
+#' @param warnings *Optional.* A single logical value that specifies whether
+#'   warnings should be displayed. (default = TRUE).
+#' @return An object of type 'cai' containing the results and details.
+#'   \describe{\item{approach}{A character vector containing the name of each
+#'   approach in order} \item{observed}{A numeric vector containing the raw
+#'   observed agreement according to each approach} \item{expected}{A numeric
+#'   vector containing the expected chance agreement according to each approach}
+#'   \item{adjusted}{A numeric vector containing the chance-adjusted agreement
+#'   according to each approach. Note that these values are those typically
+#'   named after each approach (e.g., this is the kappa coefficient)}
+#'   \item{boot_results}{A list containing the results of the bootstrap
+#'   procedure} \item{details}{A list containing the details of the analysis,
+#'   such as the formatted \code{codes}, relevant counts, weighting scheme and
+#'   weight matrix.} \item{call}{The function call that created these results.}}
+#' @references Gwet, K. L. (2014). *Handbook of inter-rater reliability: The
+#'   definitive guide to measuring the extent of agreement among raters* (4th
+#'   ed.). Gaithersburg, MD: Advanced Analytics.
+#' @family functions for categorical data
+#' @family functions for chance-adjusted agreement
 #' @export
 cat_adjusted <- function(.data,
                     approach = c("s", "gamma", "kappa", "pi", "alpha"),
