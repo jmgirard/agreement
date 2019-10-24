@@ -30,7 +30,8 @@ devtools::install_github("jmgirard/agreement")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+Calculate chance-adjusted indexes of categorical agreement for unordered
+categories
 
 ``` r
 library(agreement)
@@ -56,10 +57,10 @@ print(unordered)
 
 ``` r
 # Calculate all chance-adjusted indexes for unordered categories
-cai_unordered <- cat_adjusted(unordered)
+results1 <- cat_adjusted(unordered)
 #> Warning in cat_adjusted(unordered): With a small number of objects,
 #> bootstrap confidence intervals may not be stable.
-summary(cai_unordered, ci = TRUE)
+summary(results1, ci = TRUE)
 #> 
 #> Call:
 #> cat_adjusted(.data = unordered)
@@ -81,33 +82,36 @@ summary(cai_unordered, ci = TRUE)
 
 ``` r
 # Transform results into a tidy data frame
-tidy(cai_unordered)
-#> # A tibble: 15 x 4
-#>    approach weighting term     estimate
-#>    <chr>    <chr>     <chr>       <dbl>
-#>  1 s        identity  Observed    0.818
-#>  2 gamma    identity  Observed    0.818
-#>  3 kappa    identity  Observed    0.818
-#>  4 pi       identity  Observed    0.818
-#>  5 alpha    identity  Observed    0.805
-#>  6 s        identity  Expected    0.2  
-#>  7 gamma    identity  Expected    0.190
-#>  8 kappa    identity  Expected    0.233
-#>  9 pi       identity  Expected    0.239
-#> 10 alpha    identity  Expected    0.24 
-#> 11 s        identity  Adjusted    0.773
-#> 12 gamma    identity  Adjusted    0.775
-#> 13 kappa    identity  Adjusted    0.763
-#> 14 pi       identity  Adjusted    0.761
-#> 15 alpha    identity  Adjusted    0.743
+tidy(results1)
+#> # A tibble: 15 x 6
+#>    approach weighting term     estimate lower upper
+#>    <chr>    <chr>     <chr>       <dbl> <dbl> <dbl>
+#>  1 s        identity  Observed    0.818 0.625 1    
+#>  2 gamma    identity  Observed    0.818 0.625 1    
+#>  3 kappa    identity  Observed    0.818 0.625 1    
+#>  4 pi       identity  Observed    0.818 0.625 1    
+#>  5 alpha    identity  Observed    0.805 0.600 1.000
+#>  6 s        identity  Expected    0.2   0.2   0.2  
+#>  7 gamma    identity  Expected    0.190 0.144 0.196
+#>  8 kappa    identity  Expected    0.233 0.202 0.420
+#>  9 pi       identity  Expected    0.239 0.218 0.424
+#> 10 alpha    identity  Expected    0.24  0.216 0.435
+#> 11 s        identity  Adjusted    0.773 0.531 1    
+#> 12 gamma    identity  Adjusted    0.775 0.541 1    
+#> 13 kappa    identity  Adjusted    0.763 0.479 1    
+#> 14 pi       identity  Adjusted    0.761 0.458 1    
+#> 15 alpha    identity  Adjusted    0.743 0.425 1
 ```
 
 ``` r
 # Plot the bootstrap resampling distributions with confidence intervals
-plot(cai_unordered)
+plot(results1)
 ```
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
+
+Calculate chance-adjusted indexes of categorical agreement for ordered
+categories
 
 ``` r
 # Load dataset with 5 raters assigning 20 objects to 4 ordered categories
@@ -140,8 +144,8 @@ print(ordered)
 
 ``` r
 # Calculate all chance-adjusted indexes for ordered categories (linear weights)
-cai_ordered <- cat_adjusted(ordered, weighting = "linear")
-summary(cai_ordered, ci = TRUE)
+results2 <- cat_adjusted(ordered, weighting = "linear")
+summary(results2, ci = TRUE)
 #> 
 #> Call:
 #> cat_adjusted(.data = ordered, weighting = "linear")
@@ -162,33 +166,72 @@ summary(cai_ordered, ci = TRUE)
 ```
 
 ``` r
-tidy(cai_ordered)
-#> # A tibble: 15 x 4
-#>    approach weighting term     estimate
-#>    <chr>    <chr>     <chr>       <dbl>
-#>  1 s        linear    Observed    0.859
-#>  2 gamma    linear    Observed    0.859
-#>  3 kappa    linear    Observed    0.859
-#>  4 pi       linear    Observed    0.859
-#>  5 alpha    linear    Observed    0.864
-#>  6 s        linear    Expected    0.583
-#>  7 gamma    linear    Expected    0.553
-#>  8 kappa    linear    Expected    0.636
-#>  9 pi       linear    Expected    0.648
-#> 10 alpha    linear    Expected    0.643
-#> 11 s        linear    Adjusted    0.663
-#> 12 gamma    linear    Adjusted    0.686
-#> 13 kappa    linear    Adjusted    0.614
-#> 14 pi       linear    Adjusted    0.601
-#> 15 alpha    linear    Adjusted    0.618
+tidy(results2)
+#> # A tibble: 15 x 6
+#>    approach weighting term     estimate lower upper
+#>    <chr>    <chr>     <chr>       <dbl> <dbl> <dbl>
+#>  1 s        linear    Observed    0.859 0.801 0.918
+#>  2 gamma    linear    Observed    0.859 0.801 0.918
+#>  3 kappa    linear    Observed    0.859 0.801 0.918
+#>  4 pi       linear    Observed    0.859 0.801 0.918
+#>  5 alpha    linear    Observed    0.864 0.810 0.919
+#>  6 s        linear    Expected    0.583 0.583 0.583
+#>  7 gamma    linear    Expected    0.553 0.467 0.575
+#>  8 kappa    linear    Expected    0.636 0.576 0.732
+#>  9 pi       linear    Expected    0.648 0.592 0.741
+#> 10 alpha    linear    Expected    0.643 0.587 0.740
+#> 11 s        linear    Adjusted    0.663 0.523 0.803
+#> 12 gamma    linear    Adjusted    0.686 0.558 0.834
+#> 13 kappa    linear    Adjusted    0.614 0.394 0.762
+#> 14 pi       linear    Adjusted    0.601 0.375 0.746
+#> 15 alpha    linear    Adjusted    0.618 0.404 0.753
 ```
 
 ``` r
-# Plot the bootstrap resample distributions with confidence intervals
-plot(cai_ordered)
+plot(results2)
 ```
 
 <img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
+
+Calculate category-specific agreement
+
+``` r
+# Calculate category-specific agreement
+results3 <- cat_specific(ordered)
+summary(results3, ci = TRUE)
+#> 
+#> Call:
+#> cat_specific(.data = ordered)
+#> 
+#> Objects =    20
+#> Raters =     5
+#> Categories =     {0, 1, 2, 3}
+#> 
+#> Category-Specific Agreement with Bootstrapped CIs
+#> 
+#>     Estimate   2.5 %   97.5 %
+#> 0      0.812   0.490    0.954
+#> 1      0.605   0.333    0.771
+#> 2      0.483   0.171    0.711
+#> 3      0.519   0.333    0.667
+```
+
+``` r
+tidy(results3)
+#> # A tibble: 4 x 4
+#>   category estimate lower upper
+#>      <dbl>    <dbl> <dbl> <dbl>
+#> 1        0    0.812 0.490 0.954
+#> 2        1    0.605 0.333 0.771
+#> 3        2    0.483 0.171 0.711
+#> 4        3    0.519 0.333 0.667
+```
+
+``` r
+plot(results3)
+```
+
+<img src="man/figures/README-unnamed-chunk-11-1.png" width="50%" />
 
 ## Code of Conduct
 

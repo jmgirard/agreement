@@ -31,7 +31,7 @@ devtools::install_github("jmgirard/agreement")
 ```
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+Calculate chance-adjusted indexes of categorical agreement for unordered categories
 
 ```{r example}
 library(agreement)
@@ -42,20 +42,21 @@ print(unordered)
 
 ```{r}
 # Calculate all chance-adjusted indexes for unordered categories
-cai_unordered <- cat_adjusted(unordered)
-summary(cai_unordered, ci = TRUE)
+results1 <- cat_adjusted(unordered)
+summary(results1, ci = TRUE)
 ```
 
 ```{r}
 # Transform results into a tidy data frame
-tidy(cai_unordered)
+tidy(results1)
 ```
 
 ```{r, fig.height=3}
 # Plot the bootstrap resampling distributions with confidence intervals
-plot(cai_unordered)
+plot(results1)
 ```
 
+Calculate chance-adjusted indexes of categorical agreement for ordered categories
 
 ```{r}
 # Load dataset with 5 raters assigning 20 objects to 4 ordered categories
@@ -65,18 +66,34 @@ print(ordered)
 
 ```{r}
 # Calculate all chance-adjusted indexes for ordered categories (linear weights)
-cai_ordered <- cat_adjusted(ordered, weighting = "linear")
-summary(cai_ordered, ci = TRUE)
+results2 <- cat_adjusted(ordered, weighting = "linear")
+summary(results2, ci = TRUE)
 ```
 
 ```{r}
-tidy(cai_ordered)
+tidy(results2)
 ```
 
 ```{r, fig.height=3}
-# Plot the bootstrap resample distributions with confidence intervals
-plot(cai_ordered)
+plot(results2)
 ```
+
+Calculate category-specific agreement
+
+```{r}
+# Calculate category-specific agreement
+results3 <- cat_specific(ordered)
+summary(results3, ci = TRUE)
+```
+
+```{r}
+tidy(results3)
+```
+
+```{r, fig.height = 3, fig.width = 3, out.width = "50%"}
+plot(results3)
+```
+
 
 ## Code of Conduct
 
