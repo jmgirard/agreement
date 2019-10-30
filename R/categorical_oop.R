@@ -77,7 +77,7 @@ summary.agreement_cai <- function(object, digits = 3, ci = TRUE, level = 0.95, .
 
   # Append Confidence Intervals for Adjusted Column if requested
   if (ci == TRUE) {
-    ci <- round(confint(object, which = "Adjusted", level = level), digits)
+    ci <- round(stats::confint(object, which = "Adjusted", level = level), digits)
     m <- cbind(m, ci)
   }
 
@@ -172,9 +172,9 @@ plot.agreement_cai <- function(object,
 #' @export
 tidy.agreement_cai <- function(x, level = 0.95, ...) {
   a <- length(x$approach)
-  ci_vals_o <- confint(x, which = "Observed", level = level)
-  ci_vals_e <- confint(x, which = "Expected", level = level)
-  ci_vals_a <- confint(x, which = "Adjusted", level = level)
+  ci_vals_o <- stats::confint(x, which = "Observed", level = level)
+  ci_vals_e <- stats::confint(x, which = "Expected", level = level)
+  ci_vals_a <- stats::confint(x, which = "Adjusted", level = level)
   out <- tibble(
     approach = rep(x$approach, times = 3),
     weighting = rep(x$details$weighting, times = a * 3),
@@ -283,7 +283,7 @@ summary.agreement_spa <- function(object, digits = 3, ci = TRUE, level = 0.95, .
 
   # Append Confidence Intervals for Adjusted Column if requested
   if (ci == TRUE) {
-    ci <- round(confint(object, level = level), digits)
+    ci <- round(stats::confint(object, level = level), digits)
     m <- cbind(m, ci)
   }
 
@@ -297,7 +297,7 @@ summary.agreement_spa <- function(object, digits = 3, ci = TRUE, level = 0.95, .
 #' @export
 tidy.agreement_spa <- function(x, level = 0.95, ...) {
   a <- length(x$approach)
-  ci_vals <- confint(x, level = level)
+  ci_vals <- stats::confint(x, level = level)
   out <- tibble(
     category = x$details$categories,
     estimate = x$observed,
