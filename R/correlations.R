@@ -1,32 +1,15 @@
-#' Calculate various intraclass correlation coefficients
-#'
-#' Intraclass correlation coefficients...
-#'
-#' @param .data Required.
-#' @param format Optional.
-#' @param digits Optional.
-#'
-#' @return A tibble
-#'
-#' @references \url{https://doi.org/10/br5ffs}
-#' @export
-#'
-calc_icc <- function(.data,
-                     format = c("long", "wide"),
-                     digits = 3) {
 
-  format <- match.arg(format)
-  assertthat::assert_that(rlang::is_scalar_integerish(digits))
+calc_icc <- function(.data) {
 
-  m <- as.matrix(na.omit(.data))
+  m <- as.matrix(stats::na.omit(.data))
 
   n_objects <- nrow(m)
   n_raters <- ncol(m)
 
-  ss_total <- var(as.numeric(m)) * (n_objects * n_raters - 1)
-  ms_object <- var(apply(m, 1, mean)) * n_raters
-  ms_within <- sum(apply(m, 1, var) / n_objects)
-  ms_rater <- var(apply(m, 2, mean)) * n_objects
+  ss_total <- stats::var(as.numeric(m)) * (n_objects * n_raters - 1)
+  ms_object <- stats::var(apply(m, 1, mean)) * n_raters
+  ms_within <- sum(apply(m, 1, stats::var) / n_objects)
+  ms_rater <- stats::var(apply(m, 2, mean)) * n_objects
   ms_resid <- (ss_total - ms_object * (n_objects - 1) - ms_rater * (n_raters - 1)) /
     ((n_objects - 1) * (n_raters - 1))
 
@@ -66,7 +49,6 @@ calc_icc <- function(.data,
     )
   }
 
-  out <- dplyr::mutate_if(out, is.numeric, round, digits = digits)
   out
 
 }
