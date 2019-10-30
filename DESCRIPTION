@@ -6,8 +6,18 @@ Authors@R:
            family = "Girard",
            role = c("aut", "cre"),
            email = "me@jmgirard.com")
-Description: What the package does (one paragraph).
+Description: Calculate estimates of inter-rater agreement and reliability using 
+    generalized formulas that accommodate different designs, missing data, and 
+    ordered or unordered categories. The package includes generalized functions 
+    for all major chance-adjusted indexes of categorical agreement (i.e., alpha, 
+    gamma, irsq, kappa, pi, and s) as well as all major intraclass correlation 
+    coefficients (i.e., one-way and two-way models, agreement and consistency 
+    types, and single measure and average measure units). Estimates include 
+    bootstrap resampling distributions, confidence intervals, and custom tidying 
+    and plotting functions.
 License: GPL-3
+Depends: 
+    R (>= 3.3.0)
 Imports: 
     assertthat (>= 0.2.1),
     boot,

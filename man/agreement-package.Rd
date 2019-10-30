@@ -6,7 +6,15 @@
 \alias{agreement-package}
 \title{agreement: What the Package Does (One Line, Title Case)}
 \description{
-What the package does (one paragraph).
+Calculate estimates of inter-rater agreement and reliability using 
+    generalized formulas that accommodate different designs, missing data, and 
+    ordered or unordered categories. The package includes generalized functions 
+    for all major chance-adjusted indexes of categorical agreement (i.e., alpha, 
+    gamma, irsq, kappa, pi, and s) as well as all major intraclass correlation 
+    coefficients (i.e., one-way and two-way models, agreement and consistency 
+    types, and single measure and average measure units). Estimates include 
+    bootstrap resampling distributions, confidence intervals, and custom tidying 
+    and plotting functions.
 }
 \author{
 \strong{Maintainer}: Jeffrey Girard \email{me@jmgirard.com}

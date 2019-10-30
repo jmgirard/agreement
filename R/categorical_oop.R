@@ -121,16 +121,16 @@ confint.agreement_cai <- function(object,
 }
 
 #' @export
-plot.agreement_cai <- function(object,
+plot.agreement_cai <- function(x,
                                fill = "lightblue",
                                .width = 0.95,
                                base_size = 10,
                                size = 2,
                                ...) {
 
-  distributions <- object$boot_results$t
+  distributions <- x$boot_results$t
   colnames(distributions) <- paste0(
-    rep(object$approach, each = 3),
+    rep(x$approach, each = 3),
     c("_Observed", "_Expected", "_Adjusted")
   )
 
@@ -310,15 +310,15 @@ tidy.agreement_spa <- function(x, level = 0.95, ...) {
 
 # Plot method for objects of spa class
 #' @export
-plot.agreement_spa <- function(object,
+plot.agreement_spa <- function(x,
   fill = "lightblue",
   .width = 0.95,
   base_size = 10,
   size = 2,
   ...) {
 
-  distributions <- object$boot_results$t
-  colnames(distributions) <- paste0("Category = ", object$details$categories)
+  distributions <- x$boot_results$t
+  colnames(distributions) <- paste0("Category = ", x$details$categories)
 
   plot_data <-
     tibble::as_tibble(distributions) %>%
