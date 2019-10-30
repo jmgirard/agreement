@@ -9,7 +9,7 @@ cat_per_object <- function(.data,
   weighting <- match.arg(weighting)
 
   # Prepare .data for analysis
-  d <- prep_data(.data, categories, weighting, warnings)
+  d <- prep_data_cat(.data, categories, weighting, warnings)
 
   # Calculate weighted agreement per object
   obs_o <- calc_agreement_object(d$codes, d$categories, d$weight_matrix)

@@ -47,7 +47,7 @@ cat_specific <- function(.data,
   assert_that(is.flag(warnings))
 
   # Prepare data for analysis
-  d <- prep_data(.data, categories, "identity", warnings)
+  d <- prep_data_cat(.data, categories, "identity", warnings)
 
   # Warn about samples with less than 20 objects
   if (bootstrap > 0 && d$n_objects < 20 && warnings == TRUE) {
