@@ -10,9 +10,9 @@
 #'   object to. Cells should contain \code{NA} if a particular assignment is
 #'   missing (e.g., that object was not assigned to a category by that rater).
 #' @param approach *Optional.* A string or vector of strings specifying the
-#'   chance-adjustment approach(es) to use. Currently, the "s", "gamma",
-#'   "kappa", "pi", and "alpha" approaches are available. (default = c("s",
-#'   "gamma", "kappa", "pi", "alpha"))
+#'   chance-adjustment approach(es) to use. Currently, the "alpha", "gamma",
+#'   "irsq", "kappa", "pi", and "s" approaches are available. (default =
+#'   c("alpha", "gamma", "kappa", "irsq", "pi", "s"))
 #' @param categories *Optional.* A vector (numeric, character, or factor)
 #'   containing all possible categories that objects could have been assigned
 #'   to. When this argument is omitted or set to \code{NULL}, the possible
@@ -47,11 +47,14 @@
 #' @references Gwet, K. L. (2014). *Handbook of inter-rater reliability: The
 #'   definitive guide to measuring the extent of agreement among raters* (4th
 #'   ed.). Gaithersburg, MD: Advanced Analytics.
+#' @references van Oest, R. (2019). A new coefficient of interrater agreement:
+#'   The challenge of highly unequal category proportions. *Psychological
+#'   Methods, 24*(4), 439-451. \url{https://doi.org/10/ggbk3f}
 #' @family functions for categorical data
 #' @family functions for chance-adjusted agreement
 #' @export
 cat_adjusted <- function(.data,
-                    approach = c("s", "gamma", "kappa", "pi", "alpha"),
+                    approach = c("alpha", "gamma", "irsq", "kappa", "pi", "s"),
                     categories = NULL,
                     weighting = c("identity", "linear", "quadratic"),
                     bootstrap = 2000,
@@ -67,7 +70,7 @@ cat_adjusted <- function(.data,
   assert_that(is.flag(warnings))
 
   # Prepare .data for analysis
-  d <- prep_data(.data, categories, weighting, warnings)
+  d <- prep_data_cat(.data, categories, weighting, warnings)
 
   # Warn about bootstrapping samples with less than 20 objects
   if (d$n_objects < 20 && bootstrap > 0 && warnings == TRUE) {

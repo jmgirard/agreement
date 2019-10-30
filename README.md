@@ -10,13 +10,16 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 <!-- badges: end -->
 
 The goal of the `agreement` package is to calculate estimates of
-inter-rater reliability using generalized formulas and output results in
-a tidy dataframe format that makes collecting, bootstrapping, and
-plotting them easy. The package includes functions for all major
-chance-adjusted indexes of categorical agreement (i.e., S, gamma, kappa,
-pi, alpha) as well as all major intraclass correlation coefficients
-(i.e., one-way and two-way models, agreement and consistency types, and
-single measure and average measure units).
+inter-rater agreement and reliability using generalized formulas that
+accommodate different designs (e.g., crossed or uncrossed), missing
+data, and ordered or unordered categories. The package includes
+generalized functions for all major chance-adjusted indexes of
+categorical agreement (i.e., \(\alpha\), \(\gamma\), \(I_r^2\),
+\(\kappa\), \(\pi\), and \(S\)) as well as all major intraclass
+correlation coefficients (i.e., one-way and two-way models, agreement
+and consistency types, and single measure and average measure units).
+Estimates include bootstrap resampling distributions, confidence
+intervals, and custom tidying and plotting functions.
 
 ## Installation
 
@@ -73,34 +76,38 @@ summary(results1, ci = TRUE)
 #> Chance-Adjusted Categorical Agreement with Bootstrapped CIs
 #> 
 #>         Observed   Expected   Adjusted   2.5 %   97.5 %
-#> s          0.818      0.200      0.773   0.531        1
+#> alpha      0.805      0.240      0.743   0.425        1
 #> gamma      0.818      0.190      0.775   0.541        1
+#> irsq       0.818      0.229      0.764   0.479        1
 #> kappa      0.818      0.233      0.763   0.479        1
 #> pi         0.818      0.239      0.761   0.458        1
-#> alpha      0.805      0.240      0.743   0.425        1
+#> s          0.818      0.200      0.773   0.531        1
 ```
 
 ``` r
 # Transform results into a tidy data frame
 tidy(results1)
-#> # A tibble: 15 x 6
+#> # A tibble: 18 x 6
 #>    approach weighting term     estimate lower upper
 #>    <chr>    <chr>     <chr>       <dbl> <dbl> <dbl>
-#>  1 s        identity  Observed    0.818 0.625 1    
+#>  1 alpha    identity  Observed    0.805 0.600 1.000
 #>  2 gamma    identity  Observed    0.818 0.625 1    
-#>  3 kappa    identity  Observed    0.818 0.625 1    
-#>  4 pi       identity  Observed    0.818 0.625 1    
-#>  5 alpha    identity  Observed    0.805 0.600 1.000
-#>  6 s        identity  Expected    0.2   0.2   0.2  
-#>  7 gamma    identity  Expected    0.190 0.144 0.196
-#>  8 kappa    identity  Expected    0.233 0.202 0.420
-#>  9 pi       identity  Expected    0.239 0.218 0.424
-#> 10 alpha    identity  Expected    0.24  0.216 0.435
-#> 11 s        identity  Adjusted    0.773 0.531 1    
-#> 12 gamma    identity  Adjusted    0.775 0.541 1    
-#> 13 kappa    identity  Adjusted    0.763 0.479 1    
-#> 14 pi       identity  Adjusted    0.761 0.458 1    
-#> 15 alpha    identity  Adjusted    0.743 0.425 1
+#>  3 irsq     identity  Observed    0.818 0.625 1    
+#>  4 kappa    identity  Observed    0.818 0.625 1    
+#>  5 pi       identity  Observed    0.818 0.625 1    
+#>  6 s        identity  Observed    0.818 0.625 1    
+#>  7 alpha    identity  Expected    0.24  0.216 0.435
+#>  8 gamma    identity  Expected    0.190 0.144 0.196
+#>  9 irsq     identity  Expected    0.229 0.214 0.368
+#> 10 kappa    identity  Expected    0.233 0.202 0.420
+#> 11 pi       identity  Expected    0.239 0.218 0.424
+#> 12 s        identity  Expected    0.2   0.2   0.2  
+#> 13 alpha    identity  Adjusted    0.743 0.425 1    
+#> 14 gamma    identity  Adjusted    0.775 0.541 1    
+#> 15 irsq     identity  Adjusted    0.764 0.479 1    
+#> 16 kappa    identity  Adjusted    0.763 0.479 1    
+#> 17 pi       identity  Adjusted    0.761 0.458 1    
+#> 18 s        identity  Adjusted    0.773 0.531 1
 ```
 
 ``` r
@@ -158,33 +165,37 @@ summary(results2, ci = TRUE)
 #> Chance-Adjusted Categorical Agreement with Bootstrapped CIs
 #> 
 #>         Observed   Expected   Adjusted   2.5 %   97.5 %
-#> s          0.859      0.583      0.663   0.523    0.803
+#> alpha      0.864      0.643      0.618   0.404    0.753
 #> gamma      0.859      0.553      0.686   0.558    0.834
+#> irsq       0.859      0.642      0.607   0.396    0.749
 #> kappa      0.859      0.636      0.614   0.394    0.762
 #> pi         0.859      0.648      0.601   0.375    0.746
-#> alpha      0.864      0.643      0.618   0.404    0.753
+#> s          0.859      0.583      0.663   0.523    0.803
 ```
 
 ``` r
 tidy(results2)
-#> # A tibble: 15 x 6
+#> # A tibble: 18 x 6
 #>    approach weighting term     estimate lower upper
 #>    <chr>    <chr>     <chr>       <dbl> <dbl> <dbl>
-#>  1 s        linear    Observed    0.859 0.801 0.918
+#>  1 alpha    linear    Observed    0.864 0.810 0.919
 #>  2 gamma    linear    Observed    0.859 0.801 0.918
-#>  3 kappa    linear    Observed    0.859 0.801 0.918
-#>  4 pi       linear    Observed    0.859 0.801 0.918
-#>  5 alpha    linear    Observed    0.864 0.810 0.919
-#>  6 s        linear    Expected    0.583 0.583 0.583
-#>  7 gamma    linear    Expected    0.553 0.467 0.575
-#>  8 kappa    linear    Expected    0.636 0.576 0.732
-#>  9 pi       linear    Expected    0.648 0.592 0.741
-#> 10 alpha    linear    Expected    0.643 0.587 0.740
-#> 11 s        linear    Adjusted    0.663 0.523 0.803
-#> 12 gamma    linear    Adjusted    0.686 0.558 0.834
-#> 13 kappa    linear    Adjusted    0.614 0.394 0.762
-#> 14 pi       linear    Adjusted    0.601 0.375 0.746
-#> 15 alpha    linear    Adjusted    0.618 0.404 0.753
+#>  3 irsq     linear    Observed    0.859 0.801 0.918
+#>  4 kappa    linear    Observed    0.859 0.801 0.918
+#>  5 pi       linear    Observed    0.859 0.801 0.918
+#>  6 s        linear    Observed    0.859 0.801 0.918
+#>  7 alpha    linear    Expected    0.643 0.587 0.740
+#>  8 gamma    linear    Expected    0.553 0.467 0.575
+#>  9 irsq     linear    Expected    0.642 0.591 0.727
+#> 10 kappa    linear    Expected    0.636 0.576 0.732
+#> 11 pi       linear    Expected    0.648 0.592 0.741
+#> 12 s        linear    Expected    0.583 0.583 0.583
+#> 13 alpha    linear    Adjusted    0.618 0.404 0.753
+#> 14 gamma    linear    Adjusted    0.686 0.558 0.834
+#> 15 irsq     linear    Adjusted    0.607 0.396 0.749
+#> 16 kappa    linear    Adjusted    0.614 0.394 0.762
+#> 17 pi       linear    Adjusted    0.601 0.375 0.746
+#> 18 s        linear    Adjusted    0.663 0.523 0.803
 ```
 
 ``` r

@@ -4,9 +4,9 @@
 \alias{cat_adjusted}
 \title{Calculate Chance-Adjusted Agreement}
 \usage{
-cat_adjusted(.data, approach = c("s", "gamma", "kappa", "pi", "alpha"),
-  categories = NULL, weighting = c("identity", "linear", "quadratic"),
-  bootstrap = 2000, warnings = TRUE)
+cat_adjusted(.data, approach = c("alpha", "gamma", "irsq", "kappa", "pi",
+  "s"), categories = NULL, weighting = c("identity", "linear",
+  "quadratic"), bootstrap = 2000, warnings = TRUE)
 }
 \arguments{
 \item{.data}{\emph{Required.} A matrix or data frame containing categorical data
@@ -18,9 +18,9 @@ object to. Cells should contain \code{NA} if a particular assignment is
 missing (e.g., that object was not assigned to a category by that rater).}
 
 \item{approach}{\emph{Optional.} A string or vector of strings specifying the
-chance-adjustment approach(es) to use. Currently, the "s", "gamma",
-"kappa", "pi", and "alpha" approaches are available. (default = c("s",
-"gamma", "kappa", "pi", "alpha"))}
+chance-adjustment approach(es) to use. Currently, the "alpha", "gamma",
+"irsq", "kappa", "pi", and "s" approaches are available. (default =
+c("alpha", "gamma", "kappa", "irsq", "pi", "s"))}
 
 \item{categories}{\emph{Optional.} A vector (numeric, character, or factor)
 containing all possible categories that objects could have been assigned
@@ -66,6 +66,10 @@ Description
 Gwet, K. L. (2014). \emph{Handbook of inter-rater reliability: The
 definitive guide to measuring the extent of agreement among raters} (4th
 ed.). Gaithersburg, MD: Advanced Analytics.
+
+van Oest, R. (2019). A new coefficient of interrater agreement:
+The challenge of highly unequal category proportions. \emph{Psychological
+Methods, 24}(4), 439-451. \url{https://doi.org/10/ggbk3f}
 }
 \seealso{
 Other functions for categorical data: \code{\link{cat_specific}}
