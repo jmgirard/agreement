@@ -1,6 +1,6 @@
 #' @export
 cat_pi <- function(.data, ...) {
-  cat_cai(.data, approach = "pi", ...)
+  cat_adjusted(.data, approach = "pi", ...)
 }
 
 # Calculate the pi coefficient and its components

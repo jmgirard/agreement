@@ -1,6 +1,6 @@
 #' @export
 cat_s <- function(.data, ...) {
-  cat_cai(.data, approach = "s", ...)
+  cat_adjusted(.data, approach = "s", ...)
 }
 
 # Worker function to calculate the S score and its components

@@ -1,6 +1,6 @@
 #' @export
 cat_kappa <- function(.data, ...) {
-  cat_cai(.data, approach = "kappa", ...)
+  cat_adjusted(.data, approach = "kappa", ...)
 }
 
 # Calculate the kappa coefficient and its components

@@ -1,6 +1,6 @@
 #' @export
 cat_alpha <- function(.data, ...) {
-  cat_cai(.data, approach = "alpha", ...)
+  cat_adjusted(.data, approach = "alpha", ...)
 }
 
 # Calculate the alpha coefficient and its components

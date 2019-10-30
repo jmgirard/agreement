@@ -1,6 +1,6 @@
 #' @export
 cat_gamma <- function(.data, ...) {
-  cat_cai(.data, approach = "gamma", ...)
+  cat_adjusted(.data, approach = "gamma", ...)
 }
 
 # Calculate the gamma coefficient and its components
