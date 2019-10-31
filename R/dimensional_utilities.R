@@ -22,6 +22,8 @@ prep_data_dim <- function(.data) {
 prep_data_dim_long <- function(df, object, rater, trial, score) {
 
   df2 <- dplyr::select(df, {{object}}, {{rater}}, {{trial}}, {{score}})
+  #TODO: Fix complete to make implicit missing values explicit NAs
+  df2 <- tidyr::complete(df2, {{object}}, {{rater}}, {{trial}})
   df2 <- dplyr::arrange(df2, {{object}}, {{rater}}, {{trial}}, {{score}})
   objects <- unique(dplyr::pull(df2, {{object}}))
   raters <- unique(dplyr::pull(df2, {{rater}}))
