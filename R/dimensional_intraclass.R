@@ -12,7 +12,7 @@ dim_icc <- function(.data,
   assert_that(is.flag(warnings))
 
   # Prepare .data for analysis
-  d <- prep_data_dim(.data, categories, weighting, warnings)
+  d <- prep_data_dim(.data)
 
   # Warn about bootstrapping samples with less than 20 objects
   if (d$n_objects < 20 && bootstrap > 0 && warnings == TRUE) {
@@ -25,80 +25,151 @@ dim_icc <- function(.data,
 # Model 1A applies when each object is rated by a different group of raters
 calc_icc_1A_1 <- function(ratings) {
 
-  n_objects <- nrow(ratings)
+  n <- icc_counts(ratings)
+  s <- icc_sums(ratings, n)
+  v <- icc_model1(ratings, "A", n, s)
 
-  m_ij <- is.finite(ratings) #TODO: calc from array
-  m_i <- rowSums(m_ij)
-  m_j <- colSums(m_ij)
-  M <- sum(m_ij)
-  msq_ij <- m_ij^2
-
-  y_i <- rowSums(ratings, na.rm = TRUE)
-  y_j <- colSums(ratings, na.rm = TRUE)
-
-  ysq_i <- y_i^2
-  ysq_m_i <- ysq_i / m_i
-  y_2i <- rowSums(ratings^2, na.rm = TRUE)
-
-  T_y <- sum(ratings, na.rm = TRUE)
-  T_2o <- sum(ysq_m_i, na.rm = TRUE)
-  T_2y <- sum(y_2i, na.rm = TRUE)
-
-  k_0 <- sum(msq_ij / m_j)
-
-  var_e <- (T_2y - T_2o) / (M - n_objects)
-  var_o <- (T_2o - (T_y^2 / M) - (n_objects - 1) * var_e) / (M - k_0)
-
-  statistic <- var_o / (var_o + var_e)
+  # ICC estimate
+  est <- v$object / (v$object + v$residual)
 
   # Create and label output vector
-  out <- c(var_o = var_o, var_e = var_e, icc = statistic)
+  out <- c(Object = v$object, Residual = v$residual, ICC = est)
 
   out
 }
 
-#TODO: Figure out how to adapt this to ICC_1A_k
+calc_icc_1A_k <- function(ratings, k = NULL) {
+
+  n <- icc_counts(ratings)
+  s <- icc_sums(ratings, n)
+  v <- icc_model1(ratings, "B", n, s)
+
+  if (is_null(k)) {k <- n$raters}
+
+  # ICC estimate
+  est <- v$object / (v$object + v$residual / k)
+
+  # Create and label output vector
+  out <- c(Object = v$object, Residual = v$residual, ICC = est)
+
+  out
+}
 
 # ICC for single score under Model 1B
 # Model 1B applies when each rater rates a different group of objects
 calc_icc_1B_1 <- function(ratings) {
 
-  n_objects <- nrow(ratings)
-  n_raters <- ncol(ratings)
+  n <- icc_counts(ratings)
+  s <- icc_sums(ratings, n)
+  v <- icc_model1(ratings, "B", n, s)
 
-  m_ij <- is.finite(ratings) #TODO: calc from array
-  m_i <- rowSums(m_ij)
-  m_j <- colSums(m_ij)
-  M <- sum(m_ij)
-  msq_ij <- m_ij^2
-
-  y_i <- rowSums(ratings, na.rm = TRUE)
-  y_j <- colSums(ratings, na.rm = TRUE)
-
-  ysq_j <- y_j^2
-  ysq_m_j <- ysq_j / m_j
-  y_2j <- colSums(ratings^2, na.rm = TRUE)
-
-  T_y <- sum(ratings, na.rm = TRUE)
-  T_2r <- sum(ysq_m_j, na.rm = TRUE)
-  T_2y <- sum(y_2j, na.rm = TRUE)
-
-  k_1 <- sum(msq_ij / m_i)
-
-  var_e <- (T_2y - T_2r) / (M - n_raters)
-  var_r <- (T_2r - (T_y^2 / M) - (n_raters - 1) * var_e) / (M - k_1)
-
-  statistic <- var_r / (var_r + var_e)
+  # ICC estimate
+  est <- v$rater / (v$rater + v$residual)
 
   # Create and label output vector
-  out <- c(var_r = var_r, var_e = var_e, icc = statistic)
+  out <- c(Rater = v$rater, Residual = v$residual, ICC = est)
 
   out
 }
 
-#TODO: Figure out how to adapt this to ICC_1A_k
+# ICC for single score under Model 2
+# Model 2 applies when both raters and objects are random
+calc_icc_2_1 <- function(ratings) {
 
+  n <- icc_counts(ratings)
+  s <- icc_sums(ratings, n)
+  v <- icc_model2(ratings, n, s)
 
+  # ICC estimate
+  est <- v$object / (v$object + v$rater + v$interaction + v$residual)
 
+  # Create and label output vector
+  out <- c(Object = v$object, Rater = v$rater, Interaction = v$interaction, Residual = v$residual)
 
+  out
+}
+
+#
+icc_counts <- function(ratings) {
+
+  n <- list()
+
+  # Count of objects
+  n$objects <- dim(ratings)[[1]]
+
+  # Count of raters
+  n$raters <- dim(ratings)[[2]]
+
+  # Count of trials per object-rater combination
+  n$trials_or <- apply(is.finite(ratings), MARGIN = 1:2, FUN = sum)
+
+  # Count of trials per object
+  n$trials_o <- rowSums(n$trials_or)
+
+  # Count of trials per rater
+  n$trials_r <- colSums(n$trials_or)
+
+  # Count of all trials
+  n$trials <- sum(n$trials_or)
+
+  n
+}
+
+#
+icc_sums <- function(ratings, n = NULL) {
+
+  if (is_null(n)) {n <- icc_counts(ratings)}
+
+  out <- list()
+
+  # Sum of all ratings per object
+  ysum_o <- rowSums(ratings, na.rm = TRUE)
+
+  # Sum of all ratings per rater
+  ysum_r <- colSums(ratings, na.rm = TRUE)
+
+  # Total sum of ratings
+  out$T_y <- sum(ratings, na.rm = TRUE)
+
+  # Total sum of squared ratings
+  out$T_ysq <- sum(ratings^2, na.rm = TRUE)
+
+  # Sum of all object's averaged squared ratings
+  out$T_objects <- sum(ysum_o^2 / n$trials_o, na.rm = TRUE)
+
+  # Sum of all raters' average squared ratings
+  out$T_raters <- sum(ysum_r^2 / n$trials_r, na.rm = TRUE)
+
+  out$T_interaction <- sum(ratings^2 / n$trials_or, na.rm = TRUE)
+
+  # Expected number of trials per object
+  out$expt_object <- sum(n$trials_or^2 / n$trials_r)
+
+  # Expected number of trails per rater
+  out$expt_rater <- sum(n$trials_or^2 / n$trials_o)
+
+  out
+
+}
+
+#
+icc_model1 <- function(ratings, type = c("A", "B"), n = NULL, s = NULL) {
+
+  type <- match.arg(type)
+  if (is_null(n)) {n <- icc_counts(ratings)}
+  if (is_null(s)) {s <- icc_sums(ratings, n)}
+
+  v <- list()
+
+  if (type == "A") {
+    v$residual <- (s$T_ysq - s$T_objects) / (n$trials - n$objects)
+    v$object <- (s$T_objects - (s$T_y^2 / n$trials) - v$residual * (n$objects - 1)) / (n$trials - s$expt_object)
+  } else if (type == "B") {
+    v$residual <- (s$T_ysq - s$T_raters) / (n$trials - n$raters)
+    v$rater <- (s$T_raters - (s$T_y^2 / n$trials) - v$residual * (n$raters - 1)) / (n$trials - s$expt_rater)
+  }
+
+  v
+
+}
 
