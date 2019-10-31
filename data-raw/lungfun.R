@@ -1,5 +1,4 @@
-## code to prepare `lungcap` dataset goes here
-lungcap <- tibble::tribble(
+lungfun <- tibble::tribble(
   ~R1, ~R2, ~R3, ~R4,
   190, 220, 200, 200,
   220, 200, 240, 230,
@@ -18,5 +17,4 @@ lungcap <- tibble::tribble(
   350, 320, 340, 365
 )
 
-usethis::use_data(lungcap, overwrite = TRUE)
-
+usethis::use_data(lungfun, overwrite = TRUE)
