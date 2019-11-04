@@ -1,8 +1,12 @@
 #' @export
 dim_icc <- function(.data,
-                    approach = c("1", "k", "A1", "Ak", "C1", "Ck"),
-                    format = c("wide", "long"),
-                    ...,
+                    object,
+                    rater,
+                    score,
+                    trial,
+                    model = c("1A", "1B", "2", "2A", "3", "3A"),
+                    type = c("agreement", "consistency"),
+                    k = 1,
                     bootstrap = 2000,
                     warnings = TRUE) {
 
@@ -15,11 +19,7 @@ dim_icc <- function(.data,
   assert_that(is.flag(warnings))
 
   # Prepare .data for analysis
-  if (format == "wide") {
-    d <- prep_data_dim(.data)
-  } else if (format == "long") {
-    d <- prep_data_dim_long(.data, ...)
-  }
+  d <- prep_data_dim(.data, object, rater, score, trial)
 
   # Warn about bootstrapping samples with less than 20 objects
   if (d$n_objects < 20 && bootstrap > 0 && warnings == TRUE) {
@@ -29,26 +29,11 @@ dim_icc <- function(.data,
   d
 }
 
-# ICC for single score under Model 1A
+# Functions to calculate different ICC estimates --------------------------
+
+# Agreement ICC under Model 1A
 # Model 1A applies when each object is rated by a different group of raters
-calc_icc_1A_1 <- function(ratings) {
-
-  n <- icc_counts(ratings)
-  s <- icc_sums(ratings, n)
-  v <- icc_model1(ratings, "A", n, s)
-
-  v2 <- lapply(v, nonneg)
-
-  # ICC estimate
-  est <- v2$object / (v2$object + v2$residual)
-
-  # Create and label output vector
-  out <- c(Object = v$object, Residual = v$residual, Inter_ICC = est)
-
-  out
-}
-
-calc_icc_1A_k <- function(ratings, k = NULL) {
+calc_icc_1A <- function(ratings, k = 1) {
 
   n <- icc_counts(ratings)
   s <- icc_sums(ratings, n)
@@ -56,20 +41,19 @@ calc_icc_1A_k <- function(ratings, k = NULL) {
 
   v2 <- lapply(v, nonneg)
 
-  if (is_null(k)) {k <- n$raters}
-
-  # ICC estimate
-  est <- v2$object / (v2$object + v2$residual / k)
+  # Inter-Rater ICC estimate
+  inter_icc <- v2$object / (v2$object + v2$residual / k)
 
   # Create and label output vector
-  out <- c(Object = v$object, Residual = v$residual, Inter_ICC = est)
+  out <- c(Object = v$object, Residual = v$residual, k = k,
+           Inter_ICC = inter_icc)
 
   out
 }
 
-# ICC for single score under Model 1B
+# Agreement ICC under Model 1B
 # Model 1B applies when each rater rates a different group of objects
-calc_icc_1B_1 <- function(ratings) {
+calc_icc_1B <- function(ratings, ...) {
 
   n <- icc_counts(ratings)
   s <- icc_sums(ratings, n)
@@ -77,18 +61,19 @@ calc_icc_1B_1 <- function(ratings) {
 
   v2 <- lapply(v, nonneg)
 
-  # ICC estimate
-  est <- v2$rater / (v2$rater + v2$residual)
+  # Intra-Rater ICC estimate
+  intra_icc <- v2$rater / (v2$rater + v2$residual)
 
   # Create and label output vector
-  out <- c(Rater = v$rater, Residual = v$residual, Intra_ICC = est)
+  out <- c(Rater = v$rater, Residual = v$residual, Intra_ICC = intra_icc)
 
   out
 }
 
-# ICC for single score under Model 2
-# Model 2 applies when both raters and objects are random
-calc_icc_2_1 <- function(ratings) {
+# Agreement ICC under Model 2
+# Model 2 applies when both raters and objects are random, includes interaction
+# Model 2 requires that at least some objects have multiple trials per rater
+calc_icc_2_A <- function(ratings, k = 1) {
 
   n <- icc_counts(ratings)
   s <- icc_sums(ratings, n)
@@ -97,20 +82,91 @@ calc_icc_2_1 <- function(ratings) {
   v2 <- lapply(v, nonneg)
 
   # Inter-Rater ICC estimate
-  inter_icc <- v2$object / (v2$object + v2$rater + v2$interaction + v2$residual)
-  intra_icc <- (v2$rater + v2$object + v2$interaction) /
-    (v2$rater + v2$object + v2$interaction + v2$residual)
+  inter_icc <- v2$object /
+    (v2$object + (v2$rater + v2$interaction + v2$residual) / k)
 
   # Intra-Rater ICC estimate
+  # TODO: Check whether to divide part of denominator by k
+  intra_icc <- (v2$object + v2$rater + v2$interaction) /
+    (v2$object + v2$rater + v2$interaction + v2$residual)
 
   # Create and label output vector
   out <- c(Object = v$object, Rater = v$rater, Interaction = v$interaction,
-           Residual = v$residual, Inter_ICC = inter_icc, Intra_ICC = intra_icc)
+           k = k, Residual = v$residual, Inter_ICC = inter_icc)
 
   out
 }
 
-#
+# Agreement ICC under Model 2A
+# Model 2A applies when both raters and objects are random, excludes interaction
+# Model 2A can be used with single or multiple trials per rater
+calc_icc_2A_A <- function(ratings, k = 1) {
+
+  n <- icc_counts(ratings)
+  s <- icc_sums(ratings, n)
+  v <- icc_model2A(ratings, n, s)
+
+  v2 <- lapply(v, nonneg)
+
+  # Inter-Rater ICC estimate
+  inter_icc <- v2$object / (v2$object + (v2$rater + v2$residual) / k)
+
+  # Intra-Rater ICC estimate
+  # TODO: Check whether to divide part of denominator by k
+  intra_icc <- (v2$object + v2$rater) / (v2$object + v2$rater + v2$residual)
+
+  # Create and label output vector
+  out <- c(Object = v$object, Rater = v$rater, Residual = v$residual, k = k,
+           Inter_ICC = inter_icc, Intra_ICC = intra_icc)
+
+  out
+}
+
+# Consistency ICC under Model 2
+# Model 2 applies when both raters and objects are random, includes interaction
+# Model 2 requires that at least some objects have multiple trials per rater
+calc_icc_2_C <- function(ratings, k = 1) {
+
+  n <- icc_counts(ratings)
+  s <- icc_sums(ratings, n)
+  v <- icc_model2(ratings, n, s)
+
+  v2 <- lapply(v, nonneg)
+
+  # Inter-Rater ICC estimate
+  inter_icc <- v2$object /
+    (v2$object + (v2$interaction + v2$residual) / k)
+
+  # Create and label output vector
+  out <- c(Object = v$object, Interaction = v$interaction, k = k,
+           Residual = v$residual, Inter_ICC = inter_icc)
+
+  out
+}
+
+# Consistency ICC under Model 2A
+# Model 2A applies when both raters and objects are random, excludes interaction
+calc_icc_2A_C <- function(ratings, k = 1) {
+
+  n <- icc_counts(ratings)
+  s <- icc_sums(ratings, n)
+  v <- icc_model2A(ratings, n, s)
+
+  v2 <- lapply(v, nonneg)
+
+  # Inter-Rater ICC estimate
+  inter_icc <- v2$object / (v2$object + v2$residual / 1)
+
+  # Create and label output vector
+  out <- c(Object = v$object, Residual = v$residual, k = k,
+           Inter_ICC = inter_icc)
+
+  out
+}
+
+
+# Functions to calculate ICC components -----------------------------------
+
 icc_counts <- function(ratings) {
 
   n <- list()
@@ -136,7 +192,6 @@ icc_counts <- function(ratings) {
   n
 }
 
-#
 icc_sums <- function(ratings, n = NULL) {
 
   if (is_null(n)) {n <- icc_counts(ratings)}
@@ -167,25 +222,31 @@ icc_sums <- function(ratings, n = NULL) {
   # Sum of all object-rater combinations' average squared ratings
   s$T_interaction <- sum(ysum_or^2 / n$trials_or, na.rm = TRUE)
 
+  # Sum of all average ratings
+  s$T_musq <- n$trials * mean(ratings, na.rm = TRUE)^2
+
   # Number of object-rater combinations for which one or more trials exist
   s$lambda_0 <- sum(n$trials_or > 0)
 
   # Expected number of trials per object
-  s$k_0 <- sum(n$trials_or^2 / n$trials_r)
+  s$k_r <- sum(n$trials_or^2 / n$trials_r)
 
   # Expected number of trails per rater
-  s$k_1 <- sum(n$trials_or^2 / n$trials_o)
+  s$k_o <- sum(n$trials_or^2 / n$trials_o)
 
   # TODO: Write informative comment
-  s$kprime_1 <- sum(n$trials_o^2) / n$trials
-  s$kprime_2 <- sum(n$trials_r^2) / n$trials
-  s$kprime_5 <- sum(n$trials_or^2) / n$trials
+  s$kprime_o <- sum(n$trials_o^2) / n$trials
+  s$kprime_r <- sum(n$trials_r^2) / n$trials
+  s$kprime_or <- sum(n$trials_or^2) / n$trials
   s$Tprimesq_ysq <- s$T_y^2 / n$trials
+
+  # TODO: Write informative comment
+  s$lambda_1 <- (n$trials - s$kprime_o) / (n$trials - s$k_r)
+  s$lambda_2 <- (n$trials - s$kprime_r) / (n$trials - s$k_o)
 
   s
 }
 
-#
 icc_model1 <- function(ratings, type = c("A", "B"), n = NULL, s = NULL) {
 
   type <- match.arg(type)
@@ -196,16 +257,15 @@ icc_model1 <- function(ratings, type = c("A", "B"), n = NULL, s = NULL) {
 
   if (type == "A") {
     v$residual <- (s$T_ysq - s$T_objects) / (n$trials - n$objects)
-    v$object <- (s$T_objects - (s$T_y^2 / n$trials) - v$residual * (n$objects - 1)) / (n$trials - s$k_0)
+    v$object <- (s$T_objects - (s$T_y^2 / n$trials) - v$residual * (n$objects - 1)) / (n$trials - s$k_r)
   } else if (type == "B") {
     v$residual <- (s$T_ysq - s$T_raters) / (n$trials - n$raters)
-    v$rater <- (s$T_raters - (s$T_y^2 / n$trials) - v$residual * (n$raters - 1)) / (n$trials - s$k_1)
+    v$rater <- (s$T_raters - (s$T_y^2 / n$trials) - v$residual * (n$raters - 1)) / (n$trials - s$k_o)
   }
 
   v
 }
 
-#
 icc_model2 <- function(ratings, n = NULL, s = NULL) {
 
   if (is_null(n)) {n <- icc_counts(ratings)}
@@ -215,17 +275,34 @@ icc_model2 <- function(ratings, n = NULL, s = NULL) {
 
   v$residual <- (s$T_ysq - s$T_interaction) / (n$trials - s$lambda_0)
 
-  delta_r <- (s$T_interaction - s$T_raters - v$residual * (s$lambda_0 - n$raters)) / (n$trials - s$k_0)
-  delta_o <- (s$T_interaction - s$T_objects - v$residual * (s$lambda_0 - n$objects)) / (n$trials - s$k_1)
+  delta_r <- (s$T_interaction - s$T_raters - v$residual * (s$lambda_0 - n$raters)) / (n$trials - s$k_r)
+  delta_o <- (s$T_interaction - s$T_objects - v$residual * (s$lambda_0 - n$objects)) / (n$trials - s$k_o)
 
   v$interaction <-
-    (delta_r * (n$trials - s$kprime_1) +
-      delta_o * (s$k_1 - s$kprime_2) -
+    (delta_r * (n$trials - s$kprime_o) +
+      delta_o * (s$k_o - s$kprime_r) -
       (s$T_objects - s$Tprimesq_ysq - v$residual * (n$objects - 1))) /
-      (n$trials - s$kprime_1 - s$kprime_2 + s$kprime_5)
+      (n$trials - s$kprime_o - s$kprime_r + s$kprime_or)
 
   v$rater <- delta_o - v$interaction
   v$object <- delta_r - v$interaction
+
+  v
+}
+
+icc_model2A <- function(ratings, n = NULL, s = NULL) {
+
+  if (is_null(n)) {n <- icc_counts(ratings)}
+  if (is_null(s)) {s <- icc_sums(ratings, n)}
+
+  v <- list()
+
+  v$residual <- (s$lambda_2 * (s$T_ysq - s$T_objects) + s$lambda_1 * (s$T_ysq - s$T_raters) - (s$T_ysq - s$T_musq)) /
+    (s$lambda_2 * (n$trials - n$objects) + s$lambda_1 * (n$trials - n$raters) - (n$trials - 1))
+
+  v$object <- (s$T_ysq - s$T_raters - v$residual * (n$trials - n$raters)) / (n$trials - s$k_r)
+
+  v$rater <- (s$T_ysq - s$T_objects - v$residual * (n$trials - n$objects)) / (n$trials - s$k_o)
 
   v
 }
