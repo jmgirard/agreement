@@ -1,4 +1,4 @@
-# Single Trial, Wide Format -----------------------------------------------
+# Single Trial, Complete Data, Wide Format --------------------------------
 
 lungfun1 <- tibble::tribble(
   ~R1, ~R2, ~R3, ~R4,
@@ -21,18 +21,15 @@ lungfun1 <- tibble::tribble(
 
 usethis::use_data(lungfun1, overwrite = TRUE)
 
-# Single Trial, Long Format -----------------------------------------------
+# Single Trial, Complete Data, Long Format --------------------------------
 
-lungfun2 <-
-  lungfun_wide %>%
-  mutate(Object = sprintf("C%02d", 1:nrow(.)), Trial = "T1") %>%
-  pivot_longer(cols = R1:R4, names_to = "Rater", values_to = "Score")
+lungfun2 <- to_long(lungfun1)
 
 usethis::use_data(lungfun2, overwrite = TRUE)
 
 # Multiple Trial, Missing Data, Long Format -------------------------------
 
-lungfun3 <- tribble(
+lungfun3 <- tibble::tribble(
   ~Object, ~Rater, ~Trial, ~Score,
   1, 1, 1, 190,
   1, 1, 2, 220,
@@ -74,7 +71,6 @@ lungfun3 <- tribble(
   5, 3, 2, 300,
   5, 4, 1, 290,
   5, 4, 2, 290,
-  6, 1, 1, 300,
   6, 1, 2, 270,
   6, 2, 1, 300,
   6, 2, 2, 250,
