@@ -1,28 +1,13 @@
 #
-prep_data_dim <- function(.data) {
-
-  out <- list()
-
-  out$ratings <- as.matrix(.data)
-  out$ratings[is.nan(out$ratings)] <- NA
-  out$n_objects <- nrow(out$ratings)
-  out$n_raters <- ncol(out$ratings)
-  out$n_missing <- sum(!is.finite(out$ratings))
-  out$minimum <- min(out$ratings)
-  out$maximum <- max(out$ratings)
-
-  # Validate basic counts
-  assert_that(out$n_objects >= 1, msg = "There must be at least 1 object in `.data`.")
-  assert_that(out$n_raters >= 2, msg = "There must be at least 2 raters in `.data`.")
-
-  out
-}
-
-prep_data_dim_long <- function(.data, object, rater, trial, score) {
+prep_data_dim <- function(.data, object, rater, score, trial) {
 
   out <- list()
 
   df <- as_tibble(.data)
+  if (rlang::quo_is_missing(rlang::enquo(trial))) {
+    df <- dplyr::mutate(df, Trial = "T1")
+    trial <- rlang::quo(Trial)
+  }
   df <- dplyr::select(df, {{object}}, {{rater}}, {{trial}}, {{score}})
   df <- tidyr::complete(df, {{object}}, {{rater}}, {{trial}})
   df <- dplyr::arrange(df, {{trial}}, {{rater}}, {{object}})
@@ -33,6 +18,10 @@ prep_data_dim_long <- function(.data, object, rater, trial, score) {
   out$n_raters <- length(out$raters)
   out$n_trials <- length(out$trials)
   scores <- dplyr::pull(df, {{score}})
+  scores[is.nan(scores)] <- NA
+  out$n_missing_scores <- sum(are_na(scores))
+  out$min_score <- min(scores, na.rm = TRUE)
+  out$max_score <- max(scores, na.rm = TRUE)
   out$ratings <- array(
     scores,
     dim = c(out$n_objects, out$n_raters, out$n_trials),
