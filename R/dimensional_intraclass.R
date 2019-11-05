@@ -7,18 +7,23 @@ dim_icc <- function(.data,
                     model = c("1A", "1B", "2", "2A", "3", "3A"),
                     type = c("agreement", "consistency"),
                     k = 1,
+                    format = c("long", "wide"),
                     bootstrap = 2000,
                     warnings = TRUE) {
 
   # Validate inputs
   assert_that(is.data.frame(.data) || is.matrix(.data))
-  approach <- match.arg(approach, several.ok = TRUE)
-  approach <- unique(approach)
+  model <- match.arg(model)
+  type <- match.arg(type)
+  assert_that(is.count(k))
   format <- match.arg(format)
   assert_that(bootstrap == 0 || is.count(bootstrap))
   assert_that(is.flag(warnings))
 
   # Prepare .data for analysis
+  if (format == "wide") {
+    .data <- wide_to_long(.data)
+  }
   d <- prep_data_dim(.data, object, rater, score, trial)
 
   # Warn about bootstrapping samples with less than 20 objects
