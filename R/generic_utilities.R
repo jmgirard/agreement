@@ -1,16 +1,12 @@
-#
-to_long <- function(wide_data, ...) {
+# Convert wide format to long format
+wide_to_long <- function(x, ...) {
 
-  assert_that(is.data.frame(wide_data) || is.matrix(wide_data))
+  assert_that(is.data.frame(x) || is.matrix(x))
 
-  if (tibble::has_rownames(wide_data)) {
-    o <- rownames(wide_data)
-  } else {
-    o <- 1:nrow(wide_data)
-  }
+  o <- dplyr::if_else(tibble::has_rownames(x), rownames(x), 1:nrow(x))
 
   out <-
-    wide_data %>%
+    x %>%
     dplyr::mutate(Trial = 1, Object = o) %>%
     tidyr::pivot_longer(
       cols = -c(Trial, Object),
@@ -20,4 +16,41 @@ to_long <- function(wide_data, ...) {
     )
 
   out
+}
+
+# Convert long format to wide format
+long_to_wide <- function(x, rater, score, ...) {
+
+  assert_that(is.data.frame(x) || is.matrix(x))
+
+  out <-
+    x %>%
+    tidyr::pivot_wider(
+      names_from = {{rater}},
+      values_from = {{score}},
+      ...
+    )
+
+  out
+}
+
+# Convert table format to wide format
+table_to_wide <- function(x, raters = NULL) {
+  requireNamespace("DescTools", quietly = TRUE)
+  wide <- DescTools::Untable(x)
+  if (is_null(raters)) {
+    colnames(wide) <- paste0("R", 1:ncol(wide))
+  } else {
+    colnames(wide) <- raters
+  }
+  wide <- tibble::as_tibble(wide)
+
+  wide
+}
+
+# Convert table format to long format
+table_to_long <- function(x, raters = NULL) {
+  wide <- table_to_wide(x, raters)
+  long <- wide_to_long(wide)
+  long
 }
