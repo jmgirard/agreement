@@ -1,4 +1,4 @@
-#
+# Assumes .data is in long format
 prep_data_dim <- function(.data, object, rater, score, trial) {
 
   out <- list()
