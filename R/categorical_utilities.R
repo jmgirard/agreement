@@ -1,5 +1,8 @@
 # Prepare categorical data for analysis
-prep_data_cat <- function(.data, categories = NULL, weighting = "identity", warnings = TRUE) {
+prep_data_cat <- function(.data,
+                          categories = NULL,
+                          weighting = "identity",
+                          warnings = TRUE) {
 
   # Extract codes from .data
   codes <- as.matrix(.data)
