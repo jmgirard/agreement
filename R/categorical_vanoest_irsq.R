@@ -36,7 +36,7 @@ calc_chance_irsq <- function(codes, categories, weight_matrix) {
   r_o <- rowSums(r_oc)
 
   # What is the adjusted prevalence of each category?
-  exp_c <- colSums((r_oc + (1 / n_objects)) / (n_categories + r_o * n_objects))
+  exp_c <- (1 + colSums(r_oc)) / (n_categories + sum(r_o))
 
   # What is the probability of each combination of categories being assigned at random?
   exp_cc <- matrix(exp_c, ncol = 1) %*% matrix(exp_c, nrow = 1)
