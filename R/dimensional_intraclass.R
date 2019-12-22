@@ -7,7 +7,6 @@ dim_icc <- function(.data,
                     model = c("1A", "1B", "2", "2A", "3", "3A"),
                     type = c("agreement", "consistency"),
                     k = 1,
-                    format = c("long", "wide"),
                     bootstrap = 2000,
                     warnings = TRUE) {
 
@@ -16,33 +15,68 @@ dim_icc <- function(.data,
   model <- match.arg(model)
   type <- match.arg(type)
   assert_that(is.count(k))
-  format <- match.arg(format)
   assert_that(bootstrap == 0 || is.count(bootstrap))
   assert_that(is.flag(warnings))
 
   # Prepare .data for analysis
-  if (format == "wide") {
-    .data <- wide_to_long(.data)
-  }
-  d <- prep_data_dim(.data, object, rater, score, trial)
+  d <- prep_data_dim(.data, {{object}}, {{rater}}, {{score}}, {{trial}})
 
   # Warn about bootstrapping samples with less than 20 objects
   if (d$n_objects < 20 && bootstrap > 0 && warnings == TRUE) {
     warning("With a small number of objects, bootstrap confidence intervals may not be stable.")
   }
 
-  d
+  # Warn about impossible combinations of arguments
+  if (type == "consistency" && (model == "1A" || model == "1B")) {
+    stop("Consistency ICCs are not possible for models 1A and 1B.")
+  }
+
+  # Create function to perform bootstrapping
+  boot_function <- function(codes, index, fun, k) {
+    resample <- codes[index, , , drop = FALSE]
+    bsr <- fun(ratings = resample, k = k)
+    bsr
+  }
+
+  # Build function name for the requested ICC
+  fun = eval(parse(text = paste0("calc_icc_", model, ifelse(type == "agreement", "_A", "_C"))))
+
+  # Calculate the bootstrap results
+  boot_results <-
+    boot::boot(
+      data = d$ratings,
+      statistic = boot_function,
+      R = bootstrap,
+      fun = fun,
+      k = k
+    )
+
+  # Construct icc class output object
+  out <- new_icc(
+    Object = boot_results$t0[[1]],
+    Rater = boot_results$t0[[2]],
+    Interaction = boot_results$t0[[3]],
+    Residual = boot_results$t0[[4]],
+    Intra_ICC = boot_results$t0[[5]],
+    Inter_ICC = boot_results$t0[[6]],
+    boot_results = boot_results,
+    formulation = list(model = model, type = type, k = k),
+    details = d,
+    call = match.call()
+  )
+
+  out
 }
 
 # Functions to calculate different ICC estimates --------------------------
 
 # Agreement ICC under Model 1A
 # Model 1A applies when each object is rated by a different group of raters
-calc_icc_1A <- function(ratings, k = 1) {
+calc_icc_1A_A <- function(ratings, k = 1) {
 
   n <- icc_counts(ratings)
   s <- icc_sums(ratings, n)
-  v <- icc_model1(ratings, "B", n, s)
+  v <- icc_model1(ratings, "A", n, s)
 
   v2 <- lapply(v, nonneg)
 
@@ -50,15 +84,21 @@ calc_icc_1A <- function(ratings, k = 1) {
   inter_icc <- v2$object / (v2$object + v2$residual / k)
 
   # Create and label output vector
-  out <- c(Object = v$object, Residual = v$residual, k = k,
-           Inter_ICC = inter_icc)
+  out <- c(
+    Object = v$object,
+    Rater = NA_real_,
+    Interaction = NA_real_,
+    Residual = v$residual,
+    Intra_ICC = NA_real_,
+    Inter_ICC = inter_icc
+  )
 
   out
 }
 
 # Agreement ICC under Model 1B
 # Model 1B applies when each rater rates a different group of objects
-calc_icc_1B <- function(ratings, ...) {
+calc_icc_1B_A <- function(ratings, ...) {
 
   n <- icc_counts(ratings)
   s <- icc_sums(ratings, n)
@@ -70,7 +110,14 @@ calc_icc_1B <- function(ratings, ...) {
   intra_icc <- v2$rater / (v2$rater + v2$residual)
 
   # Create and label output vector
-  out <- c(Rater = v$rater, Residual = v$residual, Intra_ICC = intra_icc)
+  out <- c(
+    Object = NA_real_,
+    Rater = v$rater,
+    Interaction = NA_real_,
+    Residual = v$residual,
+    Intra_ICC = intra_icc,
+    Inter_ICC = NA_real_
+  )
 
   out
 }
@@ -96,8 +143,14 @@ calc_icc_2_A <- function(ratings, k = 1) {
     (v2$object + v2$rater + v2$interaction + v2$residual)
 
   # Create and label output vector
-  out <- c(Object = v$object, Rater = v$rater, Interaction = v$interaction,
-           k = k, Residual = v$residual, Inter_ICC = inter_icc)
+  out <- c(
+    Object = v$object,
+    Rater = v$rater,
+    Interaction = v$interaction,
+    Residual = v$residual,
+    Intra_ICC = NA_real_,
+    Inter_ICC = inter_icc
+  )
 
   out
 }
@@ -121,8 +174,14 @@ calc_icc_2A_A <- function(ratings, k = 1) {
   intra_icc <- (v2$object + v2$rater) / (v2$object + v2$rater + v2$residual)
 
   # Create and label output vector
-  out <- c(Object = v$object, Rater = v$rater, Residual = v$residual, k = k,
-           Inter_ICC = inter_icc, Intra_ICC = intra_icc)
+  out <- c(
+    Object = v$object,
+    Rater = v$rater,
+    Interaction = NA_real_,
+    Residual = v$residual,
+    Intra_ICC = intra_icc,
+    Inter_ICC = inter_icc
+  )
 
   out
 }
@@ -143,8 +202,14 @@ calc_icc_2_C <- function(ratings, k = 1) {
     (v2$object + (v2$interaction + v2$residual) / k)
 
   # Create and label output vector
-  out <- c(Object = v$object, Interaction = v$interaction, k = k,
-           Residual = v$residual, Inter_ICC = inter_icc)
+  out <- c(
+    Object = v$object,
+    Rater = NA_real_,
+    Interaction = v$interaction,
+    Residual = v$residual,
+    Intra_ICC = NA_real_,
+    Inter_ICC = inter_icc
+  )
 
   out
 }
@@ -160,14 +225,22 @@ calc_icc_2A_C <- function(ratings, k = 1) {
   v2 <- lapply(v, nonneg)
 
   # Inter-Rater ICC estimate
-  inter_icc <- v2$object / (v2$object + v2$residual / 1)
+  inter_icc <- v2$object / (v2$object + v2$residual / k) #TODO: Check formula
 
   # Create and label output vector
-  out <- c(Object = v$object, Residual = v$residual, k = k,
-           Inter_ICC = inter_icc)
+  out <- c(
+    Object = v$object,
+    Rater = NA_real_,
+    Interaction = NA_real_,
+    Residual = v$residual,
+    Intra_ICC = NA_real_,
+    Inter_ICC = inter_icc
+  )
 
   out
 }
+
+# TODO: Models 3 and 3A
 
 
 # Functions to calculate ICC components -----------------------------------
@@ -184,6 +257,7 @@ icc_counts <- function(ratings) {
 
   # Count of trials per object-rater combination
   n$trials_or <- apply(is.finite(ratings), MARGIN = 1:2, FUN = sum)
+
 
   # Count of trials per object
   n$trials_o <- rowSums(n$trials_or)
