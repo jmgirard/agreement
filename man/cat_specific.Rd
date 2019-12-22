@@ -4,8 +4,7 @@
 \alias{cat_specific}
 \title{Calculate Category-Specific Agreement}
 \usage{
-cat_specific(.data, categories = NULL, bootstrap = 2000,
-  warnings = TRUE)
+cat_specific(.data, categories = NULL, bootstrap = 2000, warnings = TRUE)
 }
 \arguments{
 \item{.data}{\emph{Required.} A matrix or data frame containing categorical data
@@ -72,7 +71,8 @@ low kappa: II. Resolving the paradoxes. \emph{Journal of Clinical Epidemiology,
 43}(6), 551-558. \url{https://doi.org/10/czkxkb}
 }
 \seealso{
-Other functions for categorical data: \code{\link{cat_adjusted}}
+Other functions for categorical data: 
+\code{\link{cat_adjusted}()}
 }
 \concept{functions for categorical data}
 \concept{functions for specific agreement}

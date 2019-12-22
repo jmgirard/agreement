@@ -4,9 +4,14 @@
 \alias{cat_adjusted}
 \title{Calculate Chance-Adjusted Agreement}
 \usage{
-cat_adjusted(.data, approach = c("alpha", "gamma", "irsq", "kappa", "pi",
-  "s"), categories = NULL, weighting = c("identity", "linear",
-  "quadratic"), bootstrap = 2000, warnings = TRUE)
+cat_adjusted(
+  .data,
+  approach = c("alpha", "gamma", "irsq", "kappa", "pi", "s"),
+  categories = NULL,
+  weighting = c("identity", "linear", "quadratic"),
+  bootstrap = 2000,
+  warnings = TRUE
+)
 }
 \arguments{
 \item{.data}{\emph{Required.} A matrix or data frame containing categorical data
@@ -72,7 +77,8 @@ The challenge of highly unequal category proportions. \emph{Psychological
 Methods, 24}(4), 439-451. \url{https://doi.org/10/ggbk3f}
 }
 \seealso{
-Other functions for categorical data: \code{\link{cat_specific}}
+Other functions for categorical data: 
+\code{\link{cat_specific}()}
 }
 \concept{functions for categorical data}
 \concept{functions for chance-adjusted agreement}
