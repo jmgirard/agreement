@@ -163,3 +163,63 @@ confint.agreement_icc <- function(object, level = 0.95, ...) {
 
   out
 }
+
+#' @export
+tidy.agreement_icc <- function(x, level = 0.95, ...) {
+  ci_vals <- stats::confint(x, level = level)
+  out <- tibble(
+    term = rownames(ci_vals),
+    estimate = c(x$Object, x$Rater, x$Interaction, x$Residual, x$Intra_ICC, x$Inter_ICC),
+    lower = ci_vals[, 1],
+    upper = ci_vals[, 2]
+  )
+
+  out
+}
+
+#' @export
+plot.agreement_icc <- function(x,
+  fill = "lightblue",
+  .width = 0.95,
+  base_size = 10,
+  size = 2,
+  ...) {
+
+  distributions <- x$boot_results$t
+  colnames(distributions) <- c(
+    "Object Variance",
+    "Rater Variance",
+    "O-by-R Variance",
+    "Residual Variance",
+    "Intra-Rater ICC",
+    "Inter-Rater ICC"
+  )
+
+  plot_data <-
+    tibble::as_tibble(distributions) %>%
+    tidyr::pivot_longer(
+      cols = dplyr::everything(),
+      names_to = "Parameter",
+      values_to = "Estimate"
+    ) %>%
+    dplyr::filter(Parameter %in% c("Inter-Rater ICC", "Intra-Rater ICC")) %>%
+    dplyr::mutate(
+      Parameter = factor(Parameter, levels = unique(Parameter))
+    ) %>%
+    dplyr::arrange(Parameter)
+
+  out <- ggplot2::ggplot(data = plot_data, ggplot2::aes(x = Estimate, y = Parameter)) +
+    tidybayes::geom_halfeyeh(
+      point_interval = tidybayes::mean_qi,
+      fill = fill,
+      .width = .width,
+      size = size,
+      ...
+    ) +
+    ggplot2::scale_x_continuous(NULL, breaks = seq(0, 1, 0.2)) +
+    ggplot2::scale_y_discrete(NULL) +
+    ggplot2::coord_cartesian(xlim = c(0, 1)) +
+    ggplot2::theme_bw(base_size = base_size)
+
+  out
+}
