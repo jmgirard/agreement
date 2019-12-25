@@ -94,6 +94,29 @@ tidy(results3)
 plot(results3)
 ```
 
+Calculate intraclass correlation coefficient for dimensional data
+
+```{r}
+# Load dataset with 4 raters rating 15 objects in 1 trial
+data(lungfun2)
+print(lungfun2)
+```
+
+```{r}
+# Calculate average score ICC using Model 1A
+results4 <- dim_icc(lungfun2, Object, Rater, Score, Trial, 
+  model = "1A", type = "agreement", k = 4)
+summary(results4)
+```
+
+```{r}
+tidy(results4)
+```
+
+
+```{r, fig.height = 3, fig.width = 3, out.width = "50%"}
+plot(results4)
+```
 
 ## Code of Conduct
 

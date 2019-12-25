@@ -61,8 +61,8 @@ print(unordered)
 ``` r
 # Calculate all chance-adjusted indexes for unordered categories
 results1 <- cat_adjusted(unordered)
-#> Warning in cat_adjusted(unordered): With a small number of objects,
-#> bootstrap confidence intervals may not be stable.
+#> Warning in cat_adjusted(unordered): With a small number of objects, bootstrap
+#> confidence intervals may not be stable.
 summary(results1, ci = TRUE)
 #> 
 #> Call:
@@ -78,7 +78,7 @@ summary(results1, ci = TRUE)
 #>         Observed   Expected   Adjusted   2.5 %   97.5 %
 #> alpha      0.805      0.240      0.743   0.425        1
 #> gamma      0.818      0.190      0.775   0.541        1
-#> irsq       0.818      0.229      0.764   0.479        1
+#> irsq       0.818      0.233      0.763   0.476        1
 #> kappa      0.818      0.233      0.763   0.479        1
 #> pi         0.818      0.239      0.761   0.458        1
 #> s          0.818      0.200      0.773   0.531        1
@@ -90,7 +90,7 @@ tidy(results1)
 #> # A tibble: 18 x 6
 #>    approach weighting term     estimate lower upper
 #>    <chr>    <chr>     <chr>       <dbl> <dbl> <dbl>
-#>  1 alpha    identity  Observed    0.805 0.600 1.000
+#>  1 alpha    identity  Observed    0.805 0.600 1.00 
 #>  2 gamma    identity  Observed    0.818 0.625 1    
 #>  3 irsq     identity  Observed    0.818 0.625 1    
 #>  4 kappa    identity  Observed    0.818 0.625 1    
@@ -98,13 +98,13 @@ tidy(results1)
 #>  6 s        identity  Observed    0.818 0.625 1    
 #>  7 alpha    identity  Expected    0.24  0.216 0.435
 #>  8 gamma    identity  Expected    0.190 0.144 0.196
-#>  9 irsq     identity  Expected    0.229 0.214 0.368
+#>  9 irsq     identity  Expected    0.233 0.214 0.385
 #> 10 kappa    identity  Expected    0.233 0.202 0.420
 #> 11 pi       identity  Expected    0.239 0.218 0.424
 #> 12 s        identity  Expected    0.2   0.2   0.2  
 #> 13 alpha    identity  Adjusted    0.743 0.425 1    
 #> 14 gamma    identity  Adjusted    0.775 0.541 1    
-#> 15 irsq     identity  Adjusted    0.764 0.479 1    
+#> 15 irsq     identity  Adjusted    0.763 0.476 1    
 #> 16 kappa    identity  Adjusted    0.763 0.479 1    
 #> 17 pi       identity  Adjusted    0.761 0.458 1    
 #> 18 s        identity  Adjusted    0.773 0.531 1
@@ -167,7 +167,7 @@ summary(results2, ci = TRUE)
 #>         Observed   Expected   Adjusted   2.5 %   97.5 %
 #> alpha      0.864      0.643      0.618   0.404    0.753
 #> gamma      0.859      0.553      0.686   0.558    0.834
-#> irsq       0.859      0.642      0.607   0.396    0.749
+#> irsq       0.859      0.638      0.612   0.395    0.754
 #> kappa      0.859      0.636      0.614   0.394    0.762
 #> pi         0.859      0.648      0.601   0.375    0.746
 #> s          0.859      0.583      0.663   0.523    0.803
@@ -186,13 +186,13 @@ tidy(results2)
 #>  6 s        linear    Observed    0.859 0.801 0.918
 #>  7 alpha    linear    Expected    0.643 0.587 0.740
 #>  8 gamma    linear    Expected    0.553 0.467 0.575
-#>  9 irsq     linear    Expected    0.642 0.591 0.727
+#>  9 irsq     linear    Expected    0.638 0.586 0.726
 #> 10 kappa    linear    Expected    0.636 0.576 0.732
 #> 11 pi       linear    Expected    0.648 0.592 0.741
 #> 12 s        linear    Expected    0.583 0.583 0.583
 #> 13 alpha    linear    Adjusted    0.618 0.404 0.753
 #> 14 gamma    linear    Adjusted    0.686 0.558 0.834
-#> 15 irsq     linear    Adjusted    0.607 0.396 0.749
+#> 15 irsq     linear    Adjusted    0.612 0.395 0.754
 #> 16 kappa    linear    Adjusted    0.614 0.394 0.762
 #> 17 pi       linear    Adjusted    0.601 0.375 0.746
 #> 18 s        linear    Adjusted    0.663 0.523 0.803
@@ -243,6 +243,82 @@ plot(results3)
 ```
 
 <img src="man/figures/README-unnamed-chunk-11-1.png" width="50%" />
+
+Calculate intraclass correlation coefficient for dimensional data
+
+``` r
+# Load dataset with 4 raters rating 15 objects in 1 trial
+data(lungfun2)
+print(lungfun2)
+#> # A tibble: 60 x 4
+#>    Trial Object Rater Score
+#>    <dbl>  <int> <chr> <dbl>
+#>  1     1      1 R1      190
+#>  2     1      1 R2      220
+#>  3     1      1 R3      200
+#>  4     1      1 R4      200
+#>  5     1      2 R1      220
+#>  6     1      2 R2      200
+#>  7     1      2 R3      240
+#>  8     1      2 R4      230
+#>  9     1      3 R1      260
+#> 10     1      3 R2      260
+#> # … with 50 more rows
+```
+
+``` r
+# Calculate average score ICC using Model 1A
+results4 <- dim_icc(lungfun2, Object, Rater, Score, Trial, 
+  model = "1A", type = "agreement", k = 4)
+#> Warning in dim_icc(lungfun2, Object, Rater, Score, Trial, model = "1A", : With a
+#> small number of objects, bootstrap confidence intervals may not be stable.
+summary(results4)
+#> 
+#> Intraclass Correlation Coefficient Analysis Details
+#> 
+#> Number of Objects    15
+#> Number of Raters     4
+#> Number of Trials     1
+#> 
+#> Score Missingness    0.000 %
+#> Score Number Range   [190, 375]
+#> 
+#> ICC Model            Model 1A
+#> ICC Type             Agreement
+#> ICC Index            Average of 4 Raters
+#> 
+#> Variance Component Estimates with Bootstrapped CIs
+#> 
+#>                     Estimate     2.5 %     97.5 %
+#> Object Variance     1415.913   418.430   2477.863
+#> Residual Variance    468.194   154.708    909.378
+#> 
+#> ICC Estimates with Bootstrapped CIs
+#> 
+#>                   Estimate   2.5 %   97.5 %
+#> Inter-Rater ICC      0.924   0.713    0.977
+```
+
+``` r
+tidy(results4)
+#> # A tibble: 6 x 4
+#>   term              estimate   lower    upper
+#>   <chr>                <dbl>   <dbl>    <dbl>
+#> 1 Object Variance   1416.    418.    2478.   
+#> 2 Rater Variance      NA      NA       NA    
+#> 3 O-by-R Variance     NA      NA       NA    
+#> 4 Residual Variance  468.    155.     909.   
+#> 5 Intra-Rater ICC     NA      NA       NA    
+#> 6 Inter-Rater ICC      0.924   0.713    0.977
+```
+
+``` r
+plot(results4)
+#> Warning: Removed 2000 rows containing non-finite values (stat_xdensity).
+#> Warning: Removed 2000 rows containing non-finite values (stat_pointintervalh).
+```
+
+<img src="man/figures/README-unnamed-chunk-15-1.png" width="50%" />
 
 ## Code of Conduct
 
