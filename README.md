@@ -269,9 +269,7 @@ print(lungfun2)
 ``` r
 # Calculate average score ICC using Model 1A
 results4 <- dim_icc(lungfun2, Object, Rater, Score, Trial, 
-  model = "1A", type = "agreement", k = 4)
-#> Warning in dim_icc(lungfun2, Object, Rater, Score, Trial, model = "1A", : With a
-#> small number of objects, bootstrap confidence intervals may not be stable.
+  model = "1A", type = "agreement", k = 4, warnings = FALSE)
 summary(results4)
 #> 
 #> Intraclass Correlation Coefficient Analysis Details
@@ -301,21 +299,16 @@ summary(results4)
 
 ``` r
 tidy(results4)
-#> # A tibble: 6 x 4
+#> # A tibble: 3 x 4
 #>   term              estimate   lower    upper
 #>   <chr>                <dbl>   <dbl>    <dbl>
 #> 1 Object Variance   1416.    418.    2478.   
-#> 2 Rater Variance      NA      NA       NA    
-#> 3 O-by-R Variance     NA      NA       NA    
-#> 4 Residual Variance  468.    155.     909.   
-#> 5 Intra-Rater ICC     NA      NA       NA    
-#> 6 Inter-Rater ICC      0.924   0.713    0.977
+#> 2 Residual Variance  468.    155.     909.   
+#> 3 Inter-Rater ICC      0.924   0.713    0.977
 ```
 
 ``` r
-plot(results4)
-#> Warning: Removed 2000 rows containing non-finite values (stat_xdensity).
-#> Warning: Removed 2000 rows containing non-finite values (stat_pointintervalh).
+plot(results4, intra = FALSE, inter = TRUE)
 ```
 
 <img src="man/figures/README-unnamed-chunk-15-1.png" width="50%" />

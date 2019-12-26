@@ -105,7 +105,7 @@ print(lungfun2)
 ```{r}
 # Calculate average score ICC using Model 1A
 results4 <- dim_icc(lungfun2, Object, Rater, Score, Trial, 
-  model = "1A", type = "agreement", k = 4)
+  model = "1A", type = "agreement", k = 4, warnings = FALSE)
 summary(results4)
 ```
 
@@ -115,7 +115,7 @@ tidy(results4)
 
 
 ```{r, fig.height = 3, fig.width = 3, out.width = "50%"}
-plot(results4)
+plot(results4, intra = FALSE, inter = TRUE)
 ```
 
 ## Code of Conduct

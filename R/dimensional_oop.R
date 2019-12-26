@@ -174,16 +174,26 @@ tidy.agreement_icc <- function(x, level = 0.95, ...) {
     upper = ci_vals[, 2]
   )
 
+  out <- tidyr::drop_na(out)
+
   out
 }
 
 #' @export
 plot.agreement_icc <- function(x,
-  fill = "lightblue",
-  .width = 0.95,
-  base_size = 10,
-  size = 2,
-  ...) {
+                               fill = "lightblue",
+                               interval = 0.95,
+                               base_size = 10,
+                               size = 2,
+                               intra = TRUE,
+                               inter = TRUE,
+                               ...) {
+
+  assert_that(is.flag(intra), is.flag(inter),
+    msg = "intra and inter must both be logical values.")
+  assert_that(any(intra, inter) == TRUE,
+    msg = "intra and inter cannot both be set to FALSE.")
+  assert_that(interval > 0, interval < 1)
 
   distributions <- x$boot_results$t
   colnames(distributions) <- c(
@@ -195,24 +205,29 @@ plot.agreement_icc <- function(x,
     "Inter-Rater ICC"
   )
 
+  filter_term <- character()
+  if (intra == TRUE) filter_term <- c(filter_term, "Intra-Rater ICC")
+  if (inter == TRUE) filter_term <- c(filter_term, "Inter-Rater ICC")
+
   plot_data <-
     tibble::as_tibble(distributions) %>%
     tidyr::pivot_longer(
       cols = dplyr::everything(),
-      names_to = "Parameter",
+      names_to = "Term",
       values_to = "Estimate"
     ) %>%
-    dplyr::filter(Parameter %in% c("Inter-Rater ICC", "Intra-Rater ICC")) %>%
+    dplyr::filter(Term %in% filter_term) %>%
     dplyr::mutate(
-      Parameter = factor(Parameter, levels = unique(Parameter))
+      Term = factor(Term, levels = unique(Term))
     ) %>%
-    dplyr::arrange(Parameter)
+    dplyr::arrange(Term)
 
-  out <- ggplot2::ggplot(data = plot_data, ggplot2::aes(x = Estimate, y = Parameter)) +
+  out <- ggplot2::ggplot(data = plot_data, ggplot2::aes(x = Estimate, y = 0)) +
+    ggplot2::facet_wrap(~Term) +
     tidybayes::geom_halfeyeh(
       point_interval = tidybayes::mean_qi,
       fill = fill,
-      .width = .width,
+      .width = interval,
       size = size,
       ...
     ) +

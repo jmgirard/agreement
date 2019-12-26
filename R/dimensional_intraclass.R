@@ -15,7 +15,8 @@ dim_icc <- function(.data,
   model <- match.arg(model)
   type <- match.arg(type)
   assert_that(is.count(k))
-  assert_that(bootstrap == 0 || is.count(bootstrap))
+  assert_that(bootstrap == 0 || is.count(bootstrap),
+    msg = "bootstrap must be a non-negative integer.")
   assert_that(is.flag(warnings))
 
   # Prepare .data for analysis
@@ -148,7 +149,7 @@ calc_icc_2_A <- function(ratings, k = 1) {
     Rater = v$rater,
     Interaction = v$interaction,
     Residual = v$residual,
-    Intra_ICC = NA_real_,
+    Intra_ICC = intra_icc,
     Inter_ICC = inter_icc
   )
 
@@ -257,7 +258,6 @@ icc_counts <- function(ratings) {
 
   # Count of trials per object-rater combination
   n$trials_or <- apply(is.finite(ratings), MARGIN = 1:2, FUN = sum)
-
 
   # Count of trials per object
   n$trials_o <- rowSums(n$trials_or)
