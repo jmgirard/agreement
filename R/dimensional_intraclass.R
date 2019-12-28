@@ -1,12 +1,60 @@
+#' Calculate intraclass correlation coefficients for reliability
+#'
+#' Analyze intra- and inter-rater reliability of dimensional data using various
+#' intraclass correlation coefficients. These coefficients are implemented using
+#' a generalized approach that accommodates missing data and multiple trials.
+#'
+#' @param .data Required. A data frame containing variables identifying and
+#'   quantifying each observation, in a "tall" format.
+#' @param model Optional. A string indicating which ICC model to use, according
+#'   to Gwet's (2014) typology. Options include "1A", "1B", "2", "2A", "3", and
+#'   "3A". (default = \code{"1A"})
+#' @param type Optional. A string indicating which ICC type to use, according to
+#'   McGraw & Wong's (1999) typology. Options include "agreement" and
+#'   "consistency". (default = \code{"agreement"})
+#' @param k Optional. A positive integer indicating how many raters' scores
+#'   should be averaged to produce the measure whose reliability is being
+#'   estimated. Set to \code{1} to estimate the reliability of ratings from a
+#'   single rater selected at random from those included in the analysis (i.e.,
+#'   "single measure reliability"). Set to a number greater than \code{1} to
+#'   estimate the reliability of the average of that many randomly selected
+#'   raters (i.e., "average measure reliability"). (default = \code{1})
+#' @param object Optional. The name of the variable in \code{.data} identifying
+#'   the object of measurement for each observation, in non-standard evaluation
+#'   without quotation marks. (default = \code{Object})
+#' @param rater Optional. The name of the variable in \code{.data} identifying
+#'   the rater or source of measurement for each observation, in non-standard
+#'   evaluation without quotation marks. (default = \code{Rater})
+#' @param trial Optional. The name of the variable in \code{.data} identifying
+#'   the time or trial of measurement for each observation, in non-standard
+#'   evaluation without quotation marks. (default = \code{Trial})
+#' @param score Optional. The name of the variable in \code{.data} containing
+#'   the dimensional score or rating for each observation, in non-standard
+#'   evaluation without quotation marks. (default = \code{Score})
+#' @param bootstrap Optional. A non-negative integer indicating how many
+#'   bootstrap resamples to use in estimating confidence intervals. Set to
+#'   \code{0} to forgo bootstrapping. (default = \code{2000})
+#' @param warnings Optional. A logical value indicating whether warnings should
+#'   be generated and displayed during this analysis. (default = \code{TRUE})
+#' @return A list object of class "agreement_icc" with the following elements:
+#'   \item{Object}{The estimated object variance} \item{Rater}{The estimated
+#'   rater variance} \item{Interaction}{The estimated object-by-variance
+#'   interaction variance} \item{Residual}{The estimated residual variance}
+#'   \item{Intra_ICC}{The estimated intra-rater reliability}
+#'   \item{Inter_ICC}{The estimated inter-rater reliability}
+#'   \item{boot_results}{The bootstrap results from the boot package}
+#'   \item{formulation}{The model, type, and k arguments} \item{details}{A list
+#'   containing counts and data from the analysis} \item{call}{The function call
+#'   that produced this output}
 #' @export
 dim_icc <- function(.data,
-                    object,
-                    rater,
-                    score,
-                    trial,
                     model = c("1A", "1B", "2", "2A", "3", "3A"),
                     type = c("agreement", "consistency"),
                     k = 1,
+                    object = Object,
+                    rater = Rater,
+                    trial = Trial,
+                    score = Score,
                     bootstrap = 2000,
                     warnings = TRUE) {
 
@@ -15,8 +63,16 @@ dim_icc <- function(.data,
   model <- match.arg(model)
   type <- match.arg(type)
   assert_that(is.count(k))
+  assert_that(is.string(object) == FALSE,
+    msg = "The 'object' argument is a string (try removing the quotation marks).")
+  assert_that(is.string(rater) == FALSE,
+    msg = "The 'rater' argument is a string (try removing the quotation marks).")
+  assert_that(is.string(trial) == FALSE,
+    msg = "The 'trial' argument is a string (try removing the quotation marks).")
+  assert_that(is.string(score) == FALSE,
+    msg = "The 'score' argument is a string (try removing the quotation marks).")
   assert_that(bootstrap == 0 || is.count(bootstrap),
-    msg = "bootstrap must be a non-negative integer.")
+    msg = "The 'bootstrap' argument must be a non-negative integer.")
   assert_that(is.flag(warnings))
 
   # Prepare .data for analysis
@@ -40,7 +96,11 @@ dim_icc <- function(.data,
   }
 
   # Build function name for the requested ICC
-  fun = eval(parse(text = paste0("calc_icc_", model, ifelse(type == "agreement", "_A", "_C"))))
+  fun = eval(
+    parse(
+      text = paste0("calc_icc_", model, ifelse(type == "agreement", "_A", "_C"))
+    )
+  )
 
   # Calculate the bootstrap results
   boot_results <-
