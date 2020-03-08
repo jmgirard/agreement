@@ -36,9 +36,12 @@
 #' @family functions for specific agreement
 #' @export
 cat_specific <- function(.data,
-                          categories = NULL,
-                          bootstrap = 2000,
-                          warnings = TRUE) {
+                         object = Object,
+                         rater = Rater,
+                         score = Score,
+                         categories = NULL,
+                         bootstrap = 2000,
+                         warnings = TRUE) {
 
   # Validate inputs
   assert_that(is.data.frame(.data) || is.matrix(.data))
@@ -47,7 +50,7 @@ cat_specific <- function(.data,
   assert_that(is.flag(warnings))
 
   # Prepare data for analysis
-  d <- prep_data_cat(.data, categories, "identity", warnings)
+  d <- prep_data_cat(.data, {{object}}, {{rater}}, {{score}}, categories)
 
   # Warn about samples with less than 20 objects
   if (bootstrap > 0 && d$n_objects < 20 && warnings == TRUE) {
@@ -60,15 +63,15 @@ cat_specific <- function(.data,
   }
 
   # Create function to perform bootstrapping
-  boot_function <- function(codes, index, categories, weight_matrix) {
-    resample <- codes[index, , drop = FALSE]
+  boot_function <- function(ratings, index, categories, weight_matrix) {
+    resample <- ratings[index, , drop = FALSE]
     calc_sa(resample, categories, weight_matrix)
   }
 
   # Calculate the bootstrap results
   boot_results <-
     boot::boot(
-      data = d$codes,
+      data = d$ratings,
       statistic = boot_function,
       R = bootstrap,
       categories = d$categories,

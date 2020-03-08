@@ -4,7 +4,15 @@
 \alias{cat_specific}
 \title{Calculate Category-Specific Agreement}
 \usage{
-cat_specific(.data, categories = NULL, bootstrap = 2000, warnings = TRUE)
+cat_specific(
+  .data,
+  object = Object,
+  rater = Rater,
+  score = Score,
+  categories = NULL,
+  bootstrap = 2000,
+  warnings = TRUE
+)
 }
 \arguments{
 \item{.data}{\emph{Required.} A matrix or data frame in tall format containing
@@ -14,6 +22,18 @@ characters indicating the discrete category that the corresponding rater
 assigned the corresponding object to. Cells should contain \code{NA} if a
 particular assignment is missing (e.g., that object was not assigned to a
 category by that rater).}
+
+\item{object}{\emph{Optional.} The name of the variable in \code{.data}
+identifying the object of measurement for each observation, in non-standard
+evaluation without quotation marks. (default = \code{Object})}
+
+\item{rater}{\emph{Optional.} The name of the variable in \code{.data} identifying
+the rater or source of measurement for each observation, in non-standard
+evaluation without quotation marks. (default = \code{Rater})}
+
+\item{score}{\emph{Optional.} The name of the variable in \code{.data} containing
+the categorical score or rating/code for each observation, in non-standard
+evaluation without quotation marks. (default = \code{Score})}
 
 \item{categories}{\emph{Optional.} A vector (numeric, character, or factor)
 containing all possible categories that objects could have been assigned
