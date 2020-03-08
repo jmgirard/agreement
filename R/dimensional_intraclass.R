@@ -63,14 +63,14 @@ dim_icc <- function(.data,
   model <- match.arg(model)
   type <- match.arg(type)
   assert_that(is.count(k))
-  assert_that(is.string(object) == FALSE,
-    msg = "The 'object' argument is a string (try removing the quotation marks).")
-  assert_that(is.string(rater) == FALSE,
-    msg = "The 'rater' argument is a string (try removing the quotation marks).")
-  assert_that(is.string(trial) == FALSE,
-    msg = "The 'trial' argument is a string (try removing the quotation marks).")
-  assert_that(is.string(score) == FALSE,
-    msg = "The 'score' argument is a string (try removing the quotation marks).")
+  # assert_that(is.string(object) == FALSE,
+  #   msg = "The 'object' argument is a string (try removing the quotation marks).")
+  # assert_that(is.string(rater) == FALSE,
+  #   msg = "The 'rater' argument is a string (try removing the quotation marks).")
+  # assert_that(is.string(trial) == FALSE,
+  #   msg = "The 'trial' argument is a string (try removing the quotation marks).")
+  # assert_that(is.string(score) == FALSE,
+  #   msg = "The 'score' argument is a string (try removing the quotation marks).")
   assert_that(bootstrap == 0 || is.count(bootstrap),
     msg = "The 'bootstrap' argument must be a non-negative integer.")
   assert_that(is.flag(warnings))
