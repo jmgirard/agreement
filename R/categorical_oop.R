@@ -148,7 +148,7 @@ plot.agreement_cai <- function(x,
     ) %>%
     dplyr::mutate(
       Term = factor(Term, levels = c("Observed", "Expected", "Adjusted"),
-                    labels = c("Raw Observed Agreement", "Expected Chance Agreement", "Chance-Adjusted Agreement"))
+                    labels = c("Raw Observed\nAgreement", "Expected Chance\nAgreement", "Chance-Adjusted\nAgreement"))
     )
 
   out <- ggplot2::ggplot(data = plot_data, ggplot2::aes(x = Estimate, y = 0)) +

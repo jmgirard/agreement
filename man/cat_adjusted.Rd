@@ -6,6 +6,9 @@
 \usage{
 cat_adjusted(
   .data,
+  object = Object,
+  rater = Rater,
+  score = Score,
   approach = c("alpha", "gamma", "irsq", "kappa", "pi", "s"),
   categories = NULL,
   weighting = c("identity", "linear", "quadratic"),
@@ -14,13 +17,25 @@ cat_adjusted(
 )
 }
 \arguments{
-\item{.data}{\emph{Required.} A matrix or data frame containing categorical data
-where each row corresponds to a single object of measurement (e.g.,
-subject) and each column corresponds to a single source of measurement
-(e.g., rater). Cells should contain numbers or characters indicating the
-discrete category that the corresponding rater assigned the corresponding
-object to. Cells should contain \code{NA} if a particular assignment is
-missing (e.g., that object was not assigned to a category by that rater).}
+\item{.data}{\emph{Required.} A matrix or data frame in tall format containing
+categorical data where each row corresponds to a single score (i.e.,
+assignment of an object to a category) Cells should contain numbers or
+characters indicating the discrete category that the corresponding rater
+assigned the corresponding object to. Cells should contain \code{NA} if a
+particular assignment is missing (e.g., that object was not assigned to a
+category by that rater).}
+
+\item{object}{\emph{Optional.} The name of the variable in \code{.data}
+identifying the object of measurement for each observation, in non-standard
+evaluation without quotation marks. (default = \code{Object})}
+
+\item{rater}{\emph{Optional.} The name of the variable in \code{.data} identifying
+the rater or source of measurement for each observation, in non-standard
+evaluation without quotation marks. (default = \code{Rater})}
+
+\item{score}{\emph{Optional.} The name of the variable in \code{.data} containing
+the categorical score or rating/code for each observation, in non-standard
+evaluation without quotation marks. (default = \code{Score})}
 
 \item{approach}{\emph{Optional.} A string or vector of strings specifying the
 chance-adjustment approach(es) to use. Currently, the "alpha", "gamma",

@@ -2,13 +2,22 @@
 #'
 #' Description
 #'
-#' @param .data *Required.* A matrix or data frame containing categorical data
-#'   where each row corresponds to a single object of measurement (e.g.,
-#'   subject) and each column corresponds to a single source of measurement
-#'   (e.g., rater). Cells should contain numbers or characters indicating the
-#'   discrete category that the corresponding rater assigned the corresponding
-#'   object to. Cells should contain \code{NA} if a particular assignment is
-#'   missing (e.g., that object was not assigned to a category by that rater).
+#' @param .data *Required.* A matrix or data frame in tall format containing
+#'   categorical data where each row corresponds to a single score (i.e.,
+#'   assignment of an object to a category) Cells should contain numbers or
+#'   characters indicating the discrete category that the corresponding rater
+#'   assigned the corresponding object to. Cells should contain \code{NA} if a
+#'   particular assignment is missing (e.g., that object was not assigned to a
+#'   category by that rater).
+#' @param object *Optional.* The name of the variable in \code{.data}
+#'   identifying the object of measurement for each observation, in non-standard
+#'   evaluation without quotation marks. (default = \code{Object})
+#' @param rater *Optional.* The name of the variable in \code{.data} identifying
+#'   the rater or source of measurement for each observation, in non-standard
+#'   evaluation without quotation marks. (default = \code{Rater})
+#' @param score *Optional.* The name of the variable in \code{.data} containing
+#'   the categorical score or rating/code for each observation, in non-standard
+#'   evaluation without quotation marks. (default = \code{Score})
 #' @param approach *Optional.* A string or vector of strings specifying the
 #'   chance-adjustment approach(es) to use. Currently, the "alpha", "gamma",
 #'   "irsq", "kappa", "pi", and "s" approaches are available. (default =
@@ -54,11 +63,14 @@
 #' @family functions for chance-adjusted agreement
 #' @export
 cat_adjusted <- function(.data,
-                    approach = c("alpha", "gamma", "irsq", "kappa", "pi", "s"),
-                    categories = NULL,
-                    weighting = c("identity", "linear", "quadratic"),
-                    bootstrap = 2000,
-                    warnings = TRUE) {
+                         object = Object,
+                         rater = Rater,
+                         score = Score,
+                         approach = c("alpha", "gamma", "irsq", "kappa", "pi", "s"),
+                         categories = NULL,
+                         weighting = c("identity", "linear", "quadratic"),
+                         bootstrap = 2000,
+                         warnings = TRUE) {
 
   # Validate inputs
   assert_that(is.data.frame(.data) || is.matrix(.data))
@@ -70,7 +82,7 @@ cat_adjusted <- function(.data,
   assert_that(is.flag(warnings))
 
   # Prepare .data for analysis
-  d <- prep_data_cat(.data, categories, weighting, warnings)
+  d <- prep_data_cat(.data, {{object}}, {{rater}}, {{score}}, categories, weighting)
 
   # Warn about bootstrapping samples with less than 20 objects
   if (d$n_objects < 20 && bootstrap > 0 && warnings == TRUE) {
@@ -83,8 +95,8 @@ cat_adjusted <- function(.data,
   }
 
   # Create function to perform bootstrapping
-  boot_function <- function(codes, index, function_list, categories, weight_matrix) {
-    resample <- codes[index, , drop = FALSE]
+  boot_function <- function(ratings, index, function_list, categories, weight_matrix) {
+    resample <- ratings[index, , drop = FALSE]
     bsr <- rep(NA_real_, times = length(function_list) * 3)
     # Loop through approaches
     for (i in seq_along(function_list)) {
@@ -103,7 +115,7 @@ cat_adjusted <- function(.data,
   # Calculate the bootstrap results
   boot_results <-
     boot::boot(
-      data = d$codes,
+      data = d$ratings,
       statistic = boot_function,
       R = bootstrap,
       function_list = function_list,

@@ -7,13 +7,13 @@
 cat_specific(.data, categories = NULL, bootstrap = 2000, warnings = TRUE)
 }
 \arguments{
-\item{.data}{\emph{Required.} A matrix or data frame containing categorical data
-where each row corresponds to a single object of measurement (e.g.,
-subject) and each column corresponds to a single source of measurement
-(e.g., rater). Cells should contain numbers or characters indicating the
-discrete category that the corresponding rater assigned the corresponding
-object to. Cells should contain \code{NA} if a particular assignment is
-missing (e.g., that object was not assigned to a category by that rater).}
+\item{.data}{\emph{Required.} A matrix or data frame in tall format containing
+categorical data where each row corresponds to a single score (i.e.,
+assignment of an object to a category) Cells should contain numbers or
+characters indicating the discrete category that the corresponding rater
+assigned the corresponding object to. Cells should contain \code{NA} if a
+particular assignment is missing (e.g., that object was not assigned to a
+category by that rater).}
 
 \item{categories}{\emph{Optional.} A vector (numeric, character, or factor)
 containing all possible categories that objects could have been assigned

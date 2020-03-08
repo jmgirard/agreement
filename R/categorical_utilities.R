@@ -1,25 +1,38 @@
-# Prepare categorical data for analysis
+# Prepare categorical data for analysis -----------------------------------
 prep_data_cat <- function(.data,
+                          object,
+                          rater,
+                          score,
                           categories = NULL,
-                          weighting = "identity",
-                          warnings = TRUE) {
+                          weighting = "identity") {
 
-  # Extract codes from .data
-  codes <- as.matrix(.data)
+  out <- list()
 
-  # Drop objects that were never coded
-  codes <- remove_uncoded(codes)
+  # Ensure df is a tibble
+  df <- as_tibble(.data)
 
-  # Get basic counts
-  n_objects <- nrow(codes)
-  n_raters <- ncol(codes)
+  # Select the important variables
+  df <- dplyr::select(df, {{object}}, {{rater}}, {{score}})
 
-  # Validate basic counts
-  assert_that(n_objects >= 1, msg = "There must be at least 1 valid object in `.data`.")
-  assert_that(n_raters >= 2, msg = "There must be at least 2 raters in `.data`.")
+  # Add explicit NA rows to missing object-rater combinations
+  df <- tidyr::complete(df, {{object}}, {{rater}})
+
+  # Reorder df by rater and object so that scores fills out matrix properly
+  df <- dplyr::arrange(df, {{rater}}, {{object}})
+
+  # Get and count each variable's unique values
+  out$objects <- unique(dplyr::pull(df, {{object}}))
+  out$raters <- unique(dplyr::pull(df, {{rater}}))
+  out$n_objects <- length(out$objects)
+  out$n_raters <- length(out$raters)
+
+  # Pull scores, convert NaN to NA, and count NAs
+  scores <- dplyr::pull(df, {{score}})
+  scores[is.nan(scores)] <- NA
+  out$n_missing_scores <- sum(are_na(scores))
 
   # Get and count observed categories
-  cat_observed <- get_unique(codes)
+  cat_observed <- sort(unique(scores))
   n_cat_observed <- length(cat_observed)
 
   # If specified, get and count possible categories
@@ -30,55 +43,62 @@ prep_data_cat <- function(.data,
     if (is.factor(categories)) {
       cat_possible <- levels(categories)
     } else {
-      cat_possible <- categories
+      cat_possible <- unique(categories)
     }
     n_cat_possible <- length(cat_possible)
   }
+  out$categories <- cat_possible
+  out$n_categories <- n_cat_possible
 
-  assert_that(n_cat_possible > 1)
+  # Format ratings into an object-by-rater matrix
+  out$ratings <- matrix(
+    scores,
+    nrow = out$n_objects,
+    ncol = out$n_raters,
+    dimnames = list(out$objects, out$raters)
+  )
 
-  # Check observed categories against possible categories
+  # Drop objects and raters that contain only missing values
+  out <- remove_uncoded(out)
+
+  # Validate basic counts
+  assert_that(out$n_objects >= 1,
+              msg = "There must be at least 1 valid object in `.data`.")
+  assert_that(out$n_raters >= 2,
+              msg = "There must be at least 2 raters in `.data`.")
+  assert_that(out$n_categories > 1,
+              msg = "There must be at least 2 possible categories.")
+
+  # Validate categories
   cat_unknown <- setdiff(cat_observed, cat_possible)
-  assert_that(is_empty(cat_unknown), msg = "A category not in `categories` was observed in `.data`.")
+  assert_that(is_empty(cat_unknown),
+              msg = "A category not in `categories` was observed in `.data`.")
 
   # Get weight matrix
-  weight_matrix <- calc_weights(weighting, cat_possible, warnings)
-
-  out <- list(
-    codes = codes,
-    n_objects = n_objects,
-    n_raters = n_raters,
-    n_categories = n_cat_possible,
-    categories = cat_possible,
-    weighting = weighting,
-    weight_matrix = weight_matrix
-  )
+  out$weighting <- weighting
+  out$weight_matrix <- calc_weights(weighting, cat_possible)
 
   out
 }
 
-# Drop any values that are missing or NaN
-usable <- function(x) {
-  x[!are_na(x) & !is.nan(x)]
+# Drop objects and raters that contain only missing values ----------------
+remove_uncoded <- function(x) {
+  mat <- x$ratings
+  mat <- mat[rowSums(are_na(mat)) != ncol(mat), , drop = FALSE]
+  mat <- mat[, colSums(are_na(mat)) != nrow(mat), drop = FALSE]
+  out <- x
+  out$ratings <- mat
+  out$n_objects <- nrow(mat)
+  out$n_raters <- ncol(mat)
+  out
 }
 
-# Return sorted unique finite values
-get_unique <- function(x) {
-  if (is.data.frame(x)) { x <- as.matrix(x) }
-  sort(usable(unique(c(x))))
-}
-
-# Drop rows that contain only missing values
-remove_uncoded <- function(mat) {
-  mat[rowSums(are_na(mat)) != ncol(mat), , drop = FALSE]
-}
-
-# Calculate chance-adjusted index
+# Calculate chance-adjusted index -----------------------------------------
 adjust_chance <- function(poa, pea) {
   (poa - pea) / (1 - pea)
 }
 
-# Convert from codes to rater counts in object-by-category matrix
+# Convert from codes to rater counts in object-by-category matrix ---------
 raters_obj_cat <- function(codes, categories) {
   table(
     row(codes),
@@ -87,7 +107,7 @@ raters_obj_cat <- function(codes, categories) {
   )
 }
 
-# Convert from codes to object counts in rater-by-category matrix
+# Convert from codes to object counts in rater-by-category matrix ---------
 objects_rat_cat <- function(codes, categories) {
   table(
     col(codes),
@@ -96,8 +116,8 @@ objects_rat_cat <- function(codes, categories) {
   )
 }
 
-# Calculate weight matrix
-calc_weights <- function(type, categories, warnings = TRUE) {
+# Calculate weight matrix -------------------------------------------------
+calc_weights <- function(type, categories) {
 
   # Count the categories
   n_categories <- length(categories)

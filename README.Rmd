@@ -36,13 +36,13 @@ Calculate chance-adjusted indexes of categorical agreement for unordered categor
 ```{r example}
 library(agreement)
 # Load dataset with 4 raters assigning 12 objects to 5 unordered categories
-data(unordered)
-print(unordered)
+data(unordered_tall)
+print(unordered_tall)
 ```
 
 ```{r}
 # Calculate all chance-adjusted indexes for unordered categories
-results1 <- cat_adjusted(unordered)
+results1 <- cat_adjusted(unordered_tall)
 summary(results1, ci = TRUE)
 ```
 

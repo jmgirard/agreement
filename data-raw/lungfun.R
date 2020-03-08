@@ -1,6 +1,6 @@
 # Single Trial, Complete Data, Wide Format --------------------------------
 
-lungfun1 <- tibble::tribble(
+lungfun_wide <- tibble::tribble(
   ~R1, ~R2, ~R3, ~R4,
   190, 220, 200, 200,
   220, 200, 240, 230,
@@ -19,17 +19,20 @@ lungfun1 <- tibble::tribble(
   350, 320, 340, 365
 )
 
-usethis::use_data(lungfun1, overwrite = TRUE)
+usethis::use_data(lungfun_wide, overwrite = TRUE)
 
 # Single Trial, Complete Data, Long Format --------------------------------
 
-lungfun2 <- to_long(lungfun1)
+lungfun_tall <-
+  lungfun_wide %>%
+  dplyr::mutate(Object = dplyr::row_number(), Trial = 1) %>%
+  tidyr::pivot_longer(cols = R1:R4, names_to = "Rater", values_to = "Score")
 
-usethis::use_data(lungfun2, overwrite = TRUE)
+usethis::use_data(lungfun_tall, overwrite = TRUE)
 
 # Multiple Trial, Missing Data, Long Format -------------------------------
 
-lungfun3 <- tibble::tribble(
+lungfun_trials <- tibble::tribble(
   ~Object, ~Rater, ~Trial, ~Score,
   1, 1, 1, 190,
   1, 1, 2, 220,
@@ -92,4 +95,4 @@ lungfun3 <- tibble::tribble(
   8, 4, 1, 365
 )
 
-usethis::use_data(lungfun3, overwrite = TRUE)
+usethis::use_data(lungfun_trials, overwrite = TRUE)

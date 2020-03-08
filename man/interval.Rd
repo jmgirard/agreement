@@ -12,8 +12,8 @@ interval
 An object-by-rater tibble containing category assignments. Example data with
 16 objects rated by 4 raters into 5 interval categories denoted by the
 numbers \code{0.5}, \code{1.0}, \code{1.5}, \code{2.0}, and \code{2.5}.
-Includes some missing data (\code{NA}). Adapted from Gwet (2014) Table 3.9 on
-page 90 as part of Example 3.3.
+Includes some missing data as (\code{NA}). Adapted from Gwet (2014) Table 3.9
+on page 90 as part of Example 3.3.
 }
 \references{
 Gwet, K. L. (2014). Handbook of inter-rater reliability: The

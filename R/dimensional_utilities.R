@@ -29,8 +29,11 @@ prep_data_dim <- function(.data, object, rater, score, trial) {
   )
 
   # Validate basic counts
-  assert_that(out$n_objects >= 1, msg = "There must be at least 1 object in `.data`.")
-  assert_that(out$n_raters >= 2, msg = "There must be at least 2 raters in `.data`.")
+  assert_that(out$n_objects >= 1,
+              msg = "There must be at least 1 object in `.data`.")
+  assert_that(out$n_raters >= 2,
+              msg = "There must be at least 2 raters in `.data`.")
+  #TODO: Is intra-rater reliability still calculable with 1 rater?
 
   out
 }

@@ -11,7 +11,7 @@ ordered
 \description{
 An object-by-rater tibble containing category assignments. Example data with
 20 objects rated by 5 raters into 4 categories denoted by the numbers
-\code{0}, \code{1}, \code{2}, and \code{3}. Includes some missing data
+\code{0}, \code{1}, \code{2}, and \code{3}. Includes some missing data as
 (\code{NA}). Adapted from Gwet (2014) Table 4.9 on page 125 as part of
 Example 4.4.
 }
