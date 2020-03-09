@@ -14,12 +14,11 @@ inter-rater agreement and reliability using generalized formulas that
 accommodate different designs (e.g., crossed or uncrossed), missing
 data, and ordered or unordered categories. The package includes
 generalized functions for all major chance-adjusted indexes of
-categorical agreement (i.e., \(\alpha\), \(\gamma\), \(I_r^2\),
-\(\kappa\), \(\pi\), and \(S\)) as well as all major intraclass
-correlation coefficients (i.e., one-way and two-way models, agreement
-and consistency types, and single measure and average measure units).
-Estimates include bootstrap resampling distributions, confidence
-intervals, and custom tidying and plotting functions.
+categorical agreement (i.e., α, γ, Ir2, κ, π, and S) as well as all
+major intraclass correlation coefficients (i.e., one-way and two-way
+models, agreement and consistency types, and single measure and average
+measure units). Estimates include bootstrap resampling distributions,
+confidence intervals, and custom tidying and plotting functions.
 
 ## Installation
 
