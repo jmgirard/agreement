@@ -153,11 +153,12 @@ plot.agreement_cai <- function(x,
 
   out <- ggplot2::ggplot(data = plot_data, ggplot2::aes(x = Estimate, y = 0)) +
     ggplot2::facet_grid(Approach ~ Term, switch = "y") +
-    tidybayes::geom_halfeyeh(
+    tidybayes::stat_halfeyeh(
       point_interval = tidybayes::mean_qi,
       fill = fill,
       .width = .width,
       size = size,
+      normalize = "panels",
       ...
     ) +
     ggplot2::scale_x_continuous(NULL, breaks = seq(0, 1, 0.2)) +
@@ -299,6 +300,7 @@ tidy.agreement_spa <- function(x, level = 0.95, ...) {
   a <- length(x$approach)
   ci_vals <- stats::confint(x, level = level)
   out <- tibble(
+    approach = "Specific Agreement",
     category = x$details$categories,
     estimate = x$observed,
     lower = ci_vals[, 1],
@@ -334,11 +336,12 @@ plot.agreement_spa <- function(x,
 
   out <- ggplot2::ggplot(data = plot_data, ggplot2::aes(x = Estimate, y = 0)) +
     ggplot2::facet_wrap(~Category, ncol = 1) +
-    tidybayes::geom_halfeyeh(
+    tidybayes::stat_halfeyeh(
       point_interval = tidybayes::mean_qi,
       fill = fill,
       .width = .width,
       size = size,
+      normalize = "panels",
       ...
     ) +
     ggplot2::scale_x_continuous("Category-Specific Agreement", breaks = seq(0, 1, 0.2)) +

@@ -25,12 +25,12 @@
 #' @param rater Optional. The name of the variable in \code{.data} identifying
 #'   the rater or source of measurement for each observation, in non-standard
 #'   evaluation without quotation marks. (default = \code{Rater})
-#' @param trial Optional. The name of the variable in \code{.data} identifying
-#'   the time or trial of measurement for each observation, in non-standard
-#'   evaluation without quotation marks. (default = \code{Trial})
 #' @param score Optional. The name of the variable in \code{.data} containing
 #'   the dimensional score or rating for each observation, in non-standard
 #'   evaluation without quotation marks. (default = \code{Score})
+#' @param trial Optional. The name of the variable in \code{.data} identifying
+#'   the time or trial of measurement for each observation, in non-standard
+#'   evaluation without quotation marks. (default = \code{NULL})
 #' @param bootstrap Optional. A non-negative integer indicating how many
 #'   bootstrap resamples to use in estimating confidence intervals. Set to
 #'   \code{0} to forgo bootstrapping. (default = \code{2000})
@@ -53,8 +53,8 @@ dim_icc <- function(.data,
                     k = 1,
                     object = Object,
                     rater = Rater,
-                    trial = Trial,
                     score = Score,
+                    trial = NULL,
                     bootstrap = 2000,
                     warnings = TRUE) {
 

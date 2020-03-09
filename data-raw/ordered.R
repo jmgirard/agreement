@@ -1,4 +1,5 @@
-ordered <-
+# Ordered categorical data, numerical, wide -------------------------------
+ordered_wide <-
   tibble::tribble(
     ~R1, ~R2, ~R3, ~R4, ~R5,
     1, 1, 2, NA, 2,
@@ -22,5 +23,11 @@ ordered <-
     1, 1, 0, 1, NA,
     0, 0, 0, NA, 0
   )
+usethis::use_data(ordered_wide, overwrite = TRUE)
 
+# Ordered categorical data, numerical, tall -------------------------------
+ordered <-
+  ordered_wide %>%
+  dplyr::mutate(Object = dplyr::row_number()) %>%
+  tidyr::pivot_longer(cols = R1:R5, names_to = "Rater", values_to = "Score")
 usethis::use_data(ordered, overwrite = TRUE)

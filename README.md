@@ -41,21 +41,20 @@ library(agreement)
 # Load dataset with 4 raters assigning 12 objects to 5 unordered categories
 data(unordered)
 print(unordered)
-#> # A tibble: 12 x 4
-#>    R1    R2    R3    R4   
-#>    <chr> <chr> <chr> <chr>
-#>  1 a     a     <NA>  a    
-#>  2 b     b     c     b    
-#>  3 c     c     c     c    
-#>  4 c     c     c     c    
-#>  5 b     b     b     b    
-#>  6 a     b     c     d    
-#>  7 d     d     d     d    
-#>  8 a     a     b     a    
-#>  9 b     b     b     b    
-#> 10 <NA>  e     e     e    
-#> 11 <NA>  <NA>  a     a    
-#> 12 <NA>  <NA>  c     <NA>
+#> # A tibble: 48 x 3
+#>    Object Rater Score
+#>     <int> <chr> <chr>
+#>  1      1 R1    a    
+#>  2      1 R2    a    
+#>  3      1 R3    <NA> 
+#>  4      1 R4    a    
+#>  5      2 R1    b    
+#>  6      2 R2    b    
+#>  7      2 R3    c    
+#>  8      2 R4    b    
+#>  9      3 R1    c    
+#> 10      3 R2    c    
+#> # ... with 38 more rows
 ```
 
 ``` r
@@ -124,29 +123,20 @@ categories
 # Load dataset with 5 raters assigning 20 objects to 4 ordered categories
 data(ordered)
 print(ordered)
-#> # A tibble: 20 x 5
-#>       R1    R2    R3    R4    R5
-#>    <dbl> <dbl> <dbl> <dbl> <dbl>
-#>  1     1     1     2    NA     2
-#>  2     1     1     0     1    NA
-#>  3     2     3     3     3    NA
-#>  4    NA     0     0    NA     0
-#>  5     0     0     0    NA     0
-#>  6     0     0     0    NA     0
-#>  7     1     0     2    NA     1
-#>  8     1    NA     2     0    NA
-#>  9     2     2     2    NA     2
-#> 10     2     1     1     1    NA
-#> 11    NA     1     0     0    NA
-#> 12     0     0     0     0    NA
-#> 13     1     2     2     2    NA
-#> 14     3     3     2     2     3
-#> 15     1     1     1    NA     1
-#> 16     1     1     1    NA     1
-#> 17     2     1     2    NA     2
-#> 18     1     2     3     3    NA
-#> 19     1     1     0     1    NA
-#> 20     0     0     0    NA     0
+#> # A tibble: 100 x 3
+#>    Object Rater Score
+#>     <int> <chr> <dbl>
+#>  1      1 R1        1
+#>  2      1 R2        1
+#>  3      1 R3        2
+#>  4      1 R4       NA
+#>  5      1 R5        2
+#>  6      2 R1        1
+#>  7      2 R2        1
+#>  8      2 R3        0
+#>  9      2 R4        1
+#> 10      2 R5       NA
+#> # ... with 90 more rows
 ```
 
 ``` r
@@ -229,47 +219,48 @@ summary(results3, ci = TRUE)
 
 ``` r
 tidy(results3)
-#> # A tibble: 4 x 4
-#>   category estimate lower upper
-#>      <dbl>    <dbl> <dbl> <dbl>
-#> 1        0    0.812 0.490 0.954
-#> 2        1    0.605 0.333 0.771
-#> 3        2    0.483 0.171 0.711
-#> 4        3    0.519 0.333 0.667
+#> # A tibble: 4 x 5
+#>   approach           category estimate lower upper
+#>   <chr>                 <dbl>    <dbl> <dbl> <dbl>
+#> 1 Specific Agreement        0    0.812 0.490 0.954
+#> 2 Specific Agreement        1    0.605 0.333 0.771
+#> 3 Specific Agreement        2    0.483 0.171 0.711
+#> 4 Specific Agreement        3    0.519 0.333 0.667
 ```
 
 ``` r
 plot(results3)
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-1.png" width="50%" />
+<img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
 
-Calculate intraclass correlation coefficient for dimensional data
+Calculate intraclass correlation coefficient for dimensional data with 1
+trial
 
 ``` r
 # Load dataset with 4 raters rating 15 objects in 1 trial
-data(lungfun2)
-print(lungfun2)
-#> # A tibble: 60 x 4
-#>    Trial Object Rater Score
-#>    <dbl>  <int> <chr> <dbl>
-#>  1     1      1 R1      190
-#>  2     1      1 R2      220
-#>  3     1      1 R3      200
-#>  4     1      1 R4      200
-#>  5     1      2 R1      220
-#>  6     1      2 R2      200
-#>  7     1      2 R3      240
-#>  8     1      2 R4      230
-#>  9     1      3 R1      260
-#> 10     1      3 R2      260
-#> # … with 50 more rows
+data(lungfun)
+print(lungfun)
+#> # A tibble: 60 x 3
+#>    Object Rater Score
+#>     <int> <chr> <dbl>
+#>  1      1 R1      190
+#>  2      1 R2      220
+#>  3      1 R3      200
+#>  4      1 R4      200
+#>  5      2 R1      220
+#>  6      2 R2      200
+#>  7      2 R3      240
+#>  8      2 R4      230
+#>  9      3 R1      260
+#> 10      3 R2      260
+#> # ... with 50 more rows
 ```
 
 ``` r
 # Calculate average score ICC using Model 1A
-results4 <- dim_icc(lungfun2, Object, Rater, Score, Trial, 
-  model = "1A", type = "agreement", k = 4, warnings = FALSE)
+results4 <- dim_icc(lungfun, Object, Rater, Score, model = "1A", 
+                    type = "agreement", k = 4, warnings = FALSE)
 summary(results4)
 #> 
 #> Intraclass Correlation Coefficient Analysis Details
@@ -311,7 +302,83 @@ tidy(results4)
 plot(results4, intra = FALSE, inter = TRUE)
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-1.png" width="50%" />
+<img src="man/figures/README-unnamed-chunk-15-1.png" width="100%" />
+
+Calculate intraclass correlation coefficient for dimensional data with
+many trials
+
+``` r
+# Load dataset with 4 raters rating 8 objects in 3 trials
+data(lungfun2)
+print(lungfun2)
+#> # A tibble: 59 x 4
+#>    Object Rater Trial Score
+#>     <dbl> <dbl> <dbl> <dbl>
+#>  1      1     1     1   190
+#>  2      1     1     2   220
+#>  3      1     2     1   220
+#>  4      1     2     2   200
+#>  5      1     3     1   200
+#>  6      1     3     2   240
+#>  7      1     4     1   200
+#>  8      1     4     2   230
+#>  9      2     1     1   260
+#> 10      2     1     2   210
+#> # ... with 49 more rows
+```
+
+``` r
+# Calculate single score ICC using Model 2A
+results5 <- dim_icc(lungfun2, Object, Rater, Score, Trial, model = "2", 
+                    type = "agreement", k = 1, warnings = FALSE)
+summary(results5)
+#> 
+#> Intraclass Correlation Coefficient Analysis Details
+#> 
+#> Number of Objects    8
+#> Number of Raters     4
+#> Number of Trials     3
+#> 
+#> Score Missingness    41.667 %
+#> Score Number Range   [190, 375]
+#> 
+#> ICC Model            Model 2
+#> ICC Type             Agreement
+#> ICC Index            Single Rater
+#> 
+#> Variance Component Estimates with Bootstrapped CIs
+#> 
+#>                              Estimate      2.5 %     97.5 %
+#> Object Variance              1652.014    299.866   3031.679
+#> Rater Variance                 97.109      3.254    347.156
+#> Interaction (OxR) Variance   -102.240   -375.003    -13.511
+#> Residual Variance             461.333    217.335    807.058
+#> 
+#> ICC Estimates with Bootstrapped CIs
+#> 
+#>                   Estimate   2.5 %   97.5 %
+#> Intra-Rater ICC      0.791   0.446    0.892
+#> Inter-Rater ICC      0.747   0.272    0.872
+```
+
+``` r
+tidy(results5)
+#> # A tibble: 6 x 4
+#>   term              estimate    lower    upper
+#>   <chr>                <dbl>    <dbl>    <dbl>
+#> 1 Object Variance   1652.     300.    3032.   
+#> 2 Rater Variance      97.1      3.25   347.   
+#> 3 O-by-R Variance   -102.    -375.     -13.5  
+#> 4 Residual Variance  461.     217.     807.   
+#> 5 Intra-Rater ICC      0.791    0.446    0.892
+#> 6 Inter-Rater ICC      0.747    0.272    0.872
+```
+
+``` r
+plot(results5)
+```
+
+<img src="man/figures/README-unnamed-chunk-19-1.png" width="100%" />
 
 ## Code of Conduct
 

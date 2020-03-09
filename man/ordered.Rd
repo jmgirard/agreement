@@ -4,20 +4,23 @@
 \name{ordered}
 \alias{ordered}
 \title{Example dataset with ordered categorical ratings from Gwet}
-\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 20 rows and 5 columns.}
+\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 100 rows and 3 columns.}
 \usage{
 ordered
 }
 \description{
-An object-by-rater tibble containing category assignments. Example data with
-20 objects rated by 5 raters into 4 categories denoted by the numbers
-\code{0}, \code{1}, \code{2}, and \code{3}. Includes some missing data as
-(\code{NA}). Adapted from Gwet (2014) Table 4.9 on page 125 as part of
-Example 4.4.
+A tibble in tall format with variables denoting each \code{Object},
+\code{Rater}, and \code{Score}. Example data with 20 objects rated by 5
+raters into 4 categories denoted by the numbers \code{0}, \code{1}, \code{2},
+and \code{3}. Includes some missing data as (\code{NA}). Adapted from Gwet
+(2014) Table 4.9 on page 125 as part of Example 4.4.
 }
 \references{
 Gwet, K. L. (2014). Handbook of inter-rater reliability: The
 definitive guide to measuring the extent of agreement among raters (4th
 ed.). Gaithersburg, MD: Advanced Analytics.
+}
+\seealso{
+\code{\link{ordered_wide}}
 }
 \keyword{datasets}

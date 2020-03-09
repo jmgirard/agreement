@@ -4,7 +4,7 @@ prep_data_dim <- function(.data, object, rater, score, trial) {
   out <- list()
 
   df <- as_tibble(.data)
-  if (rlang::quo_is_missing(rlang::enquo(trial))) {
+  if (rlang::quo_is_null(rlang::enquo(trial))) {
     df <- dplyr::mutate(df, Trial = "T1")
     trial <- rlang::quo(Trial)
   }

@@ -9,7 +9,7 @@
 unordered_wide
 }
 \description{
-A tibble in tall format with variables denoting each rater. Example data with
+A tibble in wide format with variables denoting each rater. Example data with
 12 objects rated by 4 raters into 5 unordered categories denoted by the
 letters \code{a}, \code{b}, \code{c}, \code{d}, and \code{e}. Includes some
 missing data as \code{NA}. Adapted from Gwet (2014) Table 2.15 on page 55 as

@@ -36,13 +36,13 @@ Calculate chance-adjusted indexes of categorical agreement for unordered categor
 ```{r example}
 library(agreement)
 # Load dataset with 4 raters assigning 12 objects to 5 unordered categories
-data(unordered_tall)
-print(unordered_tall)
+data(unordered)
+print(unordered)
 ```
 
 ```{r}
 # Calculate all chance-adjusted indexes for unordered categories
-results1 <- cat_adjusted(unordered_tall)
+results1 <- cat_adjusted(unordered)
 summary(results1, ci = TRUE)
 ```
 
@@ -51,7 +51,7 @@ summary(results1, ci = TRUE)
 tidy(results1)
 ```
 
-```{r, fig.height=3}
+```{r, fig.height=4}
 # Plot the bootstrap resampling distributions with confidence intervals
 plot(results1)
 ```
@@ -74,7 +74,7 @@ summary(results2, ci = TRUE)
 tidy(results2)
 ```
 
-```{r, fig.height=3}
+```{r, fig.height=4}
 plot(results2)
 ```
 
@@ -90,22 +90,22 @@ summary(results3, ci = TRUE)
 tidy(results3)
 ```
 
-```{r, fig.height = 3, fig.width = 3, out.width = "50%"}
+```{r, fig.height = 4}
 plot(results3)
 ```
 
-Calculate intraclass correlation coefficient for dimensional data
+Calculate intraclass correlation coefficient for dimensional data with 1 trial
 
 ```{r}
 # Load dataset with 4 raters rating 15 objects in 1 trial
-data(lungfun2)
-print(lungfun2)
+data(lungfun)
+print(lungfun)
 ```
 
 ```{r}
 # Calculate average score ICC using Model 1A
-results4 <- dim_icc(lungfun2, Object, Rater, Score, Trial, 
-  model = "1A", type = "agreement", k = 4, warnings = FALSE)
+results4 <- dim_icc(lungfun, Object, Rater, Score, model = "1A", 
+                    type = "agreement", k = 4, warnings = FALSE)
 summary(results4)
 ```
 
@@ -114,8 +114,31 @@ tidy(results4)
 ```
 
 
-```{r, fig.height = 3, fig.width = 3, out.width = "50%"}
+```{r, fig.height = 4}
 plot(results4, intra = FALSE, inter = TRUE)
+```
+
+Calculate intraclass correlation coefficient for dimensional data with many trials
+
+```{r}
+# Load dataset with 4 raters rating 8 objects in 3 trials
+data(lungfun2)
+print(lungfun2)
+```
+
+```{r}
+# Calculate single score ICC using Model 2A
+results5 <- dim_icc(lungfun2, Object, Rater, Score, Trial, model = "2", 
+                    type = "agreement", k = 1, warnings = FALSE)
+summary(results5)
+```
+
+```{r}
+tidy(results5)
+```
+
+```{r, fig.height = 4}
+plot(results5)
 ```
 
 ## Code of Conduct
