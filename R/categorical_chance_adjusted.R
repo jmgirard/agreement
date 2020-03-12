@@ -103,7 +103,7 @@ cat_adjusted <- function(.data,
       observed = NA_real_,
       expected = NA_real_,
       adjusted = NA_real_,
-      boot_results = list(t = matrix(NA, nrow = 1, ncol = 3)),
+      boot_results = list(t = matrix(NA, nrow = 1, ncol = 3 * length(approach))),
       details = d,
       call = match.call()
     )
