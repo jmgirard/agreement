@@ -4,7 +4,9 @@
 \name{unordered_wide}
 \alias{unordered_wide}
 \title{Example dataset with unordered categorical ratings in wide format}
-\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 12 rows and 4 columns.}
+\format{
+An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 12 rows and 4 columns.
+}
 \usage{
 unordered_wide
 }

@@ -11,8 +11,8 @@ dim_icc(
   k = 1,
   object = Object,
   rater = Rater,
-  trial = Trial,
   score = Score,
+  trial = NULL,
   bootstrap = 2000,
   warnings = TRUE
 )
@@ -45,13 +45,13 @@ without quotation marks. (default = \code{Object})}
 the rater or source of measurement for each observation, in non-standard
 evaluation without quotation marks. (default = \code{Rater})}
 
-\item{trial}{Optional. The name of the variable in \code{.data} identifying
-the time or trial of measurement for each observation, in non-standard
-evaluation without quotation marks. (default = \code{Trial})}
-
 \item{score}{Optional. The name of the variable in \code{.data} containing
 the dimensional score or rating for each observation, in non-standard
 evaluation without quotation marks. (default = \code{Score})}
+
+\item{trial}{Optional. The name of the variable in \code{.data} identifying
+the time or trial of measurement for each observation, in non-standard
+evaluation without quotation marks. (default = \code{NULL})}
 
 \item{bootstrap}{Optional. A non-negative integer indicating how many
 bootstrap resamples to use in estimating confidence intervals. Set to

@@ -4,7 +4,9 @@
 \name{ordered_wide}
 \alias{ordered_wide}
 \title{Example dataset with ordered categorical ratings in wide format}
-\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 20 rows and 5 columns.}
+\format{
+An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 20 rows and 5 columns.
+}
 \usage{
 ordered_wide
 }

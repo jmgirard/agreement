@@ -4,7 +4,9 @@
 \name{ordered}
 \alias{ordered}
 \title{Example dataset with ordered categorical ratings from Gwet}
-\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 100 rows and 3 columns.}
+\format{
+An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 100 rows and 3 columns.
+}
 \usage{
 ordered
 }
