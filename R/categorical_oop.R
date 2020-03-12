@@ -77,7 +77,7 @@ summary.agreement_cai <- function(object, digits = 3, ci = TRUE, level = 0.95, .
 
   # Append Confidence Intervals for Adjusted Column if requested
   if (ci == TRUE) {
-    ci <- round(stats::confint(object, which = "Adjusted", level = level), digits)
+    ci <- round(stats::confint(object, term = "Adjusted", level = level), digits)
     m <- cbind(m, ci)
   }
 
@@ -89,27 +89,27 @@ summary.agreement_cai <- function(object, digits = 3, ci = TRUE, level = 0.95, .
 
 # confint method for objects of cai class
 confint.agreement_cai <- function(object,
-                                  which = c("Observed", "Expected", "Adjusted"),
+                                  term = c("Observed", "Expected", "Adjusted"),
                                   level = 0.95,
                                   ...) {
 
   # Validate inputs
-  which <- match.arg(which)
+  term <- match.arg(term, several.ok = FALSE)
   assert_that(is.number(level), level > 0, level < 1)
 
   # Prepare matrix
-  a <- length(object$approach)
+  n_approach <- length(object$approach)
   index <- dplyr::case_when(
-    which == "Observed" ~ 1,
-    which == "Expected" ~ 2,
-    which == "Adjusted" ~ 3
+    term == "Observed" ~ 1,
+    term == "Expected" ~ 2,
+    term == "Adjusted" ~ 3
   )
-  out <- matrix(NA, nrow = a, ncol = 2)
-  rownames(out) <- paste0(object$approach, " ", which)
+  out <- matrix(NA, nrow = n_approach, ncol = 2)
+  rownames(out) <- paste0(object$approach, " ", rep(term, times = n_approach))
   colnames(out) <- sprintf("%.1f %%", c((1 - level) / 2, 1 - (1 - level) / 2) * 100)
-  distributions <- object$boot_results$t[, seq(from = index, to = ncol(object$boot_results$t), by = 3)]
+  distributions <- object$boot_results$t[, seq(from = index, to = ncol(object$boot_results$t), by = 3), drop = FALSE]
 
-  if (a == 1) {
+  if (n_approach == 1) {
     out[, 1] <- stats::quantile(distributions, probs = (1 - level) / 2, na.rm = TRUE)
     out[, 2] <- stats::quantile(distributions, probs = 1 - (1 - level) / 2, na.rm = TRUE)
   } else {
@@ -173,9 +173,9 @@ plot.agreement_cai <- function(x,
 #' @export
 tidy.agreement_cai <- function(x, level = 0.95, ...) {
   a <- length(x$approach)
-  ci_vals_o <- stats::confint(x, which = "Observed", level = level)
-  ci_vals_e <- stats::confint(x, which = "Expected", level = level)
-  ci_vals_a <- stats::confint(x, which = "Adjusted", level = level)
+  ci_vals_o <- stats::confint(x, term = "Observed", level = level)
+  ci_vals_e <- stats::confint(x, term = "Expected", level = level)
+  ci_vals_a <- stats::confint(x, term = "Adjusted", level = level)
   out <- tibble(
     approach = rep(x$approach, times = 3),
     weighting = rep(x$details$weighting, times = a * 3),

@@ -98,12 +98,13 @@ cat_adjusted <- function(.data,
     if (warnings == TRUE) {
       warning("Only a single category was observed or requested. Returning NA.")
     }
+    n_approach <- length(approach)
     out <- new_cai(
       approach = approach,
-      observed = NA_real_,
-      expected = NA_real_,
-      adjusted = NA_real_,
-      boot_results = list(t = matrix(NA, nrow = 1, ncol = 3 * length(approach))),
+      observed = rep(NA_real_, n_approach),
+      expected = rep(NA_real_, n_approach),
+      adjusted = rep(NA_real_, n_approach),
+      boot_results = list(t = matrix(NA, nrow = 1, ncol = 3 * n_approach)),
       details = d,
       call = match.call()
     )
