@@ -95,7 +95,7 @@ cat_adjusted <- function(.data,
   }
   # Warn about there being fewer than 2 categories
   if (d$n_categories < 2) {
-    if (warning == TRUE) {
+    if (warnings == TRUE) {
       warning("Only a single category was observed or requested. Returning NA.")
     }
     out <- new_cai(
