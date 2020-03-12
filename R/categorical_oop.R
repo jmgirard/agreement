@@ -110,11 +110,11 @@ confint.agreement_cai <- function(object,
   distributions <- object$boot_results$t[, seq(from = index, to = ncol(object$boot_results$t), by = 3)]
 
   if (a == 1) {
-    out[, 1] <- stats::quantile(distributions, probs = (1 - level) / 2)
-    out[, 2] <- stats::quantile(distributions, probs = 1 - (1 - level) / 2)
+    out[, 1] <- stats::quantile(distributions, probs = (1 - level) / 2, na.rm = TRUE)
+    out[, 2] <- stats::quantile(distributions, probs = 1 - (1 - level) / 2, na.rm = TRUE)
   } else {
-    out[, 1] <- apply(distributions, MARGIN = 2, stats::quantile, probs = (1 - level) / 2)
-    out[, 2] <- apply(distributions, MARGIN = 2, stats::quantile, probs = 1 - (1 - level) / 2)
+    out[, 1] <- apply(distributions, MARGIN = 2, stats::quantile, probs = (1 - level) / 2, na.rm = TRUE)
+    out[, 2] <- apply(distributions, MARGIN = 2, stats::quantile, probs = 1 - (1 - level) / 2, na.rm = TRUE)
   }
 
   out

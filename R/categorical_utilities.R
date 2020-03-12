@@ -66,8 +66,6 @@ prep_data_cat <- function(.data,
               msg = "There must be at least 1 valid object in `.data`.")
   assert_that(out$n_raters >= 2,
               msg = "There must be at least 2 raters in `.data`.")
-  assert_that(out$n_categories > 1,
-              msg = "There must be at least 2 possible categories.")
 
   # Validate categories
   cat_unknown <- setdiff(cat_observed, cat_possible)

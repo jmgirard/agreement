@@ -93,6 +93,22 @@ cat_adjusted <- function(.data,
   if (bootstrap > 0 && bootstrap < 1000 && warnings == TRUE) {
     warning("To get stable confidence intervals, consider using more bootstrap resamples.")
   }
+  # Warn about there being fewer than 2 categories
+  if (d$n_categories < 2) {
+    if (warning == TRUE) {
+      warning("Only a single category was observed or requested. Returning NA.")
+    }
+    out <- new_cai(
+      approach = approach,
+      observed = NA_real_,
+      expected = NA_real_,
+      adjusted = NA_real_,
+      boot_results = list(t = matrix(NA, nrow = 1, ncol = 3)),
+      details = d,
+      call = match.call()
+    )
+    return(out)
+  }
 
   # Create function to perform bootstrapping
   boot_function <- function(ratings, index, function_list, categories, weight_matrix) {
