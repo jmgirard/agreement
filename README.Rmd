@@ -104,8 +104,8 @@ print(lungfun)
 
 ```{r}
 # Calculate average score ICC using Model 1A
-results4 <- dim_icc(lungfun, Object, Rater, Score, model = "1A", 
-                    type = "agreement", k = 4, warnings = FALSE)
+results4 <- dim_icc(lungfun, model = "1A", type = "agreement", unit = "average",
+                    object = Object, rater = Rater, score = Score, warnings = FALSE)
 summary(results4)
 ```
 
@@ -129,7 +129,7 @@ print(lungfun2)
 ```{r}
 # Calculate single score ICC using Model 2A
 results5 <- dim_icc(lungfun2, Object, Rater, Score, Trial, model = "2", 
-                    type = "agreement", k = 1, warnings = FALSE)
+                    type = "agreement", unit = "single", warnings = FALSE)
 summary(results5)
 ```
 
