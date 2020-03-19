@@ -174,7 +174,9 @@ tidy.agreement_icc <- function(x, level = 0.95, ...) {
     upper = ci_vals[, 2]
   )
 
-  out <- tidyr::drop_na(out)
+  # Remove rows with only missing values
+  m <- as.matrix(out[, 2:4])
+  out <- out[rowSums(are_na(m)) != ncol(m), , drop = FALSE]
 
   out
 }
