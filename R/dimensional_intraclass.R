@@ -60,7 +60,6 @@ dim_icc <- function(.data,
   model <- match.arg(model)
   type <- match.arg(type)
   unit <- match.arg(unit)
-  assert_that(is.count(k))
   assert_that(bootstrap == 0 || is.count(bootstrap),
     msg = "The 'bootstrap' argument must be a non-negative integer.")
   assert_that(is.flag(warnings))
