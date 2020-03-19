@@ -84,6 +84,21 @@ cat_adjusted <- function(.data,
   # Prepare .data for analysis
   d <- prep_data_cat(.data, {{object}}, {{rater}}, {{score}}, categories, weighting)
 
+  # Prepare empty results in case of errors
+  n_approach <- length(approach)
+  out <- new_cai(
+    approach = approach,
+    observed = rep(NA_real_, n_approach),
+    expected = rep(NA_real_, n_approach),
+    adjusted = rep(NA_real_, n_approach),
+    boot_results = list(
+      t = matrix(NA, nrow = 1, ncol = 3 * n_approach),
+      t0 = rep(NA, 3 * n_approach)
+    ),
+    details = d,
+    call = match.call()
+  )
+
   # Warn about bootstrapping samples with less than 20 objects
   if (d$n_objects < 20 && bootstrap > 0 && warnings == TRUE) {
     warning("With a small number of objects, bootstrap confidence intervals may not be stable.")
@@ -93,21 +108,18 @@ cat_adjusted <- function(.data,
   if (bootstrap > 0 && bootstrap < 1000 && warnings == TRUE) {
     warning("To get stable confidence intervals, consider using more bootstrap resamples.")
   }
+
   # Warn about there being fewer than 2 categories
   if (d$n_categories < 2) {
     if (warnings == TRUE) {
-      warning("Only a single category was observed or requested. Returning NA.")
+      warning("Only a single category was observed or requested. Returning NA.\nHint: Try setting the possible categories explicitly with the categories argument")
     }
-    n_approach <- length(approach)
-    out <- new_cai(
-      approach = approach,
-      observed = rep(NA_real_, n_approach),
-      expected = rep(NA_real_, n_approach),
-      adjusted = rep(NA_real_, n_approach),
-      boot_results = list(t = matrix(NA, nrow = 1, ncol = 3 * n_approach)),
-      details = d,
-      call = match.call()
-    )
+    return(out)
+  }
+  if (d$n_raters < 2) {
+    if (warnings == TRUE) {
+      warning("Only a single rater was observed. Returning NA.")
+    }
     return(out)
   }
 

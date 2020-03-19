@@ -62,6 +62,14 @@ cat_specific <- function(.data,
     warning("To get stable confidence intervals, consider using more bootstrap resamples.")
   }
 
+  # Warn about there being fewer than 2 categories
+  if (d$n_categories < 2) {
+    if (warning == TRUE) {
+      warning("Only a single category was observed or requested. Returning NA.")
+    }
+    return(NA)
+  }
+
   # Create function to perform bootstrapping
   boot_function <- function(ratings, index, categories, weight_matrix) {
     resample <- ratings[index, , drop = FALSE]

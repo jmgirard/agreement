@@ -63,14 +63,6 @@ dim_icc <- function(.data,
   model <- match.arg(model)
   type <- match.arg(type)
   assert_that(is.count(k))
-  # assert_that(is.string(object) == FALSE,
-  #   msg = "The 'object' argument is a string (try removing the quotation marks).")
-  # assert_that(is.string(rater) == FALSE,
-  #   msg = "The 'rater' argument is a string (try removing the quotation marks).")
-  # assert_that(is.string(trial) == FALSE,
-  #   msg = "The 'trial' argument is a string (try removing the quotation marks).")
-  # assert_that(is.string(score) == FALSE,
-  #   msg = "The 'score' argument is a string (try removing the quotation marks).")
   assert_that(bootstrap == 0 || is.count(bootstrap),
     msg = "The 'bootstrap' argument must be a non-negative integer.")
   assert_that(is.flag(warnings))
@@ -78,14 +70,44 @@ dim_icc <- function(.data,
   # Prepare .data for analysis
   d <- prep_data_dim(.data, {{object}}, {{rater}}, {{score}}, {{trial}})
 
+  # Prepare empty output in case of errors
+  out <- new_icc(
+    Object = NA_real_,
+    Rater = NA_real_,
+    Interaction = NA_real_,
+    Residual = NA_real_,
+    Intra_ICC = NA_real_,
+    Inter_ICC = NA_real_,
+    boot_results = list(t = matrix(NA, nrow = 1, ncol = 6), t0 = rep(NA, 6)),
+    formulation = list(model = model, type = type, k = k),
+    details = d,
+    call = match.call()
+  )
+
   # Warn about bootstrapping samples with less than 20 objects
   if (d$n_objects < 20 && bootstrap > 0 && warnings == TRUE) {
     warning("With a small number of objects, bootstrap confidence intervals may not be stable.")
   }
 
-  # Warn about impossible combinations of arguments
+  # Error with impossible combinations of arguments
   if (type == "consistency" && (model == "1A" || model == "1B")) {
     stop("Consistency ICCs are not possible for models 1A and 1B.")
+  }
+
+  # Warn about there being fewer than 2 raters
+  if (d$n_raters < 2) {
+    if (warnings == TRUE) {
+      warning("Only a single rater was observed. Returning NA.")
+    }
+    return(out)
+  }
+  #TODO: Check on intra-rater reliability with one rater - is it possible?
+
+  if (d$n_objects < 2) {
+    if (warnings == TRUE) {
+      warning("Only a single object with scores was observed. Returning NA.")
+    }
+    return(out)
   }
 
   # Create function to perform bootstrapping
@@ -96,7 +118,7 @@ dim_icc <- function(.data,
   }
 
   # Build function name for the requested ICC
-  fun = eval(
+  fun <- eval(
     parse(
       text = paste0("calc_icc_", model, ifelse(type == "agreement", "_A", "_C"))
     )
