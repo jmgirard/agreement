@@ -12,13 +12,10 @@
 #' @param type Optional. A string indicating which ICC type to use, according to
 #'   McGraw & Wong's (1999) typology. Options include "agreement" and
 #'   "consistency". (default = \code{"agreement"})
-#' @param k Optional. A positive integer indicating how many raters' scores
-#'   should be averaged to produce the measure whose reliability is being
-#'   estimated. Set to \code{1} to estimate the reliability of ratings from a
-#'   single rater selected at random from those included in the analysis (i.e.,
-#'   "single measure reliability"). Set to a number greater than \code{1} to
-#'   estimate the reliability of the average of that many randomly selected
-#'   raters (i.e., "average measure reliability"). (default = \code{1})
+#' @param unit Optional. A string indicating which unit of analysis to use.
+#'   Options include "single" for the reliability of a single randomly chosen
+#'   rater or "average" for the reliability of the average of all raters.
+#'   (default = \code{"single"})
 #' @param object Optional. The name of the variable in \code{.data} identifying
 #'   the object of measurement for each observation, in non-standard evaluation
 #'   without quotation marks. (default = \code{Object})
@@ -50,7 +47,7 @@
 dim_icc <- function(.data,
                     model = c("1A", "1B", "2", "2A", "3", "3A"),
                     type = c("agreement", "consistency"),
-                    k = 1,
+                    unit = c("single", "average"),
                     object = Object,
                     rater = Rater,
                     score = Score,
@@ -62,6 +59,7 @@ dim_icc <- function(.data,
   assert_that(is.data.frame(.data) || is.matrix(.data))
   model <- match.arg(model)
   type <- match.arg(type)
+  unit <- match.arg(unit)
   assert_that(is.count(k))
   assert_that(bootstrap == 0 || is.count(bootstrap),
     msg = "The 'bootstrap' argument must be a non-negative integer.")
@@ -69,6 +67,12 @@ dim_icc <- function(.data,
 
   # Prepare .data for analysis
   d <- prep_data_dim(.data, {{object}}, {{rater}}, {{score}}, {{trial}})
+
+  if (unit == "single") {
+    k <- 1
+  } else {
+    k <- d$n_raters
+  }
 
   # Prepare empty output in case of errors
   out <- new_icc(
@@ -79,7 +83,7 @@ dim_icc <- function(.data,
     Intra_ICC = NA_real_,
     Inter_ICC = NA_real_,
     boot_results = list(t = matrix(NA, nrow = 1, ncol = 6), t0 = rep(NA, 6)),
-    formulation = list(model = model, type = type, k = k),
+    formulation = list(model = model, type = type, unit = unit, k = k),
     details = d,
     call = match.call()
   )
@@ -143,7 +147,7 @@ dim_icc <- function(.data,
     Intra_ICC = boot_results$t0[[5]],
     Inter_ICC = boot_results$t0[[6]],
     boot_results = boot_results,
-    formulation = list(model = model, type = type, k = k),
+    formulation = list(model = model, type = type, unit = unit, k = k),
     details = d,
     call = match.call()
   )
