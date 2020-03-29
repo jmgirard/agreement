@@ -14,8 +14,8 @@
 #'   "consistency". (default = \code{"agreement"})
 #' @param unit Optional. A string indicating which unit of analysis to use.
 #'   Options include "single" for the reliability of a single randomly chosen
-#'   rater or "average" for the reliability of the average of all raters.
-#'   (default = \code{"single"})
+#'   rater, "average" for the reliability of the average of all observed raters,
+#'   or "custom" for a specified number of raters. (default = \code{"single"})
 #' @param object Optional. The name of the variable in \code{.data} identifying
 #'   the object of measurement for each observation, in non-standard evaluation
 #'   without quotation marks. (default = \code{Object})
@@ -28,6 +28,9 @@
 #' @param trial Optional. The name of the variable in \code{.data} identifying
 #'   the time or trial of measurement for each observation, in non-standard
 #'   evaluation without quotation marks. (default = \code{NULL})
+#' @param customk Optional. Either \code{NULL} to be ignored or, if \code{unit}
+#'   is set to "custom" then a positive integer specifying the number of raters
+#'   to calculate the reliability of the average of. (default = \code{NULL})
 #' @param bootstrap Optional. A non-negative integer indicating how many
 #'   bootstrap resamples to use in estimating confidence intervals. Set to
 #'   \code{0} to forgo bootstrapping. (default = \code{2000})
@@ -47,10 +50,11 @@
 dim_icc <- function(.data,
                     model = c("1A", "1B", "2", "2A", "3", "3A"),
                     type = c("agreement", "consistency"),
-                    unit = c("single", "average"),
+                    unit = c("single", "average", "custom"),
                     object = Object,
                     rater = Rater,
                     score = Score,
+                    customk = NULL,
                     trial = NULL,
                     bootstrap = 2000,
                     warnings = TRUE) {
@@ -63,15 +67,20 @@ dim_icc <- function(.data,
   assert_that(bootstrap == 0 || is.count(bootstrap),
     msg = "The 'bootstrap' argument must be a non-negative integer.")
   assert_that(is.flag(warnings))
+  assert_that(is.null(customk) || is.count(customk),
+    msg = "The 'customk' argument must be NULL or a positive integer.")
 
   # Prepare .data for analysis
   d <- prep_data_dim(.data, {{object}}, {{rater}}, {{score}}, {{trial}})
 
   if (unit == "single") {
     k <- 1
-  } else {
+  } else if (unit == "average") {
     k <- d$n_raters
+  } else {
+    k <- customk
   }
+  assert_that(is.null(k) == FALSE)
 
   # Prepare empty output in case of errors
   out <- new_icc(

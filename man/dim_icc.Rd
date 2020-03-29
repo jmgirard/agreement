@@ -8,10 +8,11 @@ dim_icc(
   .data,
   model = c("1A", "1B", "2", "2A", "3", "3A"),
   type = c("agreement", "consistency"),
-  unit = c("single", "average"),
+  unit = c("single", "average", "custom"),
   object = Object,
   rater = Rater,
   score = Score,
+  customk = NULL,
   trial = NULL,
   bootstrap = 2000,
   warnings = TRUE
@@ -31,8 +32,8 @@ McGraw & Wong's (1999) typology. Options include "agreement" and
 
 \item{unit}{Optional. A string indicating which unit of analysis to use.
 Options include "single" for the reliability of a single randomly chosen
-rater or "average" for the reliability of the average of all raters.
-(default = \code{"single"})}
+rater, "average" for the reliability of the average of all observed raters,
+or "custom" for a specified number of raters. (default = \code{"single"})}
 
 \item{object}{Optional. The name of the variable in \code{.data} identifying
 the object of measurement for each observation, in non-standard evaluation
@@ -45,6 +46,10 @@ evaluation without quotation marks. (default = \code{Rater})}
 \item{score}{Optional. The name of the variable in \code{.data} containing
 the dimensional score or rating for each observation, in non-standard
 evaluation without quotation marks. (default = \code{Score})}
+
+\item{customk}{Optional. Either \code{NULL} to be ignored or, if \code{unit}
+is set to "custom" then a positive integer specifying the number of raters
+to calculate the reliability of the average of. (default = \code{NULL})}
 
 \item{trial}{Optional. The name of the variable in \code{.data} identifying
 the time or trial of measurement for each observation, in non-standard
