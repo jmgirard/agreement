@@ -23,6 +23,7 @@ new_cai <- function(approach = character(),
 }
 
 # Print method for objects of cai class
+#' @method print agreement_cai
 #' @export
 print.agreement_cai <- function(x, digits = 3, ...) {
 
@@ -47,6 +48,7 @@ print.agreement_cai <- function(x, digits = 3, ...) {
 }
 
 # Summary method for objects of cai class
+#' @method summary agreement_cai
 #' @export
 summary.agreement_cai <- function(object, digits = 3, ci = TRUE, level = 0.95, ...) {
 
@@ -88,6 +90,8 @@ summary.agreement_cai <- function(object, digits = 3, ci = TRUE, level = 0.95, .
 }
 
 # confint method for objects of cai class
+#' @method confint agreement_cai
+#' @export
 confint.agreement_cai <- function(object,
                                   term = c("Observed", "Expected", "Adjusted"),
                                   level = 0.95,
@@ -120,6 +124,7 @@ confint.agreement_cai <- function(object,
   out
 }
 
+#' @method plot agreement_cai
 #' @export
 plot.agreement_cai <- function(x,
                                fill = "lightblue",
@@ -170,6 +175,7 @@ plot.agreement_cai <- function(x,
     out
 }
 
+#' @method tidy agreement_cai
 #' @export
 tidy.agreement_cai <- function(x, level = 0.95, ...) {
   a <- length(x$approach)
@@ -208,6 +214,7 @@ new_spa <- function(
 }
 
 # Print method for objects of spa class
+#' @method print agreement_spa
 #' @export
 print.agreement_spa <- function(x, digits = 3, ...) {
 
@@ -231,6 +238,8 @@ print.agreement_spa <- function(x, digits = 3, ...) {
 }
 
 # Confint method for objects of spa class
+#' @method confint agreement_spa
+#' @export
 confint.agreement_spa <- function(object, level = 0.95, ...) {
 
   # Validate inputs
@@ -256,6 +265,7 @@ confint.agreement_spa <- function(object, level = 0.95, ...) {
 }
 
 # Summary method for objects of spa class
+#' @method summary agreement_spa
 #' @export
 summary.agreement_spa <- function(object, digits = 3, ci = TRUE, level = 0.95, ...) {
 
@@ -295,6 +305,7 @@ summary.agreement_spa <- function(object, digits = 3, ci = TRUE, level = 0.95, .
 }
 
 # Tidy method for objects of spa class
+#' @method tidy agreement_spa
 #' @export
 tidy.agreement_spa <- function(x, level = 0.95, ...) {
   a <- length(x$approach)
@@ -311,6 +322,7 @@ tidy.agreement_spa <- function(x, level = 0.95, ...) {
 }
 
 # Plot method for objects of spa class
+#' @method plot agreement_spa
 #' @export
 plot.agreement_spa <- function(x,
   fill = "lightblue",
