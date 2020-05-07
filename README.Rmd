@@ -122,13 +122,13 @@ Calculate intraclass correlation coefficient for dimensional data with many tria
 
 ```{r}
 # Load dataset with 4 raters rating 8 objects in 3 trials
-data(lungfun2)
-print(lungfun2)
+data(lungfun_trials)
+print(lungfun_trials)
 ```
 
 ```{r}
 # Calculate single score ICC using Model 2A
-results5 <- dim_icc(lungfun2, Object, Rater, Score, Trial, model = "2", 
+results5 <- dim_icc(lungfun_trials, Object, Rater, Score, trial = Trial, model = "2", 
                     type = "agreement", unit = "single", warnings = FALSE)
 summary(results5)
 ```

@@ -308,8 +308,8 @@ many trials
 
 ``` r
 # Load dataset with 4 raters rating 8 objects in 3 trials
-data(lungfun2)
-print(lungfun2)
+data(lungfun_trials)
+print(lungfun_trials)
 #> # A tibble: 59 x 4
 #>    Object Rater Trial Score
 #>     <dbl> <dbl> <dbl> <dbl>
@@ -328,7 +328,7 @@ print(lungfun2)
 
 ``` r
 # Calculate single score ICC using Model 2A
-results5 <- dim_icc(lungfun2, Object, Rater, Score, Trial, model = "2", 
+results5 <- dim_icc(lungfun_trials, Object, Rater, Score, trial = Trial, model = "2", 
                     type = "agreement", unit = "single", warnings = FALSE)
 summary(results5)
 #> 
