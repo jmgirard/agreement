@@ -163,181 +163,6 @@ dim_icc <- function(.data,
   out
 }
 
-# Functions to calculate different ICC estimates --------------------------
-
-# Agreement ICC under Model 1A
-# Model 1A applies when each object is rated by a different group of raters
-calc_icc_1A_A <- function(ratings, k = 1) {
-
-  n <- icc_counts(ratings)
-  s <- icc_sums(ratings, n)
-  v <- icc_model1(ratings, "A", n, s)
-
-  v2 <- lapply(v, nonneg)
-
-  # Inter-Rater ICC estimate
-  inter_icc <- v2$object / (v2$object + v2$residual / k)
-
-  # Create and label output vector
-  out <- c(
-    Object = v$object,
-    Rater = NA_real_,
-    Interaction = NA_real_,
-    Residual = v$residual,
-    Intra_ICC = NA_real_,
-    Inter_ICC = inter_icc
-  )
-
-  out
-}
-
-# Agreement ICC under Model 1B
-# Model 1B applies when each rater rates a different group of objects
-calc_icc_1B_A <- function(ratings, ...) {
-
-  n <- icc_counts(ratings)
-  s <- icc_sums(ratings, n)
-  v <- icc_model1(ratings, "B", n, s)
-
-  v2 <- lapply(v, nonneg)
-
-  # Intra-Rater ICC estimate
-  intra_icc <- v2$rater / (v2$rater + v2$residual)
-
-  # Create and label output vector
-  out <- c(
-    Object = NA_real_,
-    Rater = v$rater,
-    Interaction = NA_real_,
-    Residual = v$residual,
-    Intra_ICC = intra_icc,
-    Inter_ICC = NA_real_
-  )
-
-  out
-}
-
-# Agreement ICC under Model 2
-# Model 2 applies when both raters and objects are random, includes interaction
-# Model 2 requires that at least some objects have multiple trials per rater
-calc_icc_2_A <- function(ratings, k = 1) {
-
-  n <- icc_counts(ratings)
-  s <- icc_sums(ratings, n)
-  v <- icc_model2(ratings, n, s)
-
-  v2 <- lapply(v, nonneg)
-
-  # Inter-Rater ICC estimate
-  inter_icc <- v2$object /
-    (v2$object + (v2$rater + v2$interaction + v2$residual) / k)
-
-  # Intra-Rater ICC estimate
-  # TODO: Check whether to divide part of denominator by k
-  intra_icc <- (v2$object + v2$rater + v2$interaction) /
-    (v2$object + v2$rater + v2$interaction + v2$residual)
-
-  # Create and label output vector
-  out <- c(
-    Object = v$object,
-    Rater = v$rater,
-    Interaction = v$interaction,
-    Residual = v$residual,
-    Intra_ICC = intra_icc,
-    Inter_ICC = inter_icc
-  )
-
-  out
-}
-
-# Agreement ICC under Model 2A
-# Model 2A applies when both raters and objects are random, excludes interaction
-# Model 2A can be used with single or multiple trials per rater
-calc_icc_2A_A <- function(ratings, k = 1) {
-
-  n <- icc_counts(ratings)
-  s <- icc_sums(ratings, n)
-  v <- icc_model2A(ratings, n, s)
-
-  v2 <- lapply(v, nonneg)
-
-  # Inter-Rater ICC estimate
-  inter_icc <- v2$object / (v2$object + (v2$rater + v2$residual) / k)
-
-  # Intra-Rater ICC estimate
-  # TODO: Check whether to divide part of denominator by k
-  intra_icc <- (v2$object + v2$rater) / (v2$object + v2$rater + v2$residual)
-
-  # Create and label output vector
-  out <- c(
-    Object = v$object,
-    Rater = v$rater,
-    Interaction = NA_real_,
-    Residual = v$residual,
-    Intra_ICC = intra_icc,
-    Inter_ICC = inter_icc
-  )
-
-  out
-}
-
-# Consistency ICC under Model 2
-# Model 2 applies when both raters and objects are random, includes interaction
-# Model 2 requires that at least some objects have multiple trials per rater
-calc_icc_2_C <- function(ratings, k = 1) {
-
-  n <- icc_counts(ratings)
-  s <- icc_sums(ratings, n)
-  v <- icc_model2(ratings, n, s)
-
-  v2 <- lapply(v, nonneg)
-
-  # Inter-Rater ICC estimate
-  inter_icc <- v2$object /
-    (v2$object + (v2$interaction + v2$residual) / k)
-
-  # Create and label output vector
-  out <- c(
-    Object = v$object,
-    Rater = NA_real_,
-    Interaction = v$interaction,
-    Residual = v$residual,
-    Intra_ICC = NA_real_,
-    Inter_ICC = inter_icc
-  )
-
-  out
-}
-
-# Consistency ICC under Model 2A
-# Model 2A applies when both raters and objects are random, excludes interaction
-calc_icc_2A_C <- function(ratings, k = 1) {
-
-  n <- icc_counts(ratings)
-  s <- icc_sums(ratings, n)
-  v <- icc_model2A(ratings, n, s)
-
-  v2 <- lapply(v, nonneg)
-
-  # Inter-Rater ICC estimate
-  inter_icc <- v2$object / (v2$object + v2$residual / k) #TODO: Check formula
-
-  # Create and label output vector
-  out <- c(
-    Object = v$object,
-    Rater = NA_real_,
-    Interaction = NA_real_,
-    Residual = v$residual,
-    Intra_ICC = NA_real_,
-    Inter_ICC = inter_icc
-  )
-
-  out
-}
-
-# TODO: Models 3 and 3A
-
-
 # Functions to calculate ICC components -----------------------------------
 
 icc_counts <- function(ratings) {
@@ -479,3 +304,180 @@ icc_model2A <- function(ratings, n = NULL, s = NULL) {
 
   v
 }
+
+
+# Function to calculate ICCs ----------------------------------------------
+
+calc_inter_icc <- function(v, k, model, type) {
+  inter_icc <- NA_real_
+  v2 <- lapply(v, nonneg)
+  if (model == "1A") {
+    inter_icc <- v2$object / (v2$object + v2$residual / k)
+  } else if (model == "2" && type == "agreement") {
+    inter_icc <- v2$object /
+      (v2$object + (v2$rater + v2$interaction + v2$residual) / k)
+  } else if (model == "2" && type == "consistency") {
+    inter_icc <- v2$object /
+      (v2$object + (v2$interaction + v2$residual) / k)
+  } else if (model == "2A" && type == "agreement") {
+    inter_icc <- v2$object / (v2$object + (v2$rater + v2$residual) / k)
+  } else if (model == "2A" && type == "consistency") {
+    inter_icc <- v2$object / (v2$object + v2$residual / k)
+  }
+  inter_icc
+}
+
+calc_intra_icc <- function(v, k, model, type) {
+  # TODO: Check formulas for correctness when k > 1
+  intra_icc <- NA_real_
+  v2 <- lapply(v, nonneg)
+  if (model == "1B") {
+    intra_icc <- v2$rater / (v2$rater + v2$residual)
+  } else if (model == "2" && type == "agreement") {
+    intra_icc <- (v2$object + v2$rater + v2$interaction) /
+      (v2$object + v2$rater + v2$interaction + v2$residual)
+  } else if (model == "2" && type == "consistency") {
+    # TODO: Does intra-rater ICC exist with consistency?
+  } else if (model == "2A" && type == "agreement") {
+    intra_icc <- (v2$object + v2$rater) / (v2$object + v2$rater + v2$residual)
+  } else if (model == "2A" && type == "consistency") {
+    # TODO: Does intra-rater ICC exist with consistency?
+  }
+  inter_icc
+}
+
+
+# Functions to assemble result objects ------------------------------------
+
+# Agreement ICC under Model 1A
+# Model 1A applies when each object is rated by a different group of raters
+calc_icc_1A_A <- function(ratings, k = 1) {
+
+  n <- icc_counts(ratings)
+  s <- icc_sums(ratings, n)
+  v <- icc_model1(ratings, "A", n, s)
+
+  # Create and label output vector
+  out <- c(
+    Object = v$object,
+    Rater = NA_real_,
+    Interaction = NA_real_,
+    Residual = v$residual,
+    Intra_ICC = NA_real_,
+    Inter_ICC = calc_inter_icc(v, k, "1A", "agreement")
+  )
+
+  out
+}
+
+# Agreement ICC under Model 1B
+# Model 1B applies when each rater rates a different group of objects
+calc_icc_1B_A <- function(ratings, ...) {
+
+  n <- icc_counts(ratings)
+  s <- icc_sums(ratings, n)
+  v <- icc_model1(ratings, "B", n, s)
+
+  # Create and label output vector
+  out <- c(
+    Object = NA_real_,
+    Rater = v$rater,
+    Interaction = NA_real_,
+    Residual = v$residual,
+    Intra_ICC = calc_intra_icc(v, k, "1B", "agreement"),
+    Inter_ICC = NA_real_
+  )
+
+  out
+}
+
+# Agreement ICC under Model 2
+# Model 2 applies when both raters and objects are random, includes interaction
+# Model 2 requires that at least some objects have multiple trials per rater
+calc_icc_2_A <- function(ratings, k = 1) {
+
+  n <- icc_counts(ratings)
+  s <- icc_sums(ratings, n)
+  v <- icc_model2(ratings, n, s)
+
+  # Create and label output vector
+  out <- c(
+    Object = v$object,
+    Rater = v$rater,
+    Interaction = v$interaction,
+    Residual = v$residual,
+    Intra_ICC = calc_intra_icc(v, k, "2", "agreement"),
+    Inter_ICC = calc_inter_icc(v, k, "2", "agreement")
+  )
+
+  out
+}
+
+# Agreement ICC under Model 2A
+# Model 2A applies when both raters and objects are random, excludes interaction
+# Model 2A can be used with single or multiple trials per rater
+calc_icc_2A_A <- function(ratings, k = 1) {
+
+  n <- icc_counts(ratings)
+  s <- icc_sums(ratings, n)
+  v <- icc_model2A(ratings, n, s)
+
+  # Create and label output vector
+  out <- c(
+    Object = v$object,
+    Rater = v$rater,
+    Interaction = NA_real_,
+    Residual = v$residual,
+    Intra_ICC = calc_intra_icc(v, k, "2A", "agreement"),
+    Inter_ICC = calc_inter_icc(v, k, "2A", "agreement")
+  )
+
+  out
+}
+
+# Consistency ICC under Model 2
+# Model 2 applies when both raters and objects are random, includes interaction
+# Model 2 requires that at least some objects have multiple trials per rater
+calc_icc_2_C <- function(ratings, k = 1) {
+
+  n <- icc_counts(ratings)
+  s <- icc_sums(ratings, n)
+  v <- icc_model2(ratings, n, s)
+
+  # Create and label output vector
+  out <- c(
+    Object = v$object,
+    Rater = NA_real_,
+    Interaction = v$interaction,
+    Residual = v$residual,
+    Intra_ICC = NA_real_,
+    Inter_ICC = calc_inter_icc(v, k, "2", "consistency")
+  )
+
+  out
+}
+
+# Consistency ICC under Model 2A
+# Model 2A applies when both raters and objects are random, excludes interaction
+calc_icc_2A_C <- function(ratings, k = 1) {
+
+  n <- icc_counts(ratings)
+  s <- icc_sums(ratings, n)
+  v <- icc_model2A(ratings, n, s)
+
+  v2 <- lapply(v, nonneg)
+
+  # Create and label output vector
+  out <- c(
+    Object = v$object,
+    Rater = NA_real_,
+    Interaction = NA_real_,
+    Residual = v$residual,
+    Intra_ICC = NA_real_,
+    Inter_ICC = calc_inter_icc(v, k, "2A", "consistency")
+  )
+
+  out
+}
+
+# TODO: Add Models 3 and 3A
