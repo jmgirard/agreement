@@ -28,12 +28,15 @@ dim_icc_sim <- function(object, min_r = 1, max_r, plot = TRUE) {
   out <- tidyr::unnest(out, cols = Inter_ICC)
   if (plot == TRUE) {
     p <- ggplot2::ggplot(out, aes(x = Raters, y = Inter_ICC)) +
+      ggplot2::geom_hline(yintercept = 0.50, size = 0.25, color = "grey", linetype = "dotted") +
+      ggplot2::geom_hline(yintercept = 0.75, size = 0.25, color = "grey", linetype = "dotted") +
+      ggplot2::geom_hline(yintercept = 0.90, size = 0.25, color = "grey", linetype = "dotted") +
       ggplot2::geom_line() +
       ggplot2::geom_point() +
       ggplot2::scale_x_continuous("Number of Raters Averaged", breaks = min_r:max_r) +
       ggplot2::scale_y_continuous("Inter-Rater ICC", breaks = seq(0, 1, by = 0.2)) +
       ggplot2::coord_cartesian(ylim = c(0, 1)) +
-      ggplot2::theme(panel.grid.minor.x = ggplot2::element_blank())
+      ggplot2::theme_classic()
     print(p)
   }
   out
