@@ -1,20 +1,23 @@
-#' Simulate ICC by Number of Raters
+#'Simulate ICC by Number of Raters
 #'
-#' @param object An object resulting from a call to \code{dim_icc()}.
-#' @param min_r A nonnegative integer representing the minimum number of raters
-#'   to be simulated. (default = 1)
-#' @param max_r A nonnegative integer representing the maximum number of raters
-#'   to be simulated.
-#' @param plot A logical flag indicating whether to generate a simulation plot.
-#'   (default = TRUE)
-#' @return A tibble containing the estimated inter-rater ICC by number of
-#'   raters averaged.
+#'@param object An object resulting from a call to \code{dim_icc()}.
+#'@param min_r A nonnegative integer representing the minimum number of raters
+#'  to be simulated. (default = 1)
+#'@param max_r A nonnegative integer representing the maximum number of raters
+#'  to be simulated.
+#'@param plot A logical flag indicating whether to generate a simulation plot.
+#'  (default = TRUE)
+#'@param xstep A nonnegative number indicating the desired spacing between
+#'  breaks on the x-axis of the plot.
+#'@return A tibble containing the estimated inter-rater ICC by number of raters
+#'  averaged.
 #'@export
-dim_icc_sim <- function(object, min_r = 1, max_r, plot = TRUE) {
+dim_icc_sim <- function(object, min_r = 1, max_r, plot = TRUE, xstep = 1) {
   # object must be icc class
   assert_that(is.flag(plot))
   assert_that(is.count(min_r), min_r >= 1)
   assert_that(is.count(max_r), max_r >= min_r)
+  assert_that(is.number(xstep), xstep > 0)
 
   formulation <- object$formulation
   components <- as.list(object$boot_results$t0)
@@ -33,7 +36,8 @@ dim_icc_sim <- function(object, min_r = 1, max_r, plot = TRUE) {
       ggplot2::geom_hline(yintercept = 0.90, size = 0.25, color = "grey", linetype = "dotted") +
       ggplot2::geom_line() +
       ggplot2::geom_point() +
-      ggplot2::scale_x_continuous("Number of Raters Averaged", breaks = min_r:max_r) +
+      ggplot2::scale_x_continuous("Number of Raters Averaged",
+                                  breaks = seq(min_r, max_r, by = xstep)) +
       ggplot2::scale_y_continuous("Inter-Rater ICC", breaks = seq(0, 1, by = 0.2)) +
       ggplot2::coord_cartesian(ylim = c(0, 1)) +
       ggplot2::theme_classic()
