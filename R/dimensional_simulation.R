@@ -31,7 +31,8 @@ dim_icc_sim <- function(object, min_r = 1, max_r, plot = TRUE) {
       ggplot2::geom_line() +
       ggplot2::geom_point() +
       ggplot2::scale_x_continuous("Number of Raters Averaged", breaks = min_r:max_r) +
-      ggplot2::scale_y_continuous("Inter-Rater ICC") +
+      ggplot2::scale_y_continuous("Inter-Rater ICC", breaks = seq(0, 1, by = 0.2)) +
+      ggplot2::coord_cartesian(ylim = c(0, 1)) +
       ggplot2::theme(panel.grid.minor.x = ggplot2::element_blank())
     print(p)
   }
