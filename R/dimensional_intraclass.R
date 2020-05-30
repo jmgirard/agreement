@@ -343,7 +343,7 @@ calc_intra_icc <- function(v, k, model, type) {
   } else if (model == "2A" && type == "consistency") {
     # TODO: Does intra-rater ICC exist with consistency?
   }
-  inter_icc
+  intra_icc
 }
 
 
