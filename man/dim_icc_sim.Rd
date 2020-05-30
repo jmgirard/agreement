@@ -4,7 +4,15 @@
 \alias{dim_icc_sim}
 \title{Simulate ICC by Number of Raters}
 \usage{
-dim_icc_sim(object, min_r = 1, max_r, plot = TRUE, size = 1, xstep = 1)
+dim_icc_sim(
+  object,
+  min_r = 1,
+  max_r,
+  plot = TRUE,
+  line_size = 1,
+  point_size = 3,
+  xstep = 1
+)
 }
 \arguments{
 \item{object}{An object resulting from a call to \code{dim_icc()}.}
@@ -18,8 +26,11 @@ to be simulated.}
 \item{plot}{A logical flag indicating whether to generate a simulation plot.
 (default = TRUE)}
 
-\item{size}{A nonegative number indicating the size of lines and points on
-plot (default = 1).}
+\item{line_size}{A nonnegative number indicating the size of lines on the plot
+(default = 1).}
+
+\item{point_size}{A nonnegative number indicating the size of points on the
+plot (default = 3).}
 
 \item{xstep}{A nonnegative number indicating the desired spacing between
 breaks on the x-axis of the plot (default = 1).}
