@@ -16,7 +16,7 @@ table_to_wide <- function(x, raters = NULL) {
   } else {
     colnames(wide) <- raters
   }
-  wide <- as_tibble(wide)
+  wide <- tibble::as_tibble(wide)
 
   wide
 }
@@ -31,5 +31,18 @@ table_to_wide <- function(x, raters = NULL) {
 table_to_long <- function(x, raters = NULL) {
   wide <- table_to_wide(x, raters)
   long <- wide_to_long(wide)
+  long
+}
+
+#' @export
+wide_to_long <- function(x) {
+  requireNamespace("tidyr", quietly = TRUE)
+  wide <- dplyr::mutate(x, Object = dplyr::row_number(), .before = 1)
+  long <- tidyr::pivot_longer(
+    wide,
+    cols = -Object,
+    names_to = "Rater",
+    values_to = "Score"
+  )
   long
 }

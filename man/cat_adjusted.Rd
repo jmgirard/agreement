@@ -12,6 +12,7 @@ cat_adjusted(
   approach = c("alpha", "gamma", "irsq", "kappa", "pi", "s"),
   categories = NULL,
   weighting = c("identity", "linear", "quadratic"),
+  agreement = NULL,
   bootstrap = 2000,
   warnings = TRUE
 )
@@ -56,6 +57,15 @@ unordered categories with the same formulas. Currently, "identity" weights
 are available for unordered/nominal categories and both "linear" and
 "quadratic" weights are available for ordered categories. (default =
 "identity")}
+
+\item{agreement}{\emph{Optional.} Either \code{NULL} or a single string specifying
+the formula to use in calculating percent observed agreement. Currently,
+"objects" is available to calculate agreement averaged across objects,
+"pairs" is available to calculate agreement averaged across object-rater
+pairs, and "kripp" is available to calculate agreement using Krippendorff's
+formula. \code{NULL} sets agreement to the default formula for each
+approach (i.e., "kripp" for Krippendorff's alpha, "pairs" for Van Oest's
+irsq, and "objects" for all others). (default = NULL)}
 
 \item{bootstrap}{\emph{Optional.} A single non-negative integer that specifies how
 many bootstrap resamplings should be computed (used primarily for

@@ -3,8 +3,11 @@ prep_data_cat <- function(.data,
                           object,
                           rater,
                           score,
+                          approach = NULL,
                           categories = NULL,
-                          weighting = "identity") {
+                          weighting = "identity",
+                          agreement = NULL,
+                          bootstrap = 0) {
 
   out <- list()
 
@@ -75,6 +78,21 @@ prep_data_cat <- function(.data,
   # Get weight matrix
   out$weighting <- weighting
   out$weight_matrix <- calc_weights(weighting, cat_possible)
+
+  # Lookup default agreement formula if necessary
+  if (is.null(agreement)) {
+    out$agreement <- dplyr::case_when(
+      approach == "alpha" ~ "kripp",
+      approach == "irsq" ~ "pairs",
+      TRUE ~ "objects"
+    )
+  } else {
+    out$agreement <- agreement
+  }
+
+  # Add other information to d
+  out$approach <- approach
+  out$bootstrap <- bootstrap
 
   out
 }

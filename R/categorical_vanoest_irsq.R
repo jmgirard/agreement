@@ -1,13 +1,13 @@
 #' @export
 cat_irsq <- function(.data, ...) {
-  cat_adjusted(.data, approach = "irsq", ...)
+  cat_adjusted(.data, approach = "irsq", agreement = "pairs", ...)
 }
 
 # Worker function to calculate the irsq score and its components
-calc_irsq <- function(codes, categories, weight_matrix) {
+calc_irsq <- function(codes, categories, weight_matrix, agreement) {
 
   # Calculate percent observed agreement
-  poa <- calc_agreement(codes, categories, weight_matrix)
+  poa <- calc_agreement(codes, categories, weight_matrix, agreement)
 
   # Calculate percent expected agreement
   pea <- calc_chance_irsq(codes, categories, weight_matrix)

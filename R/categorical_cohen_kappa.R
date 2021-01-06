@@ -1,13 +1,13 @@
 #' @export
 cat_kappa <- function(.data, ...) {
-  cat_adjusted(.data, approach = "kappa", ...)
+  cat_adjusted(.data, approach = "kappa", agreement = "objects", ...)
 }
 
 # Calculate the kappa coefficient and its components
-calc_kappa <- function(codes, categories, weight_matrix) {
+calc_kappa <- function(codes, categories, weight_matrix, agreement) {
 
   # Calculate percent observed agreement
-  poa <- calc_agreement(codes, categories, weight_matrix)
+  poa <- calc_agreement(codes, categories, weight_matrix, agreement)
 
   # Calculate percent expected agreement
   pea <- calc_chance_kappa(codes, categories, weight_matrix)

@@ -1,13 +1,13 @@
 #' @export
 cat_gamma <- function(.data, ...) {
-  cat_adjusted(.data, approach = "gamma", ...)
+  cat_adjusted(.data, approach = "gamma", agreement = "objects", ...)
 }
 
 # Calculate the gamma coefficient and its components
-calc_gamma <- function(codes, categories, weight_matrix) {
+calc_gamma <- function(codes, categories, weight_matrix, agreement) {
 
   # Calculate percent observed agreement
-  poa <- calc_agreement(codes, categories, weight_matrix)
+  poa <- calc_agreement(codes, categories, weight_matrix, agreement)
 
   # Calculate percent expected agreement
   pea <- calc_chance_gamma(codes, categories, weight_matrix)

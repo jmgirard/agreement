@@ -35,6 +35,14 @@
 #'   are available for unordered/nominal categories and both "linear" and
 #'   "quadratic" weights are available for ordered categories. (default =
 #'   "identity")
+#' @param agreement *Optional.* Either \code{NULL} or a single string specifying
+#'   the formula to use in calculating percent observed agreement. Currently,
+#'   "objects" is available to calculate agreement averaged across objects,
+#'   "pairs" is available to calculate agreement averaged across object-rater
+#'   pairs, and "kripp" is available to calculate agreement using Krippendorff's
+#'   formula. \code{NULL} sets agreement to the default formula for each
+#'   approach (i.e., "kripp" for Krippendorff's alpha, "pairs" for Van Oest's
+#'   irsq, and "objects" for all others). (default = NULL)
 #' @param bootstrap *Optional.* A single non-negative integer that specifies how
 #'   many bootstrap resamplings should be computed (used primarily for
 #'   estimating confidence intervals and visualizing uncertainty). To skip
@@ -69,6 +77,7 @@ cat_adjusted <- function(.data,
                          approach = c("alpha", "gamma", "irsq", "kappa", "pi", "s"),
                          categories = NULL,
                          weighting = c("identity", "linear", "quadratic"),
+                         agreement = NULL,
                          bootstrap = 2000,
                          warnings = TRUE) {
 
@@ -78,11 +87,22 @@ cat_adjusted <- function(.data,
   approach <- unique(approach)
   assert_that(is_null(categories) || is_vector(categories))
   weighting <- match.arg(weighting)
+  assert_that(is.null(agreement) || agreement %in% c("objects", "pairs", "kripp"))
   assert_that(bootstrap == 0 || is.count(bootstrap))
   assert_that(is.flag(warnings))
 
   # Prepare .data for analysis
-  d <- prep_data_cat(.data, {{object}}, {{rater}}, {{score}}, categories, weighting)
+  d <- prep_data_cat(
+    .data = .data,
+    object = {{object}},
+    rater = {{rater}},
+    score = {{score}},
+    approach = approach,
+    categories = categories,
+    weighting = weighting,
+    agreement = agreement,
+    bootstrap = bootstrap
+  )
 
   # Prepare empty results in case of errors
   n_approach <- length(approach)
@@ -124,13 +144,25 @@ cat_adjusted <- function(.data,
   }
 
   # Create function to perform bootstrapping
-  boot_function <- function(ratings, index, function_list, categories, weight_matrix) {
+  boot_function <- function(ratings,
+                            index,
+                            function_list,
+                            categories,
+                            weight_matrix,
+                            agreement) {
+
     resample <- ratings[index, , drop = FALSE]
     bsr <- rep(NA_real_, times = length(function_list) * 3)
     # Loop through approaches
     for (i in seq_along(function_list)) {
-      bsr[(i * 3 - 2):(i * 3)] <- function_list[[i]](resample, categories, weight_matrix)
+      bsr[(i * 3 - 2):(i * 3)] <- function_list[[i]](
+        codes = resample,
+        categories = categories,
+        weight_matrix = weight_matrix,
+        agreement = agreement
+      )
     }
+
     bsr
   }
 
@@ -149,7 +181,8 @@ cat_adjusted <- function(.data,
       R = bootstrap,
       function_list = function_list,
       categories = d$categories,
-      weight_matrix = d$weight_matrix
+      weight_matrix = d$weight_matrix,
+      agreement = d$agreement
     )
 
   # Construct cai class output object

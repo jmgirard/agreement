@@ -30,7 +30,7 @@ dim_icc_sim <- function(object, min_r = 1, max_r, plot = TRUE, line_size = 1, po
   names(components) <- tolower(names(components))
 
   out <- tibble::tibble(Raters = min_r:max_r)
-  out <- mutate(
+  out <- dplyr::mutate(
     out,
     Inter_ICC = purrr::map(
       Raters, ~calc_inter_icc(components, ., formulation$model, formulation$type)))

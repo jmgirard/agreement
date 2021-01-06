@@ -1,13 +1,13 @@
 #' @export
 cat_alpha <- function(.data, ...) {
-  cat_adjusted(.data, approach = "alpha", ...)
+  cat_adjusted(.data, approach = "alpha", agreement = "kripp", ...)
 }
 
 # Calculate the alpha coefficient and its components
-calc_alpha <- function(codes, categories, weight_matrix) {
+calc_alpha <- function(codes, categories, weight_matrix, agreement) {
 
   # Calculate percent observed agreement using Krippendorff's formula
-  poa <- calc_agreement_kripp(codes, categories, weight_matrix)
+  poa <- calc_agreement(codes, categories, weight_matrix, agreement)
 
   # Calculate percent expected agreement
   pea <- calc_chance_alpha(codes, categories, weight_matrix)
@@ -36,7 +36,7 @@ calc_chance_alpha <- function(codes, categories, weight_matrix) {
   # TODO: Add interpretation and informative name
   rstar_oc <- t(weight_matrix %*% t(r_oc))
 
-  # Remove objects with fewer than 2 raters
+  # Remove objects with fewer than 2 raters (i.e., singletons)
   r_oc <- r_oc[r_o >= 2, ]
   r_o <- r_o[r_o >= 2]
 
@@ -49,7 +49,7 @@ calc_chance_alpha <- function(codes, categories, weight_matrix) {
   # TODO: Add interpretation and informative name
   pi_c <- t(t(rep(1 / n_objects_many, n_objects_many)) %*% (r_oc / n_raters_avg))
 
-  # What percent agreement is expected by chance across all catgories?
+  # What percent agreement is expected by chance across all categories?
   pea <- sum(weight_matrix * (pi_c %*% t(pi_c)))
 
   pea

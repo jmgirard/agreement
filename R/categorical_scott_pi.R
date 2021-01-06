@@ -1,13 +1,13 @@
 #' @export
 cat_pi <- function(.data, ...) {
-  cat_adjusted(.data, approach = "pi", ...)
+  cat_adjusted(.data, approach = "pi", agreement = "objects", ...)
 }
 
 # Calculate the pi coefficient and its components
-calc_pi <- function(codes, categories, weight_matrix) {
+calc_pi <- function(codes, categories, weight_matrix, agreement) {
 
   # Calculate percent observed agreement
-  poa <- calc_agreement(codes, categories, weight_matrix)
+  poa <- calc_agreement(codes, categories, weight_matrix, agreement)
 
   # Calculate percent expected agreement
   pea <- calc_chance_pi(codes, categories, weight_matrix)

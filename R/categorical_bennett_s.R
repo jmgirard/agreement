@@ -1,13 +1,13 @@
 #' @export
 cat_s <- function(.data, ...) {
-  cat_adjusted(.data, approach = "s", ...)
+  cat_adjusted(.data, approach = "s", agreement = "objects", ...)
 }
 
 # Worker function to calculate the S score and its components
-calc_s <- function(codes, categories, weight_matrix) {
+calc_s <- function(codes, categories, weight_matrix, agreement) {
 
   # Calculate percent observed agreement
-  poa <- calc_agreement(codes, categories, weight_matrix)
+  poa <- calc_agreement(codes, categories, weight_matrix, agreement)
 
   # Calculate percent expected agreement
   pea <- calc_chance_s(codes, categories, weight_matrix)

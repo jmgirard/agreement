@@ -19,8 +19,9 @@ usethis::use_data(gwet4_table3.5, overwrite = TRUE)
 
 gwet4_table3.5_long <-
   gwet4_table3.5 %>%
+  dplyr::mutate(Object = dplyr::row_number(), .before = 1) %>%
   tidyr::pivot_longer(
-    cols = Rater1:Rater2,
+    cols = -Object,
     names_to = "Rater",
     values_to = "Score"
   )
