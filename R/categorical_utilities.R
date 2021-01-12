@@ -7,6 +7,7 @@ prep_data_cat <- function(.data,
                           categories = NULL,
                           weighting = "identity",
                           agreement = NULL,
+                          alpha_c = NULL,
                           bootstrap = 0) {
 
   out <- list()
@@ -79,20 +80,18 @@ prep_data_cat <- function(.data,
   out$weighting <- weighting
   out$weight_matrix <- calc_weights(weighting, cat_possible)
 
-  # Lookup default agreement formula if necessary
-  if (is.null(agreement)) {
-    out$agreement <- dplyr::case_when(
-      approach == "alpha" ~ "kripp",
-      approach == "irsq" ~ "pairs",
-      TRUE ~ "objects"
-    )
-  } else {
-    out$agreement <- agreement
-  }
-
   # Add other information to d
   out$approach <- approach
+  out['agreement'] <- list(agreement)
   out$bootstrap <- bootstrap
+
+  # Set up alpha_c
+  assert_that(is.null(alpha_c) || length(alpha_c) == n_cat_possible)
+  if ("irsq" %in% approach && is.null(alpha_c)) {
+    alpha_c <- rep(1, n_cat_possible)
+  }
+  alpha_c[alpha_c == Inf] <- 1e6
+  out['alpha_c'] <- list(alpha_c)
 
   out
 }
@@ -133,7 +132,11 @@ objects_rat_cat <- function(codes, categories) {
 }
 
 # Calculate weight matrix -------------------------------------------------
-calc_weights <- function(type, categories) {
+#' @export
+calc_weights <- function(type = c("identity", "linear", "quadratic"),
+                         categories) {
+
+  type <- match.arg(type, several.ok = FALSE)
 
   # Count the categories
   n_categories <- length(categories)
@@ -170,4 +173,40 @@ calc_weights <- function(type, categories) {
   }
 
   weight_matrix
+}
+
+# safe_boot.ci ------------------------------------------------------------
+
+safe_boot.ci <- function(boot.out, level, type, index, ...) {
+
+  # Determine the location of results in bootci object
+  if (type == "bca") {
+    field <- "bca"
+    elems <- 4:5
+  } else if (type == "perc") {
+    field <- "percent"
+    elems <- 4:5
+  } else if (type == "basic") {
+    field <- "basic"
+    elems <- 4:5
+  } else if (type == "norm") {
+    field <- "normal"
+    elems <- 2:3
+  }
+
+  # Check for constant or completely missing results and replace with NAs
+  stat_var <- stats::var(boot.out$t[, index], na.rm = TRUE)
+  if (is.na(stat_var) || dplyr::near(stat_var, 0)) {
+    out <- c(NA, NA)
+  } else {
+    out <-
+      boot::boot.ci(
+        boot.out = boot.out,
+        conf = level,
+        type = type,
+        index = index,
+        ...
+      )[[field]][elems]
+  }
+  out
 }

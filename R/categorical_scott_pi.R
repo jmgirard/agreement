@@ -4,7 +4,10 @@ cat_pi <- function(.data, ...) {
 }
 
 # Calculate the pi coefficient and its components
-calc_pi <- function(codes, categories, weight_matrix, agreement) {
+calc_pi <- function(codes, categories, weight_matrix, agreement, ...) {
+
+  # Default to agreement averaged over objects
+  if (is.null(agreement)) agreement <- "objects"
 
   # Calculate percent observed agreement
   poa <- calc_agreement(codes, categories, weight_matrix, agreement)

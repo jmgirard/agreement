@@ -47,6 +47,10 @@
 #'   many bootstrap resamplings should be computed (used primarily for
 #'   estimating confidence intervals and visualizing uncertainty). To skip
 #'   bootstrapping, set this argument to 0. (default = 2000)
+#' @param alpha_c *Optional.* Either \code{NULL} or a vector of numbers
+#'   corresponding to the alpha_c parameters in Van Oest's formula. If
+#'   \code{NULL}, and irsq is estimated, a vector of ones will be used to
+#'   implement the uniform prior coefficient. (default = NULL)
 #' @param warnings *Optional.* A single logical value that specifies whether
 #'   warnings should be displayed. (default = TRUE).
 #' @return An object of type 'cai' containing the results and details.
@@ -79,17 +83,21 @@ cat_adjusted <- function(.data,
                          weighting = c("identity", "linear", "quadratic"),
                          agreement = NULL,
                          bootstrap = 2000,
+                         alpha_c = NULL,
                          warnings = TRUE) {
 
   # Validate inputs
   assert_that(is.data.frame(.data) || is.matrix(.data))
   approach <- match.arg(approach, several.ok = TRUE)
-  approach <- unique(approach)
   assert_that(is_null(categories) || is_vector(categories))
   weighting <- match.arg(weighting)
-  assert_that(is.null(agreement) || agreement %in% c("objects", "pairs", "kripp"))
+  assert_that(
+    is.null(agreement) ||
+    all(agreement %in% c("objects", "pairs", "kripp"))
+  )
   assert_that(bootstrap == 0 || is.count(bootstrap))
   assert_that(is.flag(warnings))
+  assert_that(is_null(alpha_c) || is.numeric(alpha_c))
 
   # Prepare .data for analysis
   d <- prep_data_cat(
@@ -101,6 +109,7 @@ cat_adjusted <- function(.data,
     categories = categories,
     weighting = weighting,
     agreement = agreement,
+    alpha_c = alpha_c,
     bootstrap = bootstrap
   )
 
@@ -149,7 +158,8 @@ cat_adjusted <- function(.data,
                             function_list,
                             categories,
                             weight_matrix,
-                            agreement) {
+                            agreement,
+                            alpha_c) {
 
     resample <- ratings[index, , drop = FALSE]
     bsr <- rep(NA_real_, times = length(function_list) * 3)
@@ -159,7 +169,8 @@ cat_adjusted <- function(.data,
         codes = resample,
         categories = categories,
         weight_matrix = weight_matrix,
-        agreement = agreement
+        agreement = agreement,
+        alpha_c = alpha_c
       )
     }
 
@@ -182,7 +193,8 @@ cat_adjusted <- function(.data,
       function_list = function_list,
       categories = d$categories,
       weight_matrix = d$weight_matrix,
-      agreement = d$agreement
+      agreement = d$agreement,
+      alpha_c = d$alpha_c
     )
 
   # Construct cai class output object

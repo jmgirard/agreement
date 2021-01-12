@@ -1,3 +1,6 @@
+
+# new_cai -----------------------------------------------------------------
+
 # S3 Constructor for cai class
 new_cai <- function(approach = character(),
                     observed = double(),
@@ -21,6 +24,8 @@ new_cai <- function(approach = character(),
   )
 
 }
+
+# print.agreement_cai -----------------------------------------------------
 
 # Print method for objects of cai class
 #' @method print agreement_cai
@@ -47,15 +52,20 @@ print.agreement_cai <- function(x, digits = 3, ...) {
 
 }
 
+
+# summary.agreement_cai ---------------------------------------------------
+
 # Summary method for objects of cai class
 #' @method summary agreement_cai
 #' @export
-summary.agreement_cai <- function(object, digits = 3, ci = TRUE, level = 0.95, ...) {
+summary.agreement_cai <- function(object,
+                                  digits = 3,
+                                  ci = TRUE,
+                                  ...) {
 
   # Validate inputs
   assert_that(digits == 0 || is.count(digits))
   assert_that(is.flag(ci))
-  assert_that(is.number(level), level > 0, level < 1)
 
   # Print function call and header
   cat(
@@ -79,7 +89,13 @@ summary.agreement_cai <- function(object, digits = 3, ci = TRUE, level = 0.95, .
 
   # Append Confidence Intervals for Adjusted Column if requested
   if (ci == TRUE) {
-    ci <- round(stats::confint(object, term = "Adjusted", level = level), digits)
+    ci <- round(
+      stats::confint(
+        object,
+        ...
+        )[seq(3, length(object$approach) * 3, by = 3), ],
+      digits
+    )
     m <- cbind(m, ci)
   }
 
@@ -89,40 +105,59 @@ summary.agreement_cai <- function(object, digits = 3, ci = TRUE, level = 0.95, .
 
 }
 
-# confint method for objects of cai class
+# confint.agreement_cai ---------------------------------------------------
+
+#' Calculate confidence intervals for chance-adjusted agreement indexes
+#'
+#' Calculate confidence intervals for chance-adjusted agreement indexes using
+#' one of several approaches.
+#'
+#' @param object A chance-adjusted agreement or "cai" object.
+#' @param level A single real number between 0 and 1 that indicates the
+#'   confidence level or width of the confidence intervals.
+#' @param type A single string indicating which type of bootstrap confidence
+#'   interval to calculate. Options currently include "bca" for bias-corrected
+#'   and accelerated bootstrap CIs, "perc" for bootstrap percentile CIs, "basic"
+#'   for basic bootstrap CIs, and "norm" for normal approximation CIs.
+#' @param ... Further arguments to be passed to \code{boot::boot.ci()}.
 #' @method confint agreement_cai
 #' @export
 confint.agreement_cai <- function(object,
-                                  term = c("Observed", "Expected", "Adjusted"),
                                   level = 0.95,
+                                  type = c("bca", "perc", "basic", "norm"),
                                   ...) {
 
   # Validate inputs
-  term <- match.arg(term, several.ok = FALSE)
   assert_that(is.number(level), level > 0, level < 1)
+  type <- match.arg(type, several.ok = FALSE)
 
-  # Prepare matrix
-  n_approach <- length(object$approach)
-  index <- dplyr::case_when(
-    term == "Observed" ~ 1,
-    term == "Expected" ~ 2,
-    term == "Adjusted" ~ 3
-  )
-  out <- matrix(NA, nrow = n_approach, ncol = 2)
-  rownames(out) <- paste0(object$approach, " ", rep(term, times = n_approach))
-  colnames(out) <- sprintf("%.1f %%", c((1 - level) / 2, 1 - (1 - level) / 2) * 100)
-  distributions <- object$boot_results$t[, seq(from = index, to = ncol(object$boot_results$t), by = 3), drop = FALSE]
+  # Calculate CI bounds and store in list
+  ci_list <-
+    lapply(
+      1:ncol(object$boot_results$t),
+      function (i) safe_boot.ci(
+        object$boot_results,
+        level = level,
+        type = type,
+        index = i,
+        ...
+      )
+    )
 
-  if (n_approach == 1) {
-    out[, 1] <- stats::quantile(distributions, probs = (1 - level) / 2, na.rm = TRUE)
-    out[, 2] <- stats::quantile(distributions, probs = 1 - (1 - level) / 2, na.rm = TRUE)
-  } else {
-    out[, 1] <- apply(distributions, MARGIN = 2, stats::quantile, probs = (1 - level) / 2, na.rm = TRUE)
-    out[, 2] <- apply(distributions, MARGIN = 2, stats::quantile, probs = 1 - (1 - level) / 2, na.rm = TRUE)
-  }
+  # Convert list to matrix and add dimnames
+  out <- matrix(unlist(ci_list), ncol = 2, byrow = TRUE)
+  rownames(out) <-
+    paste0(
+      rep(object$approach, each = 3),
+      " ",
+      c("Observed", "Expected", "Adjusted")
+    )
+  colnames(out) <- c("lower", "upper")
 
   out
 }
+
+# plot.agreement_cai ------------------------------------------------------
 
 #' @method plot agreement_cai
 #' @export
@@ -153,13 +188,15 @@ plot.agreement_cai <- function(x,
     ) %>%
     dplyr::mutate(
       Term = factor(Term, levels = c("Observed", "Expected", "Adjusted"),
-                    labels = c("Raw Observed\nAgreement", "Expected Chance\nAgreement", "Chance-Adjusted\nAgreement"))
+                    labels = c("Raw Observed\nAgreement",
+                               "Expected Chance\nAgreement",
+                               "Chance-Adjusted\nAgreement"))
     )
 
   out <- ggplot2::ggplot(data = plot_data, ggplot2::aes(x = Estimate, y = 0)) +
     ggplot2::facet_grid(Approach ~ Term, switch = "y") +
-    tidybayes::stat_halfeyeh(
-      point_interval = tidybayes::mean_qi,
+    ggdist::stat_halfeye(
+      point_interval = ggdist::mean_qi,
       fill = fill,
       .width = .width,
       size = size,
@@ -175,24 +212,38 @@ plot.agreement_cai <- function(x,
     out
 }
 
+# tidy.agreement_cai ------------------------------------------------------
+
+#' @inheritParams confint.agreement_cai
 #' @method tidy agreement_cai
 #' @export
-tidy.agreement_cai <- function(x, level = 0.95, ...) {
+tidy.agreement_cai <- function(x, se = FALSE, ...) {
+
+  assert_that(is.flag(se))
+
   a <- length(x$approach)
-  ci_vals_o <- stats::confint(x, term = "Observed", level = level)
-  ci_vals_e <- stats::confint(x, term = "Expected", level = level)
-  ci_vals_a <- stats::confint(x, term = "Adjusted", level = level)
+  ci_vals <- stats::confint(x, ...)
   out <- tibble(
     approach = rep(x$approach, times = 3),
     weighting = rep(x$details$weighting, times = a * 3),
     term = rep(c("Observed", "Expected", "Adjusted"), each = a),
     estimate = c(x$observed, x$expected, x$adjusted),
-    lower = c(ci_vals_o[, 1], ci_vals_e[, 1], ci_vals_a[, 1]),
-    upper = c(ci_vals_o[, 2], ci_vals_e[, 2], ci_vals_a[, 2])
+    lower = ci_vals[, 1],
+    upper = ci_vals[, 2]
   )
+
+  if (se == TRUE) {
+    out <- dplyr::mutate(
+      out,
+      se = apply(x$boot_results$t, MARGIN = 2, FUN = sd),
+      .after = "estimate"
+    )
+  }
 
   out
 }
+
+# new_spa -----------------------------------------------------------------
 
 # S3 Constructor for spa class
 new_spa <- function(
@@ -212,6 +263,8 @@ new_spa <- function(
   )
 
 }
+
+# print.agreement_spa -----------------------------------------------------
 
 # Print method for objects of spa class
 #' @method print agreement_spa
@@ -237,42 +290,51 @@ print.agreement_spa <- function(x, digits = 3, ...) {
 
 }
 
+# confint.agreement_spa ---------------------------------------------------
+
 # Confint method for objects of spa class
 #' @method confint agreement_spa
 #' @export
-confint.agreement_spa <- function(object, level = 0.95, ...) {
+confint.agreement_spa <- function(object,
+                                  level = 0.95,
+                                  type = c("bca", "perc", "basic", "norm"),
+                                  ...) {
 
   # Validate inputs
   assert_that(is.number(level), level > 0, level < 1)
+  type <- match.arg(type, several.ok = FALSE)
 
-  # Prepare matrix
-  out <- matrix(NA, nrow = length(object$observed), ncol = 2)
+  # Calculate CI bounds and store in list
+  ci_list <-
+    lapply(
+      1:ncol(object$boot_results$t),
+      function (i) safe_boot.ci(
+          object$boot_results,
+          level = level,
+          type = type,
+          index = i,
+          ...
+        )
+      )
+
+  # Convert list to matrix and add dimnames
+  out <- matrix(unlist(ci_list), ncol = 2, byrow = TRUE)
   rownames(out) <- object$details$categories
-  colnames(out) <- sprintf("%.1f %%", c((1 - level) / 2, 1 - (1 - level) / 2) * 100)
-  distributions <- object$boot_results$t
-
-  if (object$details$n_categories == 1) {
-    out[, 1] <- stats::quantile(distributions, probs = (1 - level) / 2, na.rm = TRUE)
-    out[, 2] <- stats::quantile(distributions, probs = 1 - (1 - level) / 2, na.rm = TRUE)
-  } else {
-    out[, 1] <- apply(distributions, MARGIN = 2,
-      stats::quantile, probs = (1 - level) / 2, na.rm = TRUE)
-    out[, 2] <- apply(distributions, MARGIN = 2,
-      stats::quantile, probs = 1 - (1 - level) / 2, na.rm = TRUE)
-  }
+  colnames(out) <- c("lower", "upper")
 
   out
 }
 
+# summary.agreement_spa ---------------------------------------------------
+
 # Summary method for objects of spa class
 #' @method summary agreement_spa
 #' @export
-summary.agreement_spa <- function(object, digits = 3, ci = TRUE, level = 0.95, ...) {
+summary.agreement_spa <- function(object, digits = 3, ci = TRUE, ...) {
 
   # Validate inputs
   assert_that(digits == 0 || is.count(digits))
   assert_that(is.flag(ci))
-  assert_that(is.number(level), level > 0, level < 1)
 
   # Print function call and header
   cat(
@@ -294,7 +356,7 @@ summary.agreement_spa <- function(object, digits = 3, ci = TRUE, level = 0.95, .
 
   # Append Confidence Intervals for Adjusted Column if requested
   if (ci == TRUE) {
-    ci <- round(stats::confint(object, level = level), digits)
+    ci <- round(stats::confint(object, ...), digits)
     m <- cbind(m, ci)
   }
 
@@ -307,9 +369,9 @@ summary.agreement_spa <- function(object, digits = 3, ci = TRUE, level = 0.95, .
 # Tidy method for objects of spa class
 #' @method tidy agreement_spa
 #' @export
-tidy.agreement_spa <- function(x, level = 0.95, ...) {
+tidy.agreement_spa <- function(x, ...) {
   a <- length(x$approach)
-  ci_vals <- stats::confint(x, level = level)
+  ci_vals <- stats::confint(x, ...)
   out <- tibble(
     approach = "Specific Agreement",
     category = x$details$categories,
@@ -348,8 +410,8 @@ plot.agreement_spa <- function(x,
 
   out <- ggplot2::ggplot(data = plot_data, ggplot2::aes(x = Estimate, y = 0)) +
     ggplot2::facet_wrap(~Category, ncol = 1) +
-    tidybayes::stat_halfeyeh(
-      point_interval = tidybayes::mean_qi,
+    ggdist::stat_halfeye(
+      point_interval = ggdist::mean_qi,
       fill = fill,
       .width = .width,
       size = size,

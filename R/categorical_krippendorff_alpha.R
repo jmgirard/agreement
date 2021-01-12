@@ -4,9 +4,12 @@ cat_alpha <- function(.data, ...) {
 }
 
 # Calculate the alpha coefficient and its components
-calc_alpha <- function(codes, categories, weight_matrix, agreement) {
+calc_alpha <- function(codes, categories, weight_matrix, agreement, ...) {
 
-  # Calculate percent observed agreement using Krippendorff's formula
+  # Default to agreement using Krippendorff's formula
+  if (is.null(agreement)) agreement <- "kripp"
+
+  # Calculate percent observed agreement
   poa <- calc_agreement(codes, categories, weight_matrix, agreement)
 
   # Calculate percent expected agreement

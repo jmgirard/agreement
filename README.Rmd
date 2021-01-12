@@ -43,12 +43,12 @@ print(unordered)
 ```{r}
 # Calculate all chance-adjusted indexes for unordered categories
 results1 <- cat_adjusted(unordered)
-summary(results1, ci = TRUE)
+summary(results1, ci = TRUE, type = "perc")
 ```
 
 ```{r}
 # Transform results into a tidy data frame
-tidy(results1)
+tidy(results1, type = "perc")
 ```
 
 ```{r, fig.height=4}
@@ -67,11 +67,11 @@ print(ordered)
 ```{r}
 # Calculate all chance-adjusted indexes for ordered categories (linear weights)
 results2 <- cat_adjusted(ordered, weighting = "linear")
-summary(results2, ci = TRUE)
+summary(results2, ci = TRUE, type = "perc")
 ```
 
 ```{r}
-tidy(results2)
+tidy(results2, type = "perc")
 ```
 
 ```{r, fig.height=4}
@@ -83,11 +83,11 @@ Calculate category-specific agreement
 ```{r}
 # Calculate category-specific agreement
 results3 <- cat_specific(ordered)
-summary(results3, ci = TRUE)
+summary(results3, ci = TRUE, type = "bca")
 ```
 
 ```{r}
-tidy(results3)
+tidy(results3, type = "bca")
 ```
 
 ```{r, fig.height = 4}

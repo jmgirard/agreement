@@ -4,7 +4,10 @@ cat_gamma <- function(.data, ...) {
 }
 
 # Calculate the gamma coefficient and its components
-calc_gamma <- function(codes, categories, weight_matrix, agreement) {
+calc_gamma <- function(codes, categories, weight_matrix, agreement, ...) {
+
+  # Default to agreement averaged over objects
+  if (is.null(agreement)) agreement <- "objects"
 
   # Calculate percent observed agreement
   poa <- calc_agreement(codes, categories, weight_matrix, agreement)

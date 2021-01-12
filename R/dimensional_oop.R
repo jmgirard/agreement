@@ -226,8 +226,8 @@ plot.agreement_icc <- function(x,
 
   out <- ggplot2::ggplot(data = plot_data, ggplot2::aes(x = Estimate, y = 0)) +
     ggplot2::facet_wrap(~Term) +
-    tidybayes::geom_halfeyeh(
-      point_interval = tidybayes::mean_qi,
+    ggdist::stat_halfeye(
+      point_interval = ggdist::mean_qi,
       fill = fill,
       .width = interval,
       size = size,

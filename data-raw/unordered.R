@@ -20,6 +20,6 @@ usethis::use_data(unordered_wide, overwrite = TRUE)
 # Categorical data, characters, missing values, tall format ---------------
 unordered <-
   unordered_wide %>%
-  dplyr::mutate(Units = dplyr::row_number()) %>%
-  tidyr::pivot_longer(cols = -Units, names_to = "Rater", values_to = "Score")
+  dplyr::mutate(Object = dplyr::row_number()) %>%
+  tidyr::pivot_longer(cols = -Object, names_to = "Rater", values_to = "Score")
 usethis::use_data(unordered, overwrite = TRUE)

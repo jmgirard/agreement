@@ -4,13 +4,16 @@ cat_irsq <- function(.data, ...) {
 }
 
 # Worker function to calculate the irsq score and its components
-calc_irsq <- function(codes, categories, weight_matrix, agreement) {
+calc_irsq <- function(codes, categories, weight_matrix, agreement, alpha_c) {
+
+  # Default to agreement averaged over object-rater pairs
+  if (is.null(agreement)) agreement <- "pairs"
 
   # Calculate percent observed agreement
   poa <- calc_agreement(codes, categories, weight_matrix, agreement)
 
   # Calculate percent expected agreement
-  pea <- calc_chance_irsq(codes, categories, weight_matrix)
+  pea <- calc_chance_irsq(codes, categories, weight_matrix, alpha_c)
 
   # Calculate chance-adjusted index
   cai <- adjust_chance(poa, pea)
@@ -22,7 +25,7 @@ calc_irsq <- function(codes, categories, weight_matrix, agreement) {
 }
 
 # Worker function to calculate expected agreement using the irsq model of chance
-calc_chance_irsq <- function(codes, categories, weight_matrix) {
+calc_chance_irsq <- function(codes, categories, weight_matrix, alpha_c) {
 
   # Count important units
   n_objects <- nrow(codes)
@@ -36,7 +39,7 @@ calc_chance_irsq <- function(codes, categories, weight_matrix) {
   r_o <- rowSums(r_oc)
 
   # What is the adjusted prevalence of each category?
-  exp_c <- (1 + colSums(r_oc)) / (n_categories + sum(r_o))
+  exp_c <- (alpha_c + colSums(r_oc)) / (sum(alpha_c) + sum(r_o))
 
   # What is the probability of each combination of categories being assigned at random?
   exp_cc <- matrix(exp_c, ncol = 1) %*% matrix(exp_c, nrow = 1)

@@ -14,6 +14,7 @@ cat_adjusted(
   weighting = c("identity", "linear", "quadratic"),
   agreement = NULL,
   bootstrap = 2000,
+  alpha_c = NULL,
   warnings = TRUE
 )
 }
@@ -71,6 +72,11 @@ irsq, and "objects" for all others). (default = NULL)}
 many bootstrap resamplings should be computed (used primarily for
 estimating confidence intervals and visualizing uncertainty). To skip
 bootstrapping, set this argument to 0. (default = 2000)}
+
+\item{alpha_c}{\emph{Optional.} Either \code{NULL} or a vector of numbers
+corresponding to the alpha_c parameters in Van Oest's formula. If
+\code{NULL}, and irsq is estimated, a vector of ones will be used to
+implement the uniform prior coefficient. (default = NULL)}
 
 \item{warnings}{\emph{Optional.} A single logical value that specifies whether
 warnings should be displayed. (default = TRUE).}

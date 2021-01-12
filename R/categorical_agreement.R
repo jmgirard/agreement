@@ -4,7 +4,7 @@ calc_agreement <- function(codes,
                            weight_matrix,
                            formula = c("objects", "pairs", "kripp")) {
 
-  match.arg(formula)
+  formula <- match.arg(formula, several.ok = FALSE)
 
   if (formula == "objects") {
     calc_agreement_objects(codes, categories, weight_matrix)

@@ -6,7 +6,7 @@ test_that("coefficients match Gwet for unordered", {
   data(unordered)
   d <- prep_data_cat(
     .data = unordered,
-    object = Units,
+    object = Object,
     rater = Rater,
     score = Score,
     categories = letters[1:5],

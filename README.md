@@ -61,7 +61,7 @@ print(unordered)
 results1 <- cat_adjusted(unordered)
 #> Warning in cat_adjusted(unordered): With a small number of objects, bootstrap
 #> confidence intervals may not be stable.
-summary(results1, ci = TRUE)
+summary(results1, ci = TRUE, type = "perc")
 #> 
 #> Call:
 #> cat_adjusted(.data = unordered)
@@ -73,44 +73,46 @@ summary(results1, ci = TRUE)
 #> 
 #> Chance-Adjusted Categorical Agreement with Bootstrapped CIs
 #> 
-#>         Observed   Expected   Adjusted   2.5 %   97.5 %
-#> alpha      0.805      0.240      0.743   0.425        1
-#> gamma      0.818      0.190      0.775   0.541        1
-#> irsq       0.818      0.233      0.763   0.476        1
-#> kappa      0.818      0.233      0.763   0.479        1
-#> pi         0.818      0.239      0.761   0.458        1
-#> s          0.818      0.200      0.773   0.531        1
+#>         Observed   Expected   Adjusted   lower   upper
+#> alpha      0.805      0.240      0.743   0.425       1
+#> gamma      0.818      0.190      0.775   0.541       1
+#> irsq       0.782      0.233      0.716   0.387       1
+#> kappa      0.818      0.233      0.763   0.479       1
+#> pi         0.818      0.239      0.761   0.453       1
+#> s          0.818      0.200      0.773   0.531       1
 ```
 
 ``` r
 # Transform results into a tidy data frame
-tidy(results1)
+tidy(results1, type = "perc")
 #> # A tibble: 18 x 6
-#>    approach weighting term     estimate lower upper
-#>    <chr>    <chr>     <chr>       <dbl> <dbl> <dbl>
-#>  1 alpha    identity  Observed    0.805 0.600 1.00 
-#>  2 gamma    identity  Observed    0.818 0.625 1    
-#>  3 irsq     identity  Observed    0.818 0.625 1    
-#>  4 kappa    identity  Observed    0.818 0.625 1    
-#>  5 pi       identity  Observed    0.818 0.625 1    
-#>  6 s        identity  Observed    0.818 0.625 1    
-#>  7 alpha    identity  Expected    0.24  0.216 0.435
-#>  8 gamma    identity  Expected    0.190 0.144 0.196
-#>  9 irsq     identity  Expected    0.233 0.214 0.385
-#> 10 kappa    identity  Expected    0.233 0.202 0.420
-#> 11 pi       identity  Expected    0.239 0.218 0.424
-#> 12 s        identity  Expected    0.2   0.2   0.2  
-#> 13 alpha    identity  Adjusted    0.743 0.425 1    
-#> 14 gamma    identity  Adjusted    0.775 0.541 1    
-#> 15 irsq     identity  Adjusted    0.763 0.476 1    
-#> 16 kappa    identity  Adjusted    0.763 0.479 1    
-#> 17 pi       identity  Adjusted    0.761 0.458 1    
-#> 18 s        identity  Adjusted    0.773 0.531 1
+#>    approach weighting term     estimate  lower  upper
+#>    <chr>    <chr>     <chr>       <dbl>  <dbl>  <dbl>
+#>  1 alpha    identity  Observed    0.805  0.600  1    
+#>  2 gamma    identity  Observed    0.818  0.216  0.436
+#>  3 irsq     identity  Observed    0.782  0.425  1    
+#>  4 kappa    identity  Observed    0.818  0.625  1    
+#>  5 pi       identity  Observed    0.818  0.144  0.196
+#>  6 s        identity  Observed    0.818  0.541  1    
+#>  7 alpha    identity  Expected    0.24   0.553  1    
+#>  8 gamma    identity  Expected    0.190  0.214  0.387
+#>  9 irsq     identity  Expected    0.233  0.387  1    
+#> 10 kappa    identity  Expected    0.233  0.625  1    
+#> 11 pi       identity  Expected    0.239  0.202  0.421
+#> 12 s        identity  Expected    0.2    0.479  1    
+#> 13 alpha    identity  Adjusted    0.743  0.625  1    
+#> 14 gamma    identity  Adjusted    0.775  0.218  0.424
+#> 15 irsq     identity  Adjusted    0.716  0.453  1    
+#> 16 kappa    identity  Adjusted    0.763  0.625  1    
+#> 17 pi       identity  Adjusted    0.761 NA     NA    
+#> 18 s        identity  Adjusted    0.773  0.531  1
 ```
 
 ``` r
 # Plot the bootstrap resampling distributions with confidence intervals
 plot(results1)
+#> Warning: Computation failed in `stat_sample_slabinterval()`:
+#> need at least two non-NA values to interpolate
 ```
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
@@ -141,7 +143,7 @@ print(ordered)
 ``` r
 # Calculate all chance-adjusted indexes for ordered categories (linear weights)
 results2 <- cat_adjusted(ordered, weighting = "linear")
-summary(results2, ci = TRUE)
+summary(results2, ci = TRUE, type = "perc")
 #> 
 #> Call:
 #> cat_adjusted(.data = ordered, weighting = "linear")
@@ -153,42 +155,44 @@ summary(results2, ci = TRUE)
 #> 
 #> Chance-Adjusted Categorical Agreement with Bootstrapped CIs
 #> 
-#>         Observed   Expected   Adjusted   2.5 %   97.5 %
-#> alpha      0.864      0.643      0.618   0.404    0.753
-#> gamma      0.859      0.553      0.686   0.558    0.834
-#> irsq       0.859      0.638      0.612   0.395    0.754
-#> kappa      0.859      0.636      0.614   0.394    0.762
-#> pi         0.859      0.648      0.601   0.375    0.746
-#> s          0.859      0.583      0.663   0.523    0.803
+#>         Observed   Expected   Adjusted   lower   upper
+#> alpha      0.864      0.643      0.618   0.403   0.754
+#> gamma      0.859      0.553      0.686   0.557   0.835
+#> irsq       0.864      0.638      0.624   0.427   0.756
+#> kappa      0.859      0.636      0.614   0.394   0.762
+#> pi         0.859      0.648      0.601   0.375   0.747
+#> s          0.859      0.583      0.663   0.523   0.803
 ```
 
 ``` r
-tidy(results2)
+tidy(results2, type = "perc")
 #> # A tibble: 18 x 6
-#>    approach weighting term     estimate lower upper
-#>    <chr>    <chr>     <chr>       <dbl> <dbl> <dbl>
-#>  1 alpha    linear    Observed    0.864 0.810 0.919
-#>  2 gamma    linear    Observed    0.859 0.801 0.918
-#>  3 irsq     linear    Observed    0.859 0.801 0.918
-#>  4 kappa    linear    Observed    0.859 0.801 0.918
-#>  5 pi       linear    Observed    0.859 0.801 0.918
-#>  6 s        linear    Observed    0.859 0.801 0.918
-#>  7 alpha    linear    Expected    0.643 0.587 0.740
-#>  8 gamma    linear    Expected    0.553 0.467 0.575
-#>  9 irsq     linear    Expected    0.638 0.586 0.726
-#> 10 kappa    linear    Expected    0.636 0.576 0.732
-#> 11 pi       linear    Expected    0.648 0.592 0.741
-#> 12 s        linear    Expected    0.583 0.583 0.583
-#> 13 alpha    linear    Adjusted    0.618 0.404 0.753
-#> 14 gamma    linear    Adjusted    0.686 0.558 0.834
-#> 15 irsq     linear    Adjusted    0.612 0.395 0.754
-#> 16 kappa    linear    Adjusted    0.614 0.394 0.762
-#> 17 pi       linear    Adjusted    0.601 0.375 0.746
-#> 18 s        linear    Adjusted    0.663 0.523 0.803
+#>    approach weighting term     estimate  lower  upper
+#>    <chr>    <chr>     <chr>       <dbl>  <dbl>  <dbl>
+#>  1 alpha    linear    Observed    0.864  0.809  0.919
+#>  2 gamma    linear    Observed    0.859  0.587  0.740
+#>  3 irsq     linear    Observed    0.864  0.403  0.754
+#>  4 kappa    linear    Observed    0.859  0.801  0.918
+#>  5 pi       linear    Observed    0.859  0.467  0.575
+#>  6 s        linear    Observed    0.859  0.557  0.835
+#>  7 alpha    linear    Expected    0.643  0.811  0.919
+#>  8 gamma    linear    Expected    0.553  0.586  0.726
+#>  9 irsq     linear    Expected    0.638  0.427  0.756
+#> 10 kappa    linear    Expected    0.636  0.801  0.918
+#> 11 pi       linear    Expected    0.648  0.576  0.732
+#> 12 s        linear    Expected    0.583  0.394  0.762
+#> 13 alpha    linear    Adjusted    0.618  0.801  0.918
+#> 14 gamma    linear    Adjusted    0.686  0.592  0.741
+#> 15 irsq     linear    Adjusted    0.624  0.375  0.747
+#> 16 kappa    linear    Adjusted    0.614  0.801  0.918
+#> 17 pi       linear    Adjusted    0.601 NA     NA    
+#> 18 s        linear    Adjusted    0.663  0.523  0.803
 ```
 
 ``` r
 plot(results2)
+#> Warning: Computation failed in `stat_sample_slabinterval()`:
+#> need at least two non-NA values to interpolate
 ```
 
 <img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
@@ -198,7 +202,7 @@ Calculate category-specific agreement
 ``` r
 # Calculate category-specific agreement
 results3 <- cat_specific(ordered)
-summary(results3, ci = TRUE)
+summary(results3, ci = TRUE, type = "bca")
 #> 
 #> Call:
 #> cat_specific(.data = ordered)
@@ -209,21 +213,21 @@ summary(results3, ci = TRUE)
 #> 
 #> Category-Specific Agreement with Bootstrapped CIs
 #> 
-#>     Estimate   2.5 %   97.5 %
-#> 0      0.812   0.490    0.954
-#> 1      0.605   0.333    0.771
-#> 2      0.483   0.171    0.711
-#> 3      0.519   0.333    0.667
+#>     Estimate   lower   upper
+#> 0      0.812   0.461   0.948
+#> 1      0.605   0.369   0.792
+#> 2      0.483   0.242   0.767
+#> 3      0.519   0.333   0.667
 ```
 
 ``` r
-tidy(results3)
+tidy(results3, type = "bca")
 #> # A tibble: 4 x 5
 #>   approach           category estimate lower upper
 #>   <chr>                 <dbl>    <dbl> <dbl> <dbl>
-#> 1 Specific Agreement        0    0.812 0.490 0.954
-#> 2 Specific Agreement        1    0.605 0.333 0.771
-#> 3 Specific Agreement        2    0.483 0.171 0.711
+#> 1 Specific Agreement        0    0.812 0.461 0.948
+#> 2 Specific Agreement        1    0.605 0.369 0.792
+#> 3 Specific Agreement        2    0.483 0.242 0.767
 #> 4 Specific Agreement        3    0.519 0.333 0.667
 ```
 

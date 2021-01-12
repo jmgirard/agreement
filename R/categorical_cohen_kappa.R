@@ -4,7 +4,10 @@ cat_kappa <- function(.data, ...) {
 }
 
 # Calculate the kappa coefficient and its components
-calc_kappa <- function(codes, categories, weight_matrix, agreement) {
+calc_kappa <- function(codes, categories, weight_matrix, agreement, ...) {
+
+  # Default to agreement averaged over objects
+  if (is.null(agreement)) agreement <- "objects"
 
   # Calculate percent observed agreement
   poa <- calc_agreement(codes, categories, weight_matrix, agreement)

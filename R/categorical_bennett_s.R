@@ -4,7 +4,10 @@ cat_s <- function(.data, ...) {
 }
 
 # Worker function to calculate the S score and its components
-calc_s <- function(codes, categories, weight_matrix, agreement) {
+calc_s <- function(codes, categories, weight_matrix, agreement, ...) {
+
+  # Default to agreement averaged over objects
+  if (is.null(agreement)) agreement <- "objects"
 
   # Calculate percent observed agreement
   poa <- calc_agreement(codes, categories, weight_matrix, agreement)
