@@ -86,9 +86,15 @@ prep_data_cat <- function(.data,
   out$bootstrap <- bootstrap
 
   # Set up alpha_c
-  assert_that(is.null(alpha_c) || length(alpha_c) == n_cat_possible)
+  assert_that(
+    is.null(alpha_c) ||
+    length(alpha_c) == 1 ||
+    length(alpha_c) == n_cat_possible
+  )
   if ("irsq" %in% approach && is.null(alpha_c)) {
-    alpha_c <- rep(1, n_cat_possible)
+    alpha_c <- rep(1, times = n_cat_possible)
+  } else if ("irsq" %in% approach && length(alpha_c) == 1) {
+    alpha_c <- rep(alpha_c, times = n_cat_possible)
   }
   alpha_c[alpha_c == Inf] <- 1e6
   out['alpha_c'] <- list(alpha_c)

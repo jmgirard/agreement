@@ -13,13 +13,16 @@ knitr::opts_chunk$set(
 )
 set.seed(11)
 ```
+
 # agreement
 
 <!-- badges: start -->
+
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+
 <!-- badges: end -->
 
-The goal of the `agreement` package is to calculate estimates of inter-rater agreement and reliability using generalized formulas that accommodate different designs (e.g., crossed or uncrossed), missing data, and ordered or unordered categories. The package includes generalized functions for all major chance-adjusted indexes of categorical agreement (i.e., &alpha;, &gamma;, Ir2, &kappa;, &pi;, and S) as well as all major intraclass correlation coefficients (i.e., one-way and two-way models, agreement and consistency types, and single measure and average measure units). Estimates include bootstrap resampling distributions, confidence intervals, and custom tidying and plotting functions.
+The goal of the `agreement` package is to calculate estimates of inter-rater agreement and reliability using generalized formulas that accommodate different designs (e.g., crossed or uncrossed), missing data, and ordered or unordered categories. The package includes generalized functions for all major chance-adjusted indexes of categorical agreement (i.e., α, γ, Ir2, κ, π, and S) as well as all major intraclass correlation coefficients (i.e., one-way and two-way models, agreement and consistency types, and single measure and average measure units). Estimates include bootstrap resampling distributions, confidence intervals, and custom tidying and plotting functions.
 
 ## Installation
 
@@ -29,6 +32,7 @@ You can install the development version from [GitHub](https://github.com/) with:
 # install.packages("devtools")
 devtools::install_github("jmgirard/agreement")
 ```
+
 ## Example
 
 Calculate chance-adjusted indexes of categorical agreement for unordered categories
@@ -113,7 +117,6 @@ summary(results4)
 tidy(results4)
 ```
 
-
 ```{r, fig.height = 4}
 plot(results4, intra = FALSE, inter = TRUE)
 ```
@@ -143,6 +146,4 @@ plot(results5)
 
 ## Code of Conduct
 
-Please note that the 'agreement' project is released with a
-[Contributor Code of Conduct](.github/CODE_OF_CONDUCT.md).
-By contributing to this project, you agree to abide by its terms.
+Please note that the 'agreement' project is released with a [Contributor Code of Conduct](.github/CODE_OF_CONDUCT.md). By contributing to this project, you agree to abide by its terms.
