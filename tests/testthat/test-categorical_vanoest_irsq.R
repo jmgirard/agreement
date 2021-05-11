@@ -15,7 +15,7 @@ test_that("irsq equals what was reported in paper", {
     score = Score,
     weighting = "identity"
   )
-  result <- calc_irsq(d$ratings, d$categories, d$weight_matrix, "pairs")
+  result <- calc_irsq(d$ratings, d$categories, d$weight_matrix, "pairs", c(1, 1))
   expect_equal(round(result[[3]], 3), 0.034)
 
   ex2a <- matrix(c(118, 2, 5, 0), nrow = 2, ncol = 2)
@@ -27,7 +27,7 @@ test_that("irsq equals what was reported in paper", {
     score = Score,
     weighting = "identity"
   )
-  result <- calc_irsq(d$ratings, d$categories, d$weight_matrix, "pairs")
+  result <- calc_irsq(d$ratings, d$categories, d$weight_matrix, "pairs", c(1, 1))
   expect_equal(round(result[[3]], 3), 0.089)
 
   ex2b <- ex2a * 4
@@ -39,7 +39,7 @@ test_that("irsq equals what was reported in paper", {
     score = Score,
     weighting = "identity"
   )
-  result <- calc_irsq(d$ratings, d$categories, d$weight_matrix, "pairs")
+  result <- calc_irsq(d$ratings, d$categories, d$weight_matrix, "pairs", c(1, 1))
   expect_equal(round(result[[3]], 3), 0.004)
 
 })
