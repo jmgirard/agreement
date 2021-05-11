@@ -1,0 +1,86 @@
+---
+title: "Custom Weighting Schemes for Categorical Agreement"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Custom Weighting Schemes for Categorical Agreement}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r}
+library(agreement)
+```
+
+Simulate some data of the proposed type (i.e., four raters assigning 100 objects to 4 categories $\{\text{NA}, 0, 1, 2\}$). We will simulate it in wide format first where each object is a row and each rater is a column.
+
+```{r}
+categories <- c("NA", "0", "1", "2")
+wide_data <- 
+  data.frame(
+    r1 = sample(categories, size = 100, replace = TRUE),
+    r2 = sample(categories, size = 100, replace = TRUE),
+    r3 = sample(categories, size = 100, replace = TRUE),
+    r4 = sample(categories, size = 100, replace = TRUE)
+  )
+head(wide_data)
+```
+
+We can now reshape the data to long format in order to give the \{agreement\} package what it expects.
+
+```{r}
+long_data <- agreement::wide_to_long(wide_data)
+long_data
+```
+
+We can now create our custom weight matrix with identity weights for the NA category and linear weights for the 0, 1, and 2 categories.
+
+```{r}
+w <- matrix(
+  data = c(1.0, 0.0, 0.0, 0.0,
+           0.0, 1.0, 0.5, 0.0,
+           0.0, 0.5, 1.0, 0.5,
+           0.0, 0.0, 0.5, 1.0),
+  nrow = 4,
+  ncol = 4
+)
+dimnames(w) <- list(categories, categories)
+w
+```
+
+Now we can calculate all chance-adjusted indexes of categorical agreement using these custom weights. For now, we can turn off bootstrapping by setting `bootstrap = 0`.
+
+```{r}
+agreement::cat_adjusted(
+  long_data,
+  categories = categories,
+  weighting = "custom",
+  custom_weights = w,
+  bootstrap = 0
+)
+```
+
+Here, we see that observed agreement was around 0.4 and the amount of expected chance agreement was around 0.37-0.38. Given that observed agreement was not much higher than expected agreement, chance-adjusted agreement was very low for all metrics (e.g., around 0.04). This makes sense that agreement was poor because the data was randomly generated above so we would not expect much better than chance agreement.
+
+Compare this with using identity weights (treating the four categories as nominal):
+
+```{r}
+agreement::cat_adjusted(
+  long_data,
+  categories = categories,
+  weighting = "identity",
+  bootstrap = 0
+)
+```
+
+The observed and expected agreement are both lower because no partial agreement is being awarded for getting close on the numerical categories.
+
+```{r}
+sessionInfo()
+```

@@ -11,10 +11,11 @@ cat_adjusted(
   score = Score,
   approach = c("alpha", "gamma", "irsq", "kappa", "pi", "s"),
   categories = NULL,
-  weighting = c("identity", "linear", "quadratic"),
+  weighting = c("identity", "linear", "quadratic", "custom"),
   agreement = NULL,
   bootstrap = 2000,
   alpha_c = NULL,
+  custom_weights = NULL,
   warnings = TRUE
 )
 }
@@ -55,9 +56,9 @@ ordering, can be explicitly specified. (default = NULL)}
 \item{weighting}{\emph{Optional.} A single string specifying the type of weighting
 scheme to use. Weighting schemes allow the accommodation of ordered and
 unordered categories with the same formulas. Currently, "identity" weights
-are available for unordered/nominal categories and both "linear" and
-"quadratic" weights are available for ordered categories. (default =
-"identity")}
+are available for unordered/nominal categories, both "linear" and
+"quadratic" weights are available for ordered categories, and "custom"
+weights can be specified via \code{custom_weights}. (default = "identity")}
 
 \item{agreement}{\emph{Optional.} Either \code{NULL} or a single string specifying
 the formula to use in calculating percent observed agreement. Currently,
@@ -77,6 +78,10 @@ bootstrapping, set this argument to 0. (default = 2000)}
 corresponding to the alpha_c parameters in Van Oest's formula. If
 \code{NULL}, and irsq is estimated, a vector of ones will be used to
 implement the uniform prior coefficient. (default = NULL)}
+
+\item{custom_weights}{\emph{Optional.} Either \code{NULL} or a q-by-q weight
+matrix where q is the number of unique categories. Weights must be between
+0 (no credit) and 1 (full credit). (default = NULL)}
 
 \item{warnings}{\emph{Optional.} A single logical value that specifies whether
 warnings should be displayed. (default = TRUE).}

@@ -32,9 +32,9 @@
 #' @param weighting *Optional.* A single string specifying the type of weighting
 #'   scheme to use. Weighting schemes allow the accommodation of ordered and
 #'   unordered categories with the same formulas. Currently, "identity" weights
-#'   are available for unordered/nominal categories and both "linear" and
-#'   "quadratic" weights are available for ordered categories. (default =
-#'   "identity")
+#'   are available for unordered/nominal categories, both "linear" and
+#'   "quadratic" weights are available for ordered categories, and "custom"
+#'   weights can be specified via \code{custom_weights}. (default = "identity")
 #' @param agreement *Optional.* Either \code{NULL} or a single string specifying
 #'   the formula to use in calculating percent observed agreement. Currently,
 #'   "objects" is available to calculate agreement averaged across objects,
@@ -51,6 +51,9 @@
 #'   corresponding to the alpha_c parameters in Van Oest's formula. If
 #'   \code{NULL}, and irsq is estimated, a vector of ones will be used to
 #'   implement the uniform prior coefficient. (default = NULL)
+#' @param custom_weights *Optional.* Either \code{NULL} or a q-by-q weight
+#'   matrix where q is the number of unique categories. Weights must be between
+#'   0 (no credit) and 1 (full credit). (default = NULL)
 #' @param warnings *Optional.* A single logical value that specifies whether
 #'   warnings should be displayed. (default = TRUE).
 #' @return An object of type 'cai' containing the results and details.
@@ -80,10 +83,11 @@ cat_adjusted <- function(.data,
                          score = Score,
                          approach = c("alpha", "gamma", "irsq", "kappa", "pi", "s"),
                          categories = NULL,
-                         weighting = c("identity", "linear", "quadratic"),
+                         weighting = c("identity", "linear", "quadratic", "custom"),
                          agreement = NULL,
                          bootstrap = 2000,
                          alpha_c = NULL,
+                         custom_weights = NULL,
                          warnings = TRUE) {
 
   # Validate inputs
@@ -99,6 +103,8 @@ cat_adjusted <- function(.data,
   assert_that(is.flag(warnings))
   assert_that(is_null(alpha_c) || is.numeric(alpha_c))
 
+  assert_that(is_null(custom_weights) || is.matrix(custom_weights))
+
   # Prepare .data for analysis
   d <- prep_data_cat(
     .data = .data,
@@ -110,6 +116,7 @@ cat_adjusted <- function(.data,
     weighting = weighting,
     agreement = agreement,
     alpha_c = alpha_c,
+    custom_weights = custom_weights,
     bootstrap = bootstrap
   )
 

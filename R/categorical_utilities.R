@@ -8,6 +8,7 @@ prep_data_cat <- function(.data,
                           weighting = "identity",
                           agreement = NULL,
                           alpha_c = NULL,
+                          custom_weights = NULL,
                           bootstrap = 0) {
 
   out <- list()
@@ -78,7 +79,13 @@ prep_data_cat <- function(.data,
 
   # Get weight matrix
   out$weighting <- weighting
-  out$weight_matrix <- calc_weights(weighting, cat_possible)
+  if (weighting == "custom") {
+    assert_that(ncol(custom_weights) == nrow(custom_weights))
+    assert_that(ncol(custom_weights) == n_cat_possible)
+    out$weight_matrix <- custom_weights
+  } else {
+    out$weight_matrix <- calc_weights(weighting, cat_possible)
+  }
 
   # Add other information to d
   out$approach <- approach
