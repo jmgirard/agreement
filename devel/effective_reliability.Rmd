@@ -1,0 +1,23 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+rsb <- function(n, r) { (n*r) / (1 + (n - 1) * r) }
+n <- c(10, 15, 25, 50, 100)
+r <- seq(0, 1, by = 0.01)
+m <- 
+  expand.grid(n, r) %>% 
+  as_tibble() %>% 
+  set_names("n", "r") %>%
+  mutate(Rsb = rsb(n, r)) %>% 
+  pivot_wider(names_from = n, values_from = Rsb, names_prefix = "n") %>%   
+  mutate(across(everything(), round, digits = 2)) %>% 
+  print()
+```
+
