@@ -15,7 +15,10 @@ knitr::opts_chunk$set(
 ```
 
 ```{r}
+#install.packages("devtools")
+#devtools::install_github("jmgirard/agreement")
 library(agreement)
+set.seed(2021)
 ```
 
 Simulate some data of the proposed type (i.e., four raters assigning 100 objects to 4 categories $\{\text{NA}, 0, 1, 2\}$). We will simulate it in wide format first where each object is a row and each rater is a column.
@@ -66,9 +69,13 @@ agreement::cat_adjusted(
 )
 ```
 
-Here, we see that observed agreement was around 0.4 and the amount of expected chance agreement was around 0.37-0.38. Given that observed agreement was not much higher than expected agreement, chance-adjusted agreement was very low for all metrics (e.g., around 0.04). This makes sense that agreement was poor because the data was randomly generated above so we would not expect much better than chance agreement.
+Here, we see that observed agreement was around 0.37 and the amount of expected chance agreement was around 0.37-0.38. Given that observed agreement was lower than expected chance agreement, chance-adjusted agreement was very low for all metrics (e.g., around -0.01). This makes sense that agreement was poor because the data was randomly generated above.
 
 Compare this with using identity weights (treating the four categories as nominal):
+
+```{r}
+agreement::calc_weights("identity", categories)
+```
 
 ```{r}
 agreement::cat_adjusted(
@@ -79,7 +86,7 @@ agreement::cat_adjusted(
 )
 ```
 
-The observed and expected agreement are both lower because no partial agreement is being awarded for getting close on the numerical categories.
+The observed and expected agreement are both lower because no partial agreement is being awarded for getting close on the numerical categories. However, their proportions are similar so the adjusted indexes are similar.
 
 ```{r}
 sessionInfo()
