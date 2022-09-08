@@ -1,5 +1,8 @@
 #' @export
 cat_per_object <- function(.data,
+                           object = Object,
+                           rater = Rater,
+                           score = Score,
                            categories = NULL,
                            weighting = c("identity", "linear", "quadratic"),
                            warnings = TRUE) {
@@ -9,13 +12,20 @@ cat_per_object <- function(.data,
   weighting <- match.arg(weighting)
 
   # Prepare .data for analysis
-  d <- prep_data_cat(.data, categories, weighting, warnings)
+  d <- prep_data_cat(
+    .data,
+    object = Object,
+    rater = Rater,
+    score = Score,
+    categories = categories,
+    weighting = weighting
+  )
 
   # Calculate weighted agreement per object
-  obs_o <- calc_agreement_object(d$codes, d$categories, d$weight_matrix)
+  obs_o <- calc_agreement_object(d$ratings, d$categories, d$weight_matrix)
 
   # Create output tibble
-  out <- tibble(Object = names(obs_o), Weighting = weighting, Agreement = obs_o)
+  out <- tibble(Object = d$objects, Weighting = weighting, Agreement = obs_o)
 
   out
 }
